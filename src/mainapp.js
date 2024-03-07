@@ -41,7 +41,10 @@ app.use('/api/v1/user', userRouter)
 app.use('/api/v1/package',  packageRouter)
 app.use("/api/v1/deposit", depositRoute )
 app.use("/api/v1/booking",  bookingRouter )
+
+console.log('here')
 app.get("/", (req, res, next) => {
+  console.log('now')
   res.send("Welcome to Fly Far Trips V1.0");
 });
 
