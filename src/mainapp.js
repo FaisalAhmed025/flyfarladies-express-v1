@@ -26,14 +26,18 @@ app.use(
   })
 );
 //parser
-app.use(logger("combine"));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // routes
 
-app.get("/", (req, res, next) => {
-  res.send("Welcome to Fly Far Trips V1.0");
+
+
+app.get("/",(req, res) => {
+
+
+    res.send("Welcome to *****");
 });
 
 //handle not found
