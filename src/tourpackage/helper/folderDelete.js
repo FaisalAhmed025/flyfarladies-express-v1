@@ -1,3 +1,4 @@
+/*
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -99,3 +100,4 @@ export function removeFileExtension(filename) {
 
   return finalFilename;
 }
+*/

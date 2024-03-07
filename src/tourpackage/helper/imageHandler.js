@@ -1,3 +1,4 @@
+/*
 
 import {
   convertToWebP,
@@ -22,7 +23,7 @@ export const handleMultipleImage = async (req, res, next) =>
 export const storeMultipleImage = async (req, res, next) =>
   await storeData(req, res, next, 'createuser', 'id');
 
-/*   common function for image handler */
+/!*   common function for image handler *!/
 async function saveOnGCP(req) {
   const uniqueSuffix = req.file.originalname.split(' ').join('-');
   req.file.originalname = `${uniqueSuffix}_${Date.now()}.pdf`;
@@ -58,7 +59,7 @@ async function saveOnGCP(req) {
   //console.log('berofe undefine')
   return publicUrl;
 }
-/* end of common function */
+/!* end of common function *!/
 //   for single image handle
 export const imageHandler = async (req, res, next) => {
   try {
@@ -278,3 +279,4 @@ export const handlePassportVisa = async (req, res, next) => {
     next(err);
   }
 };
+*/

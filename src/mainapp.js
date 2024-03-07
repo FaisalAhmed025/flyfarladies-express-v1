@@ -18,9 +18,9 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: [
-      "https://www.flyfarladies.com/",
+      "https://www.flyfarladies.com",
       "https://localhost:3000",
-      "https://erp.flyfar.org/",
+      "https://erp.flyfar.org",
     ], // Replace with your React app's URL
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     responseHeader: [
