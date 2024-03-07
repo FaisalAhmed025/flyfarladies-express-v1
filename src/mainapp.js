@@ -4,10 +4,12 @@ import httpStatus from "http-status";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
+/*
 import packageRouter from './routes/packageroute'
 import userRouter from './routes/userRoute'
 import depositRoute from './deposit/depositeRoute'
 import bookingRouter  from './booking/bookingRoute';
+*/
 
 const app = express();
 app.use(express.json());
@@ -33,14 +35,14 @@ app.use(
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+
 
 // routes
 
-app.use('/api/v1/user', userRouter)
+/*app.use('/api/v1/user', userRouter)
 app.use('/api/v1/package',  packageRouter)
 app.use("/api/v1/deposit", depositRoute )
-app.use("/api/v1/booking",  bookingRouter )
+app.use("/api/v1/booking",  bookingRouter )*/
 
 console.log('here')
 app.get("/", (req, res, next) => {

@@ -1,3 +1,4 @@
+/*
 
 import httpStatus from "http-status";
 
@@ -265,4 +266,4 @@ console.log(totalpackageprice);
 
 export const BookingService = {
   Book$Hold
-}
+}*/

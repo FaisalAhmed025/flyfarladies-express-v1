@@ -1,3 +1,4 @@
+/*
 import { BookingService } from "./bookingservice";
 
 
@@ -13,4 +14,4 @@ const Book$Hold  = async (req, res) => {
 
 export const bookingController = {
   Book$Hold
-}
+}*/

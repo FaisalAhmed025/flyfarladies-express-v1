@@ -1,3 +1,4 @@
+/*
 
 
 import httpStatus from "http-status";
@@ -124,4 +125,4 @@ export const depositeControlller = {
   updateDepositStatus,
   approvedCashDEposit,
   approvedCheckDeposit
-};
+};*/

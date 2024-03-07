@@ -1,3 +1,4 @@
+/*
 import { HttpException } from "express-sharp";
 import { deleteImageFromURL } from "../tourpackage/service/service";
 import httpStatus from "http-status";
@@ -350,3 +351,4 @@ export const depositeService = {
   ApprovedCashDeposit,
   ApprovedCheckDeposit
 };
+*/

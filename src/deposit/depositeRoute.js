@@ -1,3 +1,4 @@
+/*
 import { upload } from "../tourpackage/middleware/imageUpload.midleware";
 
 
@@ -46,4 +47,4 @@ router.put(
   depositeControlller.approvedCheckDeposit
 );
 
-export default router;
+export default router;*/

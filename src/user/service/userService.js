@@ -1,3 +1,4 @@
+/*
 
 import jwt from "jsonwebtoken";
 import pool from "../../database/db";
@@ -272,4 +273,4 @@ export const UserService ={
   updateTraveler,
   myTravelerList,
   deleteTraveller
-};
+};*/

@@ -1,3 +1,4 @@
+/*
 
 import { tourpackageController } from "../tourpackage/controller/controller";
 
@@ -33,4 +34,4 @@ router.put(
   tourpackageController.updateAlbumController
 );
 
-export default router;
+export default router;*/

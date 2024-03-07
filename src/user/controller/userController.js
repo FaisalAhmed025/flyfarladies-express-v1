@@ -1,3 +1,4 @@
+/*
 import httpStatus from "http-status";
 import { UserService } from "../service/userService";
 
@@ -127,3 +128,4 @@ export const userController = {
 }
 
 
+*/

@@ -1,3 +1,4 @@
+/*
 import httpStatus from "http-status";
 import { tourpackageService } from "../service/service";
 
@@ -521,4 +522,4 @@ export const tourpackageController = {
   updateAlbumController,
   updatePackage,
   updateMainImageController
-}
+}*/

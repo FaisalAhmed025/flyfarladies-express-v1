@@ -1,3 +1,4 @@
+/*
 
 
 import multer from "multer";
@@ -1401,3 +1402,4 @@ export const tourpackageService = {
   updateTourPackage,
   UpdateMainImage
 };
+*/

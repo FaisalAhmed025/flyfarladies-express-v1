@@ -1,3 +1,4 @@
+/*
 import { tourpackageController } from '../tourpackage/controller/controller';
 import express from 'express';
 import { userController } from '../user/controller/userController.js';
@@ -19,3 +20,4 @@ router.delete('/mytraveller/:partnerId', userController.deleteTraveller)
 // router.post('/add', tourpackageController.addpackage)
 
 export default router;
+*/
