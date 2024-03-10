@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "npx babel src -d dist",
-    "dev": "nodemon --exec babel-node src/mainapp.js",
-    "start": "node dist/mainapp.js",
+    "dev": "nodemon --exec babel-node src/server.js",
+    "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

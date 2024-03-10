@@ -4,7 +4,6 @@ import httpStatus from "http-status";
 import cookieParser from "cookie-parser";
 
 import logger from "morgan";
-// import packageRouter from './routes/packageroute'
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -25,6 +24,7 @@ app.use(
     credentials: true, // Include cookies and other credentials
   })
 );
+
 //parser
 app.use(logger("dev"));
 app.use(express.json());
@@ -33,7 +33,6 @@ app.use(express.urlencoded({ extended: false }));
 // routes
 
 
-// app.use('/api/v1/package',  packageRouter)
 
 
 app.get("/",(req, res) => {
@@ -55,12 +54,5 @@ app.use((req, res, next) => {
   });
   next();
 });
-
-
-  app.listen(3003, () => {
-    console.log(`Application listening on port 3003`);
-  });
-
-
 
 module.exports = app;
