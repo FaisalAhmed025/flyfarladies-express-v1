@@ -1,16 +1,16 @@
 import mysql from 'mysql2/promise'
 const db = {
-    port: 3306,
-    host: '127.0.0.1',
-    user: 'root',
-    password: '',
-    database: 'flyfarexpress',
+    // port: 3306,
+    // host: '127.0.0.1',
+    // user: 'root',
+    // password: '',
+    // database: 'flyfarexpress',
 
 
-    // host: 'flyfarint.com',
-    // user: 'flyfarin_fflv2',
-    // password: '123Next2$',
-    // database: 'flyfarin_fflv2',
+    host: 'flyfarint.com',
+    user: 'flyfarin_fflv2',
+    password: '123Next2$',
+    database: 'flyfarin_fflv2',
 };
 export const pool = mysql.createPool(db);
 
