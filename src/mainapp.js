@@ -36,7 +36,6 @@ app.use(express.urlencoded({ extended: false }));
 
 
 app.get("/",(req, res) => {
-
     res.send("Welcome to *****");
 });
 
@@ -55,4 +54,10 @@ app.use((req, res, next) => {
   next();
 });
 
-module.exports = app;
+
+
+  app.listen(4004, () => {
+    console.log(`Application listening on port 4004 `);
+  });
+
+
