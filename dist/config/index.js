@@ -12,5 +12,5 @@ _dotenv["default"].config({
 });
 var _default = exports["default"] = {
   env: process.env.NODE_ENV,
-  port: 3000
+  port: process.env.PORT || 3000
 };

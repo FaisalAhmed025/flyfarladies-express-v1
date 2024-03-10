@@ -2,8 +2,9 @@ import cors from "cors";
 import express from "express";
 import httpStatus from "http-status";
 import cookieParser from "cookie-parser";
-
+import bodyParser from "body-parser";
 import logger from "morgan";
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -24,19 +25,15 @@ app.use(
     credentials: true, // Include cookies and other credentials
   })
 );
-
 //parser
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(bodyParser.json());
 // routes
 
-
-
-
-app.get("/",(req, res) => {
-    res.send("Welcome to *****");
+app.get("/", (req, res, next) => {
+  res.send("Welcome to Fly Far Trips V1.0");
 });
 
 //handle not found
@@ -54,10 +51,4 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
-  app.listen(4004, () => {
-    console.log(`Application listening on port 4004 `);
-  });
-
-
+module.exports = app;
