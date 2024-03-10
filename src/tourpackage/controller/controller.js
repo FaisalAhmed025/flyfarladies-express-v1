@@ -60,6 +60,7 @@ const mainimage = async (req, res) => {
   }
 };
 
+
 const updateMainImageController = async (req, res) => {
   try {
     const imageId = req.params.imageId;
@@ -85,6 +86,7 @@ const updateMainImageController = async (req, res) => {
     });
   }
 };
+
 const createPlaceVisit = async (req, res) => {
   try {
     const PkID = req.params.PkID;

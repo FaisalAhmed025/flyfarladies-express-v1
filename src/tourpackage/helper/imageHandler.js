@@ -1,9 +1,6 @@
 
 import {
-  convertToWebP,
   deleteFile,
-  deleteFolderRecursive,
-  removeFileExtension,
 } from './folderDelete';
 import { Storage } from '@google-cloud/storage';
 import sharp from 'sharp';
@@ -117,6 +114,9 @@ export async function deleteImageFromURL(url) {
     console.error(`Error deleting image: ${error}`);
   }
 }
+
+
+
 export const storeData = async (req, res, next, table, id) => {
   try {
     const connection = await pool.getConnection();
