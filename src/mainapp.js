@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
 
+import tourpackageRoute from './tourpackage/router'
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -31,6 +33,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 // routes
+
+app.use('/api/v1/package',  tourpackageRoute)
 
 app.get("/", (req, res, next) => {
   res.send("Welcome to Fly Far Trips V1.0");
