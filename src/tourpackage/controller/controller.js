@@ -385,32 +385,32 @@
 
 
 
-const getSingleTourPackages = async (req, res, next) => {
-  try {
-    const id = req.params.PkID; 
-    const result = await tourpackageService.getSingleTourPackages(id);
+// const getSingleTourPackages = async (req, res, next) => {
+//   try {
+//     const id = req.params.PkID; 
+//     const result = await tourpackageService.getSingleTourPackages(id);
 
-    // Check if the result is an error
-    if (result instanceof Error) {
-      return res.status(500).json({
-        error: 'An error occurred while retrieving tour packages',
-      });
-    }
+//     // Check if the result is an error
+//     if (result instanceof Error) {
+//       return res.status(500).json({
+//         error: 'An error occurred while retrieving tour packages',
+//       });
+//     }
 
-    return res.status(200).json({
-      success: true,
-      status: httpStatus.OK,
-      message: 'tour packages retrieved successfully',
-      data: result,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       status: httpStatus.OK,
+//       message: 'tour packages retrieved successfully',
+//       data: result,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 
 
@@ -504,7 +504,7 @@ const getSingleTourPackages = async (req, res, next) => {
 //   }
 // };
 
-export const tourpackageController = {
+// export const tourpackageController = {
   // getAllTourPackages,
   // addpackage,
   // mainimage,
@@ -519,9 +519,9 @@ export const tourpackageController = {
   // createCancelationPolicy,
   // createHighlights,
   // addAddOnsController,
-  getSingleTourPackages
+  // getSingleTourPackages
   // createAlbumimage,
   // updateAlbumController,
   // updatePackage,
   // updateMainImageController
-}
+// }

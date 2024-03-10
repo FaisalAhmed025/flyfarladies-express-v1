@@ -1156,187 +1156,187 @@
 // };
 
 
-const getSingleTourPackages = async (PkID) => {
-  console.log("i am id", PkID);
-  try {
-    const tourPackageQuery = `
-    SELECT
-      tourpackage.PkID AS tour_package_id,
-      tourpackage.PkID,
-      tourpackage.MainTitle,
-      tourpackage.TripType,
-      tourpackage.Location,
-      tourpackage.StartDate,
-      tourpackage.EndDate,
-      tourpackage.AvailableSeats,
-      tourpackage.PricePerAdult,
-      tourpackage.PricePerChild,
-      tourpackage.PricePerInfant,
-      tourpackage.GirlsTrip,
-      tourpackage.PackageOverview,
-      tourpackage.MinimumAge,
-      tourpackage.MaximumAge,
-      tourpackage.Price,
-      tourpackage.City,
-      tourpackage.Discount,
-      tourpackage.SelfGuided,
-      tourpackage.Flight,
-      tourpackage.Food,
-      tourpackage.Transport,
-      tourpackage.FullyGuided,
-      tourpackage.coverImage  -- Assuming there's a column in main_image for the image URL
-    FROM
-      tourpackage
+// const getSingleTourPackages = async (PkID) => {
+//   console.log("i am id", PkID);
+//   try {
+//     const tourPackageQuery = `
+//     SELECT
+//       tourpackage.PkID AS tour_package_id,
+//       tourpackage.PkID,
+//       tourpackage.MainTitle,
+//       tourpackage.TripType,
+//       tourpackage.Location,
+//       tourpackage.StartDate,
+//       tourpackage.EndDate,
+//       tourpackage.AvailableSeats,
+//       tourpackage.PricePerAdult,
+//       tourpackage.PricePerChild,
+//       tourpackage.PricePerInfant,
+//       tourpackage.GirlsTrip,
+//       tourpackage.PackageOverview,
+//       tourpackage.MinimumAge,
+//       tourpackage.MaximumAge,
+//       tourpackage.Price,
+//       tourpackage.City,
+//       tourpackage.Discount,
+//       tourpackage.SelfGuided,
+//       tourpackage.Flight,
+//       tourpackage.Food,
+//       tourpackage.Transport,
+//       tourpackage.FullyGuided,
+//       tourpackage.coverImage  -- Assuming there's a column in main_image for the image URL
+//     FROM
+//       tourpackage
 
-    WHERE
-      tourpackage.PkID = ?;
-  `;
+//     WHERE
+//       tourpackage.PkID = ?;
+//   `;
 
-    const [tourPackageResults] = await pool.query(tourPackageQuery, [PkID]);
+//     const [tourPackageResults] = await pool.query(tourPackageQuery, [PkID]);
 
-    console.log(tourPackageResults);
-    if (tourPackageResults.length === 0) {
-      return null; // Tour package not found
-    }
+//     console.log(tourPackageResults);
+//     if (tourPackageResults.length === 0) {
+//       return null; // Tour package not found
+//     }
 
 
-    const tourPackagesData = [];
-    const tourPackageData = {
-      PkID: tourPackageResults[0].PkID,
-      tourpack_id: tourPackageResults[0].tourpack_id,
-      MainTitle: tourPackageResults[0].MainTitle,
-      TripType: tourPackageResults[0].TripType,
-      Location: tourPackageResults[0].Location,
-      StartDate: tourPackageResults[0].StartDate,
-      EndDate: tourPackageResults[0].EndDate,
-      trip_days: tourPackageResults[0].trip_days,
-      trip_nights: tourPackageResults[0].trip_nights,
-      AvailableSeats: tourPackageResults[0].AvailableSeats,
-      MinimumAge: tourPackageResults[0].MinimumAge,
-      MaximumAge: tourPackageResults[0].MaximumAge,
-      PricePerAdult: tourPackageResults[0].PricePerAdult,
-      PricePerChild: tourPackageResults[0].PricePerChild,
-      PricePerInfant: tourPackageResults[0].PricePerInfant,
-      Discount: tourPackageResults[0].Discount,
-      PackageOverview: tourPackageResults[0].PackageOverview,
-      booking_money_due_date: tourPackageResults[0].booking_money_due_date,
-      first_installment_due_date:
-        tourPackageResults[0].first_installment_due_date,
-      second_installment_due_date:
-        tourPackageResults[0].second_installment_due_date,
-      booking_money: tourPackageResults[0].booking_money,
-      first_installment: tourPackageResults[0].first_installment,
-      second_installment: tourPackageResults[0].second_installment,
-      total_booking_money:
-        (parseInt(
-          tourPackageResults[0].adult_base_price +
-          tourPackageResults[0].infant_base_price +
-          tourPackageResults[0].child_base_price
-        ) *
-          parseFloat(tourPackageResults[0].booking_money)) /
-        100,
-      total_first_installment:
-        (parseInt(
-          tourPackageResults[0].adult_base_price +
-          tourPackageResults[0].infant_base_price +
-          tourPackageResults[0].child_base_price
-        ) *
-          parseFloat(tourPackageResults[0].first_installment)) /
-        100,
-      total_second_installment:
-        (parseInt(
-          tourPackageResults[0].adult_base_price +
-          tourPackageResults[0].infant_base_price +
-          tourPackageResults[0].child_base_price
-        ) *
-          parseFloat(tourPackageResults[0].second_installment)) /
-        100,
-      GirlsTrip: tourPackageResults[0].GirlsTrip,
-      Flight: tourPackageResults[0].Flight,
-      accommodation: tourPackageResults[0].accommodation,
-      Food: tourPackageResults[0].Food,
-      Transport: tourPackageResults[0].Transport,
-      guide: tourPackageResults[0].guide,
-      Availability: tourPackageResults[0].Availability,
-      show_on_this_on_home_page:
-        tourPackageResults[0].show_on_this_on_home_page,
-      popular_destination: tourPackageResults[0].popular_destination,
-      day_trip: tourPackageResults[0].day_trip,
-      night_out_trip: tourPackageResults[0].night_out_trip,
-      FullyGuided: tourPackageResults[0].FullyGuided,
-      family: tourPackageResults[0].family,
-      SelfGuided: tourPackageResults[0].SelfGuided,
-      friendly: tourPackageResults[0].friendly,
-      child: tourPackageResults[0].child,
-      aged: tourPackageResults[0].aged,
-      adt_tax: tourPackageResults[0].adt_tax,
-      chd_tax: tourPackageResults[0].chd_tax,
-      inf_tax: tourPackageResults[0].inf_tax,
-      coverImage: tourPackageResults[0].coverImage,
-      total_price: parseInt(
-        tourPackageResults[0].adult_base_price +
-        tourPackageResults[0].infant_base_price +
-        tourPackageResults[0].child_base_price
-      ),
-      country:
-        tourPackageResults[0].country &&
-          tourPackageResults[0].country[0].country
-          ? tourPackageResults[0].country[0].country.map((entry) => ({
-            city: entry.city,
-            country: entry.country,
-          }))
-          : [],
-      main_image: [],
-      tour_plan: [], // Change here from tour_itinerary to tour_plan
-      booking_policy: [],
-      place_to_visit: [],
-      inclusion: [],
-      exclusion: [],
-      highlights: [],
-      cancellation_policy: [],
-      albumImage: [],
-    };
-    const [
-      getmainimg,
-      tourPlan,
-      visitedPlaces,
-      inclusions,
-      exclusion,
-      highlights,
-      bookingPolicy,
-      cancellationPolicy,
-      albumImage,
-      addOns,
-    ] = await Promise.all([
-      getmainimage(tourPackageData.PkID),
-      getTourPlan(tourPackageData.PkID),
-      getVisitedPlace(tourPackageData.PkID),
-      getInclusion(tourPackageData.PkID),
-      getExclusion(tourPackageData.PkID),
-      getHighlights(tourPackageData.PkID),
-      getBookingPolicy(tourPackageData.PkID),
-      getCancellationPolicy(tourPackageData.PkID),
-      getalbumImage(tourPackageData.PkID),
+//     const tourPackagesData = [];
+//     const tourPackageData = {
+//       PkID: tourPackageResults[0].PkID,
+//       tourpack_id: tourPackageResults[0].tourpack_id,
+//       MainTitle: tourPackageResults[0].MainTitle,
+//       TripType: tourPackageResults[0].TripType,
+//       Location: tourPackageResults[0].Location,
+//       StartDate: tourPackageResults[0].StartDate,
+//       EndDate: tourPackageResults[0].EndDate,
+//       trip_days: tourPackageResults[0].trip_days,
+//       trip_nights: tourPackageResults[0].trip_nights,
+//       AvailableSeats: tourPackageResults[0].AvailableSeats,
+//       MinimumAge: tourPackageResults[0].MinimumAge,
+//       MaximumAge: tourPackageResults[0].MaximumAge,
+//       PricePerAdult: tourPackageResults[0].PricePerAdult,
+//       PricePerChild: tourPackageResults[0].PricePerChild,
+//       PricePerInfant: tourPackageResults[0].PricePerInfant,
+//       Discount: tourPackageResults[0].Discount,
+//       PackageOverview: tourPackageResults[0].PackageOverview,
+//       booking_money_due_date: tourPackageResults[0].booking_money_due_date,
+//       first_installment_due_date:
+//         tourPackageResults[0].first_installment_due_date,
+//       second_installment_due_date:
+//         tourPackageResults[0].second_installment_due_date,
+//       booking_money: tourPackageResults[0].booking_money,
+//       first_installment: tourPackageResults[0].first_installment,
+//       second_installment: tourPackageResults[0].second_installment,
+//       total_booking_money:
+//         (parseInt(
+//           tourPackageResults[0].adult_base_price +
+//           tourPackageResults[0].infant_base_price +
+//           tourPackageResults[0].child_base_price
+//         ) *
+//           parseFloat(tourPackageResults[0].booking_money)) /
+//         100,
+//       total_first_installment:
+//         (parseInt(
+//           tourPackageResults[0].adult_base_price +
+//           tourPackageResults[0].infant_base_price +
+//           tourPackageResults[0].child_base_price
+//         ) *
+//           parseFloat(tourPackageResults[0].first_installment)) /
+//         100,
+//       total_second_installment:
+//         (parseInt(
+//           tourPackageResults[0].adult_base_price +
+//           tourPackageResults[0].infant_base_price +
+//           tourPackageResults[0].child_base_price
+//         ) *
+//           parseFloat(tourPackageResults[0].second_installment)) /
+//         100,
+//       GirlsTrip: tourPackageResults[0].GirlsTrip,
+//       Flight: tourPackageResults[0].Flight,
+//       accommodation: tourPackageResults[0].accommodation,
+//       Food: tourPackageResults[0].Food,
+//       Transport: tourPackageResults[0].Transport,
+//       guide: tourPackageResults[0].guide,
+//       Availability: tourPackageResults[0].Availability,
+//       show_on_this_on_home_page:
+//         tourPackageResults[0].show_on_this_on_home_page,
+//       popular_destination: tourPackageResults[0].popular_destination,
+//       day_trip: tourPackageResults[0].day_trip,
+//       night_out_trip: tourPackageResults[0].night_out_trip,
+//       FullyGuided: tourPackageResults[0].FullyGuided,
+//       family: tourPackageResults[0].family,
+//       SelfGuided: tourPackageResults[0].SelfGuided,
+//       friendly: tourPackageResults[0].friendly,
+//       child: tourPackageResults[0].child,
+//       aged: tourPackageResults[0].aged,
+//       adt_tax: tourPackageResults[0].adt_tax,
+//       chd_tax: tourPackageResults[0].chd_tax,
+//       inf_tax: tourPackageResults[0].inf_tax,
+//       coverImage: tourPackageResults[0].coverImage,
+//       total_price: parseInt(
+//         tourPackageResults[0].adult_base_price +
+//         tourPackageResults[0].infant_base_price +
+//         tourPackageResults[0].child_base_price
+//       ),
+//       country:
+//         tourPackageResults[0].country &&
+//           tourPackageResults[0].country[0].country
+//           ? tourPackageResults[0].country[0].country.map((entry) => ({
+//             city: entry.city,
+//             country: entry.country,
+//           }))
+//           : [],
+//       main_image: [],
+//       tour_plan: [], // Change here from tour_itinerary to tour_plan
+//       booking_policy: [],
+//       place_to_visit: [],
+//       inclusion: [],
+//       exclusion: [],
+//       highlights: [],
+//       cancellation_policy: [],
+//       albumImage: [],
+//     };
+//     const [
+//       getmainimg,
+//       tourPlan,
+//       visitedPlaces,
+//       inclusions,
+//       exclusion,
+//       highlights,
+//       bookingPolicy,
+//       cancellationPolicy,
+//       albumImage,
+//       addOns,
+//     ] = await Promise.all([
+//       getmainimage(tourPackageData.PkID),
+//       getTourPlan(tourPackageData.PkID),
+//       getVisitedPlace(tourPackageData.PkID),
+//       getInclusion(tourPackageData.PkID),
+//       getExclusion(tourPackageData.PkID),
+//       getHighlights(tourPackageData.PkID),
+//       getBookingPolicy(tourPackageData.PkID),
+//       getCancellationPolicy(tourPackageData.PkID),
+//       getalbumImage(tourPackageData.PkID),
 
-      // getAddOns(tourPackageData.id),
-    ]);
+//       // getAddOns(tourPackageData.id),
+//     ]);
 
-    tourPackageData.main_image = getmainimg;
-    tourPackageData.tour_plan = tourPlan;
-    tourPackageData.place_to_visit = visitedPlaces;
-    tourPackageData.inclusion = inclusions;
-    tourPackageData.exclusion = exclusion;
-    tourPackageData.highlights = highlights;
-    tourPackageData.booking_policy = bookingPolicy;
-    tourPackageData.cancellation_policy = cancellationPolicy;
-    tourPackageData.albumImage = albumImage;
-    // tourPackageData.add_ons = addOns;
-    tourPackagesData.push(tourPackageData);
-    return tourPackageData;
-  } catch (error) {
-    throw error;
-  }
-};
+//     tourPackageData.main_image = getmainimg;
+//     tourPackageData.tour_plan = tourPlan;
+//     tourPackageData.place_to_visit = visitedPlaces;
+//     tourPackageData.inclusion = inclusions;
+//     tourPackageData.exclusion = exclusion;
+//     tourPackageData.highlights = highlights;
+//     tourPackageData.booking_policy = bookingPolicy;
+//     tourPackageData.cancellation_policy = cancellationPolicy;
+//     tourPackageData.albumImage = albumImage;
+//     // tourPackageData.add_ons = addOns;
+//     tourPackagesData.push(tourPackageData);
+//     return tourPackageData;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 
 // const getAllTourPackages = async () => {
@@ -1378,24 +1378,24 @@ const getSingleTourPackages = async (PkID) => {
 // };
 
 
-export const tourpackageService = {
-  // getAllTourPackages,
-  // addtourpackage,
-  // MainImage,
-  // createPlaceVisit,
-  // createTourPlan,
-  // getTourPlan,
-  // deleteTourPlanEvents,
-  // createInclusion,
-  // createExclusion,
-  // createBookingPolicy,
-  // createCancelationPolicy,
-  // createHighlights,
-  // createAddOns,
-  getSingleTourPackages
-  // getBookingPolicy,
-  // createAlbumImage,
-  // UpdateAlbumImage,
-  // updateTourPackage,
-  // UpdateMainImage
-};
+// export const tourpackageService = {
+//   // getAllTourPackages,
+//   // addtourpackage,
+//   // MainImage,
+//   // createPlaceVisit,
+//   // createTourPlan,
+//   // getTourPlan,
+//   // deleteTourPlanEvents,
+//   // createInclusion,
+//   // createExclusion,
+//   // createBookingPolicy,
+//   // createCancelationPolicy,
+//   // createHighlights,
+//   // createAddOns,
+//   // getSingleTourPackages
+//   // getBookingPolicy,
+//   // createAlbumImage,
+//   // UpdateAlbumImage,
+//   // updateTourPackage,
+//   // UpdateMainImage
+// };

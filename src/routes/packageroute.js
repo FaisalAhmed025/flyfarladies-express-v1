@@ -1,7 +1,7 @@
 
-import { tourpackageController } from "../tourpackage/controller/controller";
-import express from 'express';
-const router = express.Router();
+// import { tourpackageController } from "../tourpackage/controller/controller";
+// import express from 'express';
+// const router = express.Router();
 
 // import { upload } from "../tourpackage/middleware/imageUpload.midleware";
 // import { MultipleImageHandler, handleMultipleImage, imageHandler, imageHandlerUpdate } from "../tourpackage/helper/imageHandler";
@@ -28,7 +28,7 @@ const router = express.Router();
 // router.post('/createaddons/:PkID', tourpackageController.addAddOnsController)
 
 
-router.get('/get-tour-package/:PkID', tourpackageController.getSingleTourPackages)
+// router.get('/get-tour-package/:PkID', tourpackageController.getSingleTourPackages)
 
 // router.get('/get-all-tour', tourpackageController.getAllTourPackages)
 // router.put(
@@ -37,4 +37,4 @@ router.get('/get-tour-package/:PkID', tourpackageController.getSingleTourPackage
 //   tourpackageController.updateAlbumController
 // );
 
-export default router;
+// export default router;
