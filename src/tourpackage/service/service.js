@@ -1,8 +1,6 @@
 
-
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
-import httpStatus from "http-status";
 import pool from "../../database/db";
 
 

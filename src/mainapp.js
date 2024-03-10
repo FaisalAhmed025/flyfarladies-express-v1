@@ -34,8 +34,9 @@ app.use(express.urlencoded({ extended: false }));
 
 
 app.use('/api/v1/package',  packageRouter)
-app.get("/",(req, res) => {
 
+
+app.get("/",(req, res) => {
 
     res.send("Welcome to *****");
 });
@@ -54,5 +55,12 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+
+  app.listen(3000, () => {
+    console.log(`Application listening on port 3000`);
+  });
+
+
 
 module.exports = app;
