@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "quickticketsb2b-nodejs",
+  "private_key_id": "9ce694ddbd9ea9fbbfd84dc9cc2fa1fd580c191e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC/VuaqLA/6zxI4\nAEey9IL7/i4UnnpH6SHwDrqkjioh78hw7x2KjJg28beO4R91ovYZOaTEtkX3Yd6V\n4Mb6N5+cqfv/ljJfZAJmoA10tlqYQPL32hWdxSGhNF4ZFtT84zWdClAfH4RQ7SmC\nWZ37cbq0e/Vog5y8Kyn6OBFB5CCNsyTXO68bFsIizrRpTIT5Zv2iz5U93FXk/GCh\niiOW2Hk2Lg0ya1rn+cyMlahdRgyJp6l9DvfInDASe1ATINPisuGm31Z+AQnKI3Ns\n2qOyS9M9xRC7l6NJYMhQ5mTJZRfr2X0oQ+w5nhz/Znk+nkqHw5VGxGWIxRJbZFX3\njj2PxkxVAgMBAAECggEABPXouNs3wSx1VWCD0LAq+tkCEqnxfiPywQxEtaeeOy8s\nrr7dm3Nd2TjRkIxQxOY9bqB9CiuL61K30wIW7ohFef853Qxkuxk26w21uO5RsXZS\nRkTlar0gYX31KD3cYOpharRIflIScQhWWz6IYcCMUwm5WPpmicYDCoLBxx1LZG5d\nKPmsWEY7IPpWUytBxjni3Jahs6l5SFkTWAcUZ/+NNbY3N1B+8PDz8iK31okE/bMS\nQDsUn3Rh9LK0QYmEu5S4Kfz57wuWz8KlkGaNDXy5IEOuaA5DqpnfOd9bYgm5qzyd\ngY4XgAo9PL0BYEUDaZaq/FYcuzptSPUj/P7D4VN0uQKBgQDhz4Q74gCMB01bgx5v\n/5zRA4n9HY20X9kGrcQ/UYQ5bWhwCwkxVOQ4oJchEdecu8pShr8TZvuC3jaDPi+F\nypw7cSDJlW95sOK4M8U8LJchc0K9t3e+w5BGyF3LwUIO3n96h0gU0Aj4RiORRfEq\nohuVRYeSA2/f8pK/Tc65F+z1eQKBgQDY65d1vfdANWAUOwhCh9wD8fpUKu2SCmBb\nLgF3YBEU/ftmtRgFBYVqrOBvrTzDF2T8xB1DnJnyln5jTTxl8pqmJ08kYNZKLEsx\nEILVy0YJKy4WPEk3zOmBaJqwmi6bEbQMhbKlO3ERCiJhyK354Bgv96FWc5e9mGDy\nNkWhz1MivQKBgQDUp9B5cKphNRNGBmJoyUnOkU2nYOitoMJLBuRVWRhz2LRNKCd9\nHNxc8+e/zgTG5xdvxtQ1mntsUIb37F1m21tso2pkTWYRLWMmZCLwO3IMn3aQIjMU\nJSo/brzegV8Lj8BwDOz2JMD9x1gBnOO06bueRT+aY8A9ID3RCZ6QM5cFyQKBgGrK\nUR5eD0NFA6/x//cA+4fVsO+O0rZ69UTuOTqTyNUU1JeTv+d4+F20Dinsl2VUNxtZ\nUS7gAcoz3LT2aS2nagsyfvvh0J1jgQD+p+qo0CnjYCUCOOmHr81NuhoHTbp51LH1\ngCVoRhmla5fIPB4v/LhgqMTu0107jz6vCUjH0J3hAoGAU3vCYBzqqu8idgZvEA3Y\n9qs5/yYn48YOYL8KaeuoMLhwxWvgzyatq0W5smhvCKlY+/dYEc3z7XmpvFvOdWP/\niAuFb1rF4UD4so62cLlBpx7aM5XyHqnJJVmaQ0kkFiYSTb0oi/fkHVAAl1TKjo7+\nmqTyVONiQxBUB4mUCKAnQcU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "quickticketsb2b-nodejs@appspot.gserviceaccount.com",
+  "client_id": "115687229506178802329",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/quickticketsb2b-nodejs%40appspot.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

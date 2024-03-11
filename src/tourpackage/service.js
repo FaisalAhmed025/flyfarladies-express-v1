@@ -1,4 +1,221 @@
+import multer from "multer";
 import pool from "../database/db";
+
+
+// define image type
+const FILE_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
+  "application/pdf": "pdf",
+};
+
+
+
+const storage = multer.memoryStorage({
+  destination: function (req, file, cb) {
+    //console.log(file);
+    //  console.log(file.mimetype);
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error("invalid image type");
+    if (isValid) uploadError = null;
+    cb(uploadError, null);
+  },
+});
+
+
+
+export const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+});
+
+
+
+const generatePackageId = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "FFLPK" + Math.floor(Math.random() * 10000);
+};
+
+const visitedimageid = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "VI" + Math.floor(Math.random() * 10000);
+};
+
+const customiteneirary = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "IT" + Math.floor(Math.random() * 10000);
+};
+
+const custominclusion = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "I" + Math.floor(Math.random() * 10000);
+};
+
+const customEXclusion = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "E" + Math.floor(Math.random() * 10000);
+};
+
+const customcancId = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "C" + Math.floor(Math.random() * 10000);
+};
+
+const customBookingPOlicy = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "B" + Math.floor(Math.random() * 10000);
+};
+
+const AlbumImageID = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "A" + Math.floor(Math.random() * 10000);
+};
+
+const customHighlight = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "H" + Math.floor(Math.random() * 10000);
+};
+
+const Addonservice = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "A" + Math.floor(Math.random() * 10000);
+};
+
+
+const addtourpackage = async (req, res) => {
+  try {
+    // Extract tour package details from request body
+    const {
+      MainTitle,
+      SubTitle,
+      Price,
+      City,
+      Discount,
+      Location,
+      Availability,
+      StartDate,
+      EndDate,
+      TripType,
+      TotalDuration,
+      PackageOverview,
+      Showpackage,
+      Flight,
+      Transport,
+      Food,
+      Hotel,
+      Country,
+      AvailableSeats,
+      MinimumAge,
+      MaximumAge,
+      PricePerAdult,
+      PricePerChild,
+      PricePerInfant,
+      GirlsTrip,
+      FamilyTrips,
+      Adventure,
+      FullyGuided,
+      SelfGuided,
+      Guide,
+      CancellationDate,
+      adult_base_price, 
+      child_base_price, 
+      infant_base_price, 
+      booking_money_due_date, 
+      first_installment_due_date, 
+      second_installment_due_date,
+      booking_money, 
+      first_installment, 
+      second_installment, 
+    } = req.body;
+
+    // Assuming the file field name is 'coverImage'
+    // Extract cover image details from the uploaded file
+    const coverImage = req.publicImageLink;
+    const packgeId = generatePackageId();
+
+    // Check if cover image is present
+    if (!coverImage) {
+      return res.status(400).json({ error: "Cover image is required" });
+    }
+
+    // Execute raw SQL INSERT query to insert tour package details into database
+    const values = [
+      packgeId,
+      MainTitle,
+      SubTitle,
+      Price,
+      PricePerAdult,
+      PricePerChild,
+      PricePerInfant,
+      City,
+      Discount,
+      Location,
+      Availability,
+      StartDate,
+      EndDate,
+      TripType,
+      TotalDuration,
+      AvailableSeats,
+      MinimumAge,
+      MaximumAge,
+      PackageOverview,
+      Showpackage,
+      Flight,
+      Transport,
+      Food,
+      Hotel,
+      Country,
+      GirlsTrip,
+      FamilyTrips,
+      Adventure,
+      FullyGuided,
+      SelfGuided,
+      Guide,
+      CancellationDate,
+      coverImage,
+      adult_base_price, 
+      child_base_price, 
+      infant_base_price, 
+      booking_money_due_date, 
+      first_installment_due_date, 
+      second_installment_due_date,
+      booking_money, 
+      first_installment, 
+      second_installment, 
+    ];
+    const [result] = await pool.query(
+      `INSERT INTO tourpackage (PkId,
+        MainTitle, SubTitle, Price, PricePerAdult, PricePerChild, PricePerInfant,
+        City, Discount, Location, Availability, StartDate, EndDate, TripType,
+        TotalDuration, AvailableSeats, MinimumAge, MaximumAge, PackageOverview,
+        Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
+        Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage,   adult_base_price, 
+        child_base_price, 
+        infant_base_price, 
+        booking_money_due_date, 
+        first_installment_due_date, 
+        second_installment_due_date,
+        booking_money, 
+        first_installment, 
+        second_installment
+      ) 
+      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      values
+    );
+    console.log(values);
+    return res.status(200).json({
+      status: "success",
+      message: "Travel package added successfully",
+    });
+  } catch (error) {
+    console.error("Error adding travel package:", error);
+    res.status(500).json({ error: "Error adding travel package" });
+  }
+};
+
 
 
 const getSingleTourPackages = async (PkID) => {
@@ -470,5 +687,6 @@ const getAllTourPackages = async () => {
 
 export const tourpackageService = {
   getSingleTourPackages,
+  addtourpackage
 
 };

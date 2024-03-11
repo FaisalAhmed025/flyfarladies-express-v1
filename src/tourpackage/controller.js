@@ -1,6 +1,13 @@
 import httpStatus from "http-status";
 import { tourpackageService } from "./service";
 
+
+const addpackage = async (req, res)=>{
+  const data = await  tourpackageService.addtourpackage(req,res)
+  return res.status(200).json({status:"success", messsage:"package added successfully", data:data})
+}
+
+
 const getSingleTourPackages = async (req, res, next) => {
   try {
     const id = req.params.PkID;
@@ -59,6 +66,7 @@ const getAllTourPackages = async (req, res, next) => {
 
 export const tourpackageController = {
   getSingleTourPackages,
-  getAllTourPackages
+  getAllTourPackages,
+  addpackage
 
 }
