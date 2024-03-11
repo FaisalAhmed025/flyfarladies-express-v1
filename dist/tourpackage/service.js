@@ -621,5 +621,6 @@ var getAllTourPackages = /*#__PURE__*/function () {
 }();
 var tourpackageService = exports.tourpackageService = {
   getSingleTourPackages: getSingleTourPackages,
-  addtourpackage: addtourpackage
+  addtourpackage: addtourpackage,
+  getAllTourPackages: getAllTourPackages
 };

@@ -687,6 +687,7 @@ const getAllTourPackages = async () => {
 
 export const tourpackageService = {
   getSingleTourPackages,
-  addtourpackage
+  addtourpackage,
+  getAllTourPackages
 
 };

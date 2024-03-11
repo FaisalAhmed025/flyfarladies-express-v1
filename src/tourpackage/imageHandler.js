@@ -8,7 +8,7 @@ import {
 import { Storage } from '@google-cloud/storage';
 import sharp from 'sharp';
 import httpStatus from 'http-status';
-import pool from "../../database/db";
+import pool from '../database/db';
 
 
 export const getCurrentUserInfo = async (req, res, next) =>
