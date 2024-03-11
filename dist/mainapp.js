@@ -7,6 +7,7 @@ var _cookieParser = _interopRequireDefault(require("cookie-parser"));
 var _bodyParser = _interopRequireDefault(require("body-parser"));
 var _morgan = _interopRequireDefault(require("morgan"));
 var _router = _interopRequireDefault(require("./tourpackage/router"));
+var _userroute = _interopRequireDefault(require("./user/userroute"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 var app = (0, _express["default"])();
 app.use(_express["default"].json());
@@ -29,6 +30,7 @@ app.use(_bodyParser["default"].json());
 // routes
 
 app.use('/api/v1/package', _router["default"]);
+app.use('/api/v1/user', _userroute["default"]);
 app.get("/", function (req, res, next) {
   res.send("Welcome to Fly Far Trips V1.0");
 });

@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import logger from "morgan";
 
 import tourpackageRoute from './tourpackage/router'
+import userRouter from './user/userroute'
 
 const app = express();
 app.use(express.json());
@@ -35,6 +36,7 @@ app.use(bodyParser.json());
 // routes
 
 app.use('/api/v1/package',  tourpackageRoute)
+app.use('/api/v1/user', userRouter)
 
 app.get("/", (req, res, next) => {
   res.send("Welcome to Fly Far Trips V1.0");
