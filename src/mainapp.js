@@ -8,6 +8,7 @@ import logger from "morgan";
 import tourpackageRoute from './tourpackage/router'
 import userRouter from './user/userroute'
 import depositRoute from './deposit/depositeRoute'
+import bookingRouter  from './booking/bookingRoute';
 
 const app = express();
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use(bodyParser.json());
 app.use('/api/v1/package',  tourpackageRoute)
 app.use('/api/v1/user', userRouter)
 app.use("/api/v1/deposit", depositRoute )
+app.use("/api/v1/booking",  bookingRouter )
 
 app.get("/", (req, res, next) => {
   res.send("Welcome to Fly Far Trips V1.0");
