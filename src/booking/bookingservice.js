@@ -264,13 +264,14 @@ const getAllBooking = async (req,res) =>{
 
 const getSingleBooking = async (req,res) =>{
   const  bookingid = req.params.bookingid;
-  const packagequery = `SELECT * FROM  booking WHERE bookingid =?`
-  const [bookingresults] = await pool.execute(packagequery, [bookingid]);
+  const bookingequery = `SELECT * FROM  booking WHERE bookingid =?`
+  const [bookingresults] = await pool.execute(bookingequery, [bookingid]);
 
   // JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
   // WHERE mainimage.packageId = ?; 
++
+  const passengerquery =`SELECT * FROM passenger  WHERE bookingid =?`
 
-  const passengerquery = `SELECT * FROM passenger JOIN booking ON passenger.bookingid =  booking.bookingid WHERE passenger.bookingid =?`
   const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
   console.log(bookingresults);
   return {bookingresults,passengerresults};

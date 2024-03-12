@@ -196,24 +196,25 @@ var getAllBooking = /*#__PURE__*/function () {
 }();
 var getSingleBooking = /*#__PURE__*/function () {
   var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
-    var bookingid, packagequery, _yield$pool$execute3, _yield$pool$execute4, bookingresults, passengerquery, _yield$pool$execute5, _yield$pool$execute6, passengerresults;
+    var bookingid, bookingequery, _yield$pool$execute3, _yield$pool$execute4, bookingresults, data, passengerquery, _yield$pool$execute5, _yield$pool$execute6, passengerresults;
     return _regeneratorRuntime().wrap(function _callee3$(_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           bookingid = req.params.bookingid;
-          packagequery = "SELECT * FROM  booking WHERE bookingid =?";
+          bookingequery = "SELECT * FROM  booking WHERE bookingid =?";
           _context3.next = 4;
-          return _db["default"].execute(packagequery, [bookingid]);
+          return _db["default"].execute(bookingequery, [bookingid]);
         case 4:
           _yield$pool$execute3 = _context3.sent;
           _yield$pool$execute4 = _slicedToArray(_yield$pool$execute3, 1);
           bookingresults = _yield$pool$execute4[0];
           // JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
-          // WHERE mainimage.packageId = ?;  
+          // WHERE mainimage.packageId = ?; 
+          data = "SELECT * FROM passenger  WHERE bookingid =?";
           passengerquery = "SELECT * FROM passenger JOIN booking ON passenger.bookingid =  booking.bookingid WHERE passenger.bookingid =?";
-          _context3.next = 10;
-          return _db["default"].execute(passengerquery, [bookingid]);
-        case 10:
+          _context3.next = 11;
+          return _db["default"].execute(data, [bookingid]);
+        case 11:
           _yield$pool$execute5 = _context3.sent;
           _yield$pool$execute6 = _slicedToArray(_yield$pool$execute5, 1);
           passengerresults = _yield$pool$execute6[0];
@@ -222,7 +223,7 @@ var getSingleBooking = /*#__PURE__*/function () {
             bookingresults: bookingresults,
             passengerresults: passengerresults
           });
-        case 15:
+        case 16:
         case "end":
           return _context3.stop();
       }

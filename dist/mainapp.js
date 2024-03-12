@@ -37,7 +37,7 @@ app.use('/api/v1/user', _userroute["default"]);
 app.use("/api/v1/deposit", _depositeRoute["default"]);
 app.use("/api/v1/booking", _bookingRoute["default"]);
 app.get("/", function (req, res, next) {
-  res.send("Welcome to Fly Far Trips V1.0");
+  res.send("Welcome to FlyFar Ladies Express");
 });
 
 //handle not found
