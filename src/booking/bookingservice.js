@@ -267,9 +267,6 @@ const getSingleBooking = async (req,res) =>{
   const bookingequery = `SELECT * FROM  booking WHERE bookingid =?`
   const [bookingresults] = await pool.execute(bookingequery, [bookingid]);
 
-  // JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
-  // WHERE mainimage.packageId = ?; 
-+
   const passengerquery =`SELECT * FROM passenger  WHERE bookingid =?`
 
   const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
