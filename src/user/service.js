@@ -1,7 +1,5 @@
-
 import jwt from "jsonwebtoken";
 import pool from "../database/db";
-
 
 
 const generateUserId = () => {
@@ -17,8 +15,8 @@ const TravellerId = () => {
 const Register = async (req, res) => {
   try {
     // Extract the data from the request body
-    const { name, phone, email, password, platform, } = req.body;
-
+    const { name, phone, email, password, platform} = req.body;
+    
     // Do some validation on the data
     if (!name || !email || !password || !phone || !platform) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -34,9 +32,10 @@ const Register = async (req, res) => {
     const id = generateUserId()
 
     // Create a new user object with the provided data
-    const newUser = { id, name, phone, email, password };
+    const newUser = { id, name, phone, email, password, platform, joinAt };
 
-    const joinAt = new Date()
+    const joinAt = new Date();
+    console.log(joinAt);
     // Save the new user to the database
     const [result] = await pool.query('INSERT INTO user (id, name, phone, email, password, platform, joinAt) VALUES (?, ?, ?, ?,?,?,?)', [
       newUser.id,
@@ -45,7 +44,7 @@ const Register = async (req, res) => {
       newUser.email,
       newUser.password,
       newUser.platform,
-      newUser.joinAt
+      joinAt
     ]);
 
     console.log('User created successfully');

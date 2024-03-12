@@ -64,31 +64,35 @@ var Register = /*#__PURE__*/function () {
             name: name,
             phone: phone,
             email: email,
-            password: password
+            password: password,
+            platform: platform,
+            joinAt: joinAt
           };
-          joinAt = new Date(); // Save the new user to the database
-          _context.next = 16;
-          return _db["default"].query('INSERT INTO user (id, name, phone, email, password, platform, joinAt) VALUES (?, ?, ?, ?,?,?,?)', [newUser.id, newUser.name, newUser.phone, newUser.email, newUser.password, newUser.platform, newUser.joinAt]);
-        case 16:
+          joinAt = new Date();
+          console.log(joinAt);
+          // Save the new user to the database
+          _context.next = 17;
+          return _db["default"].query('INSERT INTO user (id, name, phone, email, password, platform, joinAt) VALUES (?, ?, ?, ?,?,?,?)', [newUser.id, newUser.name, newUser.phone, newUser.email, newUser.password, newUser.platform, joinAt]);
+        case 17:
           _yield$pool$query3 = _context.sent;
           _yield$pool$query4 = _slicedToArray(_yield$pool$query3, 1);
           result = _yield$pool$query4[0];
           console.log('User created successfully');
           res.status(201).json(newUser);
-          _context.next = 27;
+          _context.next = 28;
           break;
-        case 23:
-          _context.prev = 23;
+        case 24:
+          _context.prev = 24;
           _context.t0 = _context["catch"](0);
           console.error('Error creating user:', _context.t0);
           res.status(500).json({
             error: 'Error creating user'
           });
-        case 27:
+        case 28:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 23]]);
+    }, _callee, null, [[0, 24]]);
   }));
   return function Register(_x, _x2) {
     return _ref.apply(this, arguments);
