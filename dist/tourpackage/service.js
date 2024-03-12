@@ -141,22 +141,21 @@ var getSingleTourPackages = /*#__PURE__*/function () {
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          console.log("i am id", PkID);
-          _context2.prev = 1;
+          _context2.prev = 0;
           tourPackageQuery = "\n    SELECT\n      tourpackage.PkID AS tour_package_id,\n      tourpackage.PkID,\n      tourpackage.MainTitle,\n      tourpackage.TripType,\n      tourpackage.Location,\n      tourpackage.StartDate,\n      tourpackage.EndDate,\n      tourpackage.AvailableSeats,\n      tourpackage.PricePerAdult,\n      tourpackage.PricePerChild,\n      tourpackage.PricePerInfant,\n      tourpackage.GirlsTrip,\n      tourpackage.PackageOverview,\n      tourpackage.MinimumAge,\n      tourpackage.MaximumAge,\n      tourpackage.Price,\n      tourpackage.City,\n      tourpackage.Discount,\n      tourpackage.SelfGuided,\n      tourpackage.Flight,\n      tourpackage.Food,\n      tourpackage.Transport,\n      tourpackage.FullyGuided,\n      tourpackage.coverImage  -- Assuming there's a column in main_image for the image URL\n    FROM\n      tourpackage\n\n    WHERE\n      tourpackage.PkID = ?;\n  ";
-          _context2.next = 5;
+          _context2.next = 4;
           return _db["default"].execute(tourPackageQuery, [PkID]);
-        case 5:
+        case 4:
           _yield$pool$execute = _context2.sent;
           _yield$pool$execute2 = _slicedToArray(_yield$pool$execute, 1);
           tourPackageResults = _yield$pool$execute2[0];
           console.log(tourPackageResults);
           if (!(tourPackageResults.length === 0)) {
-            _context2.next = 11;
+            _context2.next = 10;
             break;
           }
           return _context2.abrupt("return", null);
-        case 11:
+        case 10:
           tourPackagesData = [];
           tourPackageData = {
             PkID: tourPackageResults[0].PkID,
@@ -224,12 +223,12 @@ var getSingleTourPackages = /*#__PURE__*/function () {
             cancellation_policy: [],
             albumImage: []
           };
-          _context2.next = 15;
+          _context2.next = 14;
           return Promise.all([getmainimage(tourPackageData.PkID), getTourPlan(tourPackageData.PkID), getVisitedPlace(tourPackageData.PkID), getInclusion(tourPackageData.PkID), getExclusion(tourPackageData.PkID), getHighlights(tourPackageData.PkID), getBookingPolicy(tourPackageData.PkID), getCancellationPolicy(tourPackageData.PkID), getalbumImage(tourPackageData.PkID)
 
           // getAddOns(tourPackageData.id),
           ]);
-        case 15:
+        case 14:
           _yield$Promise$all = _context2.sent;
           _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 10);
           getmainimg = _yield$Promise$all2[0];
@@ -254,15 +253,15 @@ var getSingleTourPackages = /*#__PURE__*/function () {
           // tourPackageData.add_ons = addOns;
           tourPackagesData.push(tourPackageData);
           return _context2.abrupt("return", tourPackageData);
-        case 40:
-          _context2.prev = 40;
-          _context2.t0 = _context2["catch"](1);
+        case 39:
+          _context2.prev = 39;
+          _context2.t0 = _context2["catch"](0);
           throw _context2.t0;
-        case 43:
+        case 42:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[1, 40]]);
+    }, _callee2, null, [[0, 39]]);
   }));
   return function getSingleTourPackages(_x3) {
     return _ref2.apply(this, arguments);

@@ -219,7 +219,6 @@ const addtourpackage = async (req, res) => {
 
 
 const getSingleTourPackages = async (PkID) => {
-  console.log("i am id", PkID);
   try {
     const tourPackageQuery = `
     SELECT

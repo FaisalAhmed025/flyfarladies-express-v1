@@ -169,6 +169,71 @@ var Book$Hold = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var getAllBooking = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(req, res) {
+    var packagequery, _yield$pool$execute, _yield$pool$execute2, bookingresults;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          packagequery = "SELECT * FROM  booking";
+          _context2.next = 3;
+          return _db["default"].execute(packagequery);
+        case 3:
+          _yield$pool$execute = _context2.sent;
+          _yield$pool$execute2 = _slicedToArray(_yield$pool$execute, 1);
+          bookingresults = _yield$pool$execute2[0];
+          console.log(bookingresults);
+          return _context2.abrupt("return", bookingresults);
+        case 8:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2);
+  }));
+  return function getAllBooking(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var getSingleBooking = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
+    var bookingid, packagequery, _yield$pool$execute3, _yield$pool$execute4, bookingresults, passengerquery, _yield$pool$execute5, _yield$pool$execute6, passengerresults;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          bookingid = req.params.bookingid;
+          packagequery = "SELECT * FROM  booking WHERE bookingid =?";
+          _context3.next = 4;
+          return _db["default"].execute(packagequery, [bookingid]);
+        case 4:
+          _yield$pool$execute3 = _context3.sent;
+          _yield$pool$execute4 = _slicedToArray(_yield$pool$execute3, 1);
+          bookingresults = _yield$pool$execute4[0];
+          // JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
+          // WHERE mainimage.packageId = ?;  
+          passengerquery = "SELECT * FROM passenger JOIN booking ON passenger.bookingid =  booking.bookingid WHERE passenger.bookingid =?";
+          _context3.next = 10;
+          return _db["default"].execute(passengerquery, [bookingid]);
+        case 10:
+          _yield$pool$execute5 = _context3.sent;
+          _yield$pool$execute6 = _slicedToArray(_yield$pool$execute5, 1);
+          passengerresults = _yield$pool$execute6[0];
+          console.log(bookingresults);
+          return _context3.abrupt("return", {
+            bookingresults: bookingresults,
+            passengerresults: passengerresults
+          });
+        case 15:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3);
+  }));
+  return function getSingleBooking(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
 var BookingService = exports.BookingService = {
-  Book$Hold: Book$Hold
+  Book$Hold: Book$Hold,
+  getAllBooking: getAllBooking,
+  getSingleBooking: getSingleBooking
 };

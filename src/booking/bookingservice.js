@@ -3,12 +3,10 @@ import {HttpException} from "express-sharp";
 import pool from "../database/db";
 
 
-
 const generatebookingId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLB" + Math.floor(Math.random() * 10000);
 };
-
 
 
 const Book$Hold = async (req, res) => {
@@ -79,8 +77,6 @@ const Book$Hold = async (req, res) => {
       `;
       // Execute the SQL query to insert all adult travelers
        await pool.query(addpassenger, [adultTravelersValues]);
-
-       
     }
 
     
@@ -259,7 +255,30 @@ console.log(totalpackageprice);
   }
 };
 
+const getAllBooking = async (req,res) =>{
+  const packagequery = `SELECT * FROM  booking`
+  const [bookingresults] = await pool.execute(packagequery);
+  console.log(bookingresults);
+  return bookingresults;
+}
+
+const getSingleBooking = async (req,res) =>{
+  const  bookingid = req.params.bookingid;
+  const packagequery = `SELECT * FROM  booking WHERE bookingid =?`
+  const [bookingresults] = await pool.execute(packagequery, [bookingid]);
+
+  // JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
+  // WHERE mainimage.packageId = ?; 
+
+  const passengerquery = `SELECT * FROM passenger JOIN booking ON passenger.bookingid =  booking.bookingid WHERE passenger.bookingid =?`
+  const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
+  console.log(bookingresults);
+  return {bookingresults,passengerresults};
+}
+
 
 export const BookingService = {
-  Book$Hold
+  Book$Hold,
+  getAllBooking,
+  getSingleBooking
 }
