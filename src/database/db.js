@@ -4,9 +4,8 @@ const db = {
     // host: '127.0.0.1',
     // user: 'root',
     // password: '',
-    // database: 'flyfarexpress',
-    
-    
+    // database: 'flyfar-express',
+
     host: 'flyfarint.com',
     user: 'flyfarin_fflv2',
     password: '123Next2$',

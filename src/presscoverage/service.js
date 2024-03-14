@@ -1,0 +1,100 @@
+import pool from "../database/db";
+
+
+const generatePackageId = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "FFP" + Math.floor(Math.random() * 10000);
+};
+
+const addPressCoverage  = async (req,res) =>{
+
+try {
+  const {Description, date, link} =req.body
+  const coverImage = req.publicImageLink;
+
+  const id = generatePackageId()
+
+  // Check if cover image is present
+  if (!coverImage) {
+    return res.status(400).json({ error: "Cover image is required" });
+  }
+
+  const values =[
+    id,
+    coverImage,
+    Description,
+    date,
+    link
+  ]
+  const insertQuery= `INSERT INTO press_coverages (id, image, Description, date, link) VALUES(?,?,?,?,?)`
+  const [pressResults] =  await  pool.query(insertQuery, values)
+  console.log(pressResults);
+
+  return res.status(200).json({
+    status: "success",
+    message: "Press coverage added successfully",
+    data:pressResults
+  });
+  
+} catch (error) {
+  console.error("Error adding press coverage:", error);
+    res.status(500).json({ error: "Error adding press coverag" });
+  
+}
+}
+
+const getAllPressCoverage = async (req,res) => {
+  const packagequery  = `SELECT * FROM press_coverages`
+  console.log(packagequery)
+  const [results] = await pool.execute(packagequery)
+  return res.status(200).json({
+    status: "success",
+    data:results
+  });
+}
+
+const updatepressCoverage = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { Description, date, link } = req.body;
+    // Retrieve the existing press coverage data from the database
+    const existingDataQuery = `SELECT * FROM press_coverages WHERE id = ?`;
+    const [existingData] = await pool.query(existingDataQuery, [id]);
+
+    // If no existing data is found, return a 404 error
+    if (existingData.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No press coverage found with the specified ID.",
+      });
+    }
+
+    // Extract the existing values
+    const { image: existingImage } = existingData[0];
+
+    // If a new image is not provided, keep the existing one
+    const coverimage = req.publicImageLink || existingImage;
+
+    const values = [coverimage, Description, date, link, pressid];
+
+    const updatequery = `UPDATE press_coverages SET image=?, Description=?, date=?, link=? WHERE id=?`;
+
+    const [result] = await pool.query(updatequery, values);
+
+    return result;
+  } catch (error) {
+    console.error("Error updating press coverage:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while updating press coverage.",
+    });
+  }
+};
+
+
+
+export const pressCoverService  = {
+  addPressCoverage,
+  getAllPressCoverage,
+  updatepressCoverage
+}

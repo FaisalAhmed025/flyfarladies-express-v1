@@ -121,21 +121,22 @@ var login = /*#__PURE__*/function () {
           _yield$pool$query5 = _context2.sent;
           _yield$pool$query6 = _slicedToArray(_yield$pool$query5, 1);
           user = _yield$pool$query6[0];
-          if (!(user.length === 0)) {
-            _context2.next = 11;
-            break;
-          }
-          return _context2.abrupt("return", res.status(401).json({
-            error: 'Invalid email or password'
-          }));
-        case 11:
+          console.log(user[0].id);
+
+          // if (user.length === null) {
+          //   return res.status(401).json({ error: 'Invalid email or password' });
+          // }
+
           // Generate JWT token
           token = _jsonwebtoken["default"].sign({
             id: user[0].id,
             email: user[0].email
           }, 'helloladies', {
             expiresIn: '1h'
-          }); // Update the user table with the token 
+          });
+          console.log(token);
+
+          // Update the user table with the token 
           _context2.next = 14;
           return _db["default"].query('UPDATE user SET token = ? WHERE id = ?', [token, user[0].id]);
         case 14:

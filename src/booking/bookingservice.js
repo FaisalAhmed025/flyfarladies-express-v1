@@ -268,7 +268,6 @@ const getSingleBooking = async (req,res) =>{
   const [bookingresults] = await pool.execute(bookingequery, [bookingid]);
 
   const passengerquery =`SELECT * FROM passenger  WHERE bookingid =?`
-
   const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
   console.log(bookingresults);
   return {bookingresults,passengerresults};

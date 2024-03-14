@@ -106,11 +106,8 @@ const myTravelerList = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const result = await UserService.updateUser(req,res)
-  result && res.status(200).send({
-      success: true,
-      message: 'updated successfully',
-      data: result
-  })
+
+  return result;
 };
 
 
