@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MultipleImageHandler = void 0;
 exports.deleteImageFromURL = deleteImageFromURL;
-exports.storeMultipleImage = exports.storeData = exports.imageHandlerUpdate = exports.imageHandler = exports.handleSpecificImage = exports.handlePassportVisa = exports.handleMultipleImage = exports.getCurrentUserInfo = void 0;
+exports.storeMultipleImage = exports.storeData = exports.optionalImage = exports.imageHandlerUpdate = exports.imageHandler = exports.handleSpecificImage = exports.handlePassportVisa = exports.handleMultipleImage = exports.getCurrentUserInfo = void 0;
 var _folderDelete = require("./folderDelete");
 var _storage = require("@google-cloud/storage");
 var _sharp = _interopRequireDefault(require("sharp"));
@@ -88,23 +88,23 @@ function saveOnGCP(_x10) {
 /* end of common function */
 //   for single image handle
 function _saveOnGCP() {
-  _saveOnGCP = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(req) {
+  _saveOnGCP = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11(req) {
     var uniqueSuffix, webpBuffer, storage, bucket, fileData, publicUrl;
-    return _regeneratorRuntime().wrap(function _callee10$(_context10) {
-      while (1) switch (_context10.prev = _context10.next) {
+    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+      while (1) switch (_context11.prev = _context11.next) {
         case 0:
           uniqueSuffix = req.file.originalname.split(' ').join('-');
           req.file.originalname = "".concat(uniqueSuffix, "_").concat(Date.now(), ".pdf");
           // Convert the image buffer to WebP format
           webpBuffer = req.file.buffer;
           if (!(req.file.mimetype !== 'application/pdf')) {
-            _context10.next = 11;
+            _context11.next = 11;
             break;
           }
-          _context10.next = 6;
+          _context11.next = 6;
           return (0, _sharp["default"])(webpBuffer).webp().toBuffer();
         case 6:
-          webpBuffer = _context10.sent;
+          webpBuffer = _context11.sent;
           // Replace req.file values with the WebP buffer
           req.file.buffer = webpBuffer;
           req.file.mimetype = 'image/webp';
@@ -118,7 +118,7 @@ function _saveOnGCP() {
           }); // console.log(env.BUCKET)
           bucket = storage.bucket('b2bnodeimages');
           fileData = bucket.file(req.file.originalname);
-          _context10.next = 16;
+          _context11.next = 16;
           return fileData.save(req.file.buffer, {
             contentType: req.file.mimetype,
             "public": true // Make the file publicly accessible
@@ -129,12 +129,12 @@ function _saveOnGCP() {
           req.imageLink = publicUrl;
           // console.log(req.imageLink);
           //console.log('berofe undefine')
-          return _context10.abrupt("return", publicUrl);
+          return _context11.abrupt("return", publicUrl);
         case 19:
         case "end":
-          return _context10.stop();
+          return _context11.stop();
       }
-    }, _callee10);
+    }, _callee11);
   }));
   return _saveOnGCP.apply(this, arguments);
 }
@@ -181,53 +181,90 @@ var imageHandler = exports.imageHandler = /*#__PURE__*/function () {
     return _ref4.apply(this, arguments);
   };
 }();
-var imageHandlerUpdate = exports.imageHandlerUpdate = /*#__PURE__*/function () {
+var optionalImage = exports.optionalImage = /*#__PURE__*/function () {
   var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(req, res, next) {
-    var output;
     return _regeneratorRuntime().wrap(function _callee5$(_context5) {
       while (1) switch (_context5.prev = _context5.next) {
         case 0:
-          if (!req.file) {
+          _context5.prev = 0;
+          if (req.file) {
             _context5.next = 5;
             break;
           }
-          _context5.next = 3;
-          return saveOnGCP(req);
-        case 3:
-          req.publicImageLink = _context5.sent;
-          // Get base URL of the server
-          // Remove file extension
-          output = req.publicImageLink; // console.log(output);
+          return _context5.abrupt("return", next());
         case 5:
-          // Continue with the next middleware even if req.file is not found
-          next();
-        case 6:
+          _context5.next = 7;
+          return imageHandler(req, res, next);
+        case 7:
+          _context5.next = 12;
+          break;
+        case 9:
+          _context5.prev = 9;
+          _context5.t0 = _context5["catch"](0);
+          next(_context5.t0);
+        case 12:
         case "end":
           return _context5.stop();
       }
-    }, _callee5);
+    }, _callee5, null, [[0, 9]]);
   }));
-  return function imageHandlerUpdate(_x14, _x15, _x16) {
+  return function optionalImage(_x14, _x15, _x16) {
     return _ref5.apply(this, arguments);
   };
 }();
+var imageHandlerUpdate = exports.imageHandlerUpdate = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(req, res, next) {
+    var output;
+    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+      while (1) switch (_context6.prev = _context6.next) {
+        case 0:
+          if (req.file) {
+            _context6.next = 2;
+            break;
+          }
+          return _context6.abrupt("return", next());
+        case 2:
+          if (!req.file) {
+            _context6.next = 7;
+            break;
+          }
+          _context6.next = 5;
+          return saveOnGCP(req);
+        case 5:
+          req.publicImageLink = _context6.sent;
+          // Get base URL of the server
+          // Remove file extension
+          output = req.publicImageLink; // console.log(output);
+        case 7:
+          // Continue with the next middleware even if req.file is not found
+          next();
+        case 8:
+        case "end":
+          return _context6.stop();
+      }
+    }, _callee6);
+  }));
+  return function imageHandlerUpdate(_x17, _x18, _x19) {
+    return _ref6.apply(this, arguments);
+  };
+}();
 //delete image
-function deleteImageFromURL(_x17) {
+function deleteImageFromURL(_x20) {
   return _deleteImageFromURL.apply(this, arguments);
 }
 function _deleteImageFromURL() {
-  _deleteImageFromURL = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11(url) {
+  _deleteImageFromURL = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12(url) {
     var parsedUrl, bucketName, pathSegments, objectName, storage;
-    return _regeneratorRuntime().wrap(function _callee11$(_context11) {
-      while (1) switch (_context11.prev = _context11.next) {
+    return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+      while (1) switch (_context12.prev = _context12.next) {
         case 0:
-          _context11.prev = 0;
+          _context12.prev = 0;
           if (url) {
-            _context11.next = 4;
+            _context12.next = 4;
             break;
           }
           console.error('Invalid URL: ', url);
-          return _context11.abrupt("return");
+          return _context12.abrupt("return");
         case 4:
           parsedUrl = new URL(url);
           bucketName = parsedUrl.hostname.split('.')[0];
@@ -241,38 +278,38 @@ function _deleteImageFromURL() {
             projectId: process.env.gcp.project_id,
             keyFilename: 'key.json'
           });
-          _context11.next = 12;
+          _context12.next = 12;
           return storage.bucket(process.env.gcp.bucket).file(objectName)["delete"]();
         case 12:
-          _context11.next = 17;
+          _context12.next = 17;
           break;
         case 14:
-          _context11.prev = 14;
-          _context11.t0 = _context11["catch"](0);
-          console.error("Error deleting image: ".concat(_context11.t0));
+          _context12.prev = 14;
+          _context12.t0 = _context12["catch"](0);
+          console.error("Error deleting image: ".concat(_context12.t0));
         case 17:
         case "end":
-          return _context11.stop();
+          return _context12.stop();
       }
-    }, _callee11, null, [[0, 14]]);
+    }, _callee12, null, [[0, 14]]);
   }));
   return _deleteImageFromURL.apply(this, arguments);
 }
 var storeData = exports.storeData = /*#__PURE__*/function () {
-  var _ref6 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(req, res, next, table, id) {
+  var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(req, res, next, table, id) {
     var connection, _yield$connection$que, _yield$connection$que2, rows, _iterator, _step, imagePath;
-    return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-      while (1) switch (_context6.prev = _context6.next) {
+    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+      while (1) switch (_context7.prev = _context7.next) {
         case 0:
-          _context6.prev = 0;
-          _context6.next = 3;
+          _context7.prev = 0;
+          _context7.next = 3;
           return _db["default"].getConnection();
         case 3:
-          connection = _context6.sent;
-          _context6.next = 6;
+          connection = _context7.sent;
+          _context7.next = 6;
           return connection.query("SELECT * FROM ".concat(table, " WHERE ").concat(id, "=?"), [req.user.id]);
         case 6:
-          _yield$connection$que = _context6.sent;
+          _yield$connection$que = _context7.sent;
           _yield$connection$que2 = _slicedToArray(_yield$connection$que, 1);
           rows = _yield$connection$que2[0];
           //console.log(rows[0]);
@@ -280,11 +317,11 @@ var storeData = exports.storeData = /*#__PURE__*/function () {
           // console.log(req.data);
           connection.release();
           next();
-          _context6.next = 19;
+          _context7.next = 19;
           break;
         case 14:
-          _context6.prev = 14;
-          _context6.t0 = _context6["catch"](0);
+          _context7.prev = 14;
+          _context7.t0 = _context7["catch"](0);
           // if a single file
           req.image && (0, _folderDelete.deleteFile)(req.image);
           // if multiple files
@@ -301,44 +338,44 @@ var storeData = exports.storeData = /*#__PURE__*/function () {
               _iterator.f();
             }
           }
-          next(_context6.t0);
+          next(_context7.t0);
         case 19:
         case "end":
-          return _context6.stop();
+          return _context7.stop();
       }
-    }, _callee6, null, [[0, 14]]);
+    }, _callee7, null, [[0, 14]]);
   }));
-  return function storeData(_x18, _x19, _x20, _x21, _x22) {
-    return _ref6.apply(this, arguments);
+  return function storeData(_x21, _x22, _x23, _x24, _x25) {
+    return _ref7.apply(this, arguments);
   };
 }();
 var MultipleImageHandler = exports.MultipleImageHandler = /*#__PURE__*/function () {
-  var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(req, res, next, imageNumber) {
+  var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(req, res, next, imageNumber) {
     var images, i, file, uniqueSuffix, webpBuffer, storage, bucket, fileData, publicUrl, _i;
-    return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-      while (1) switch (_context7.prev = _context7.next) {
+    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+      while (1) switch (_context8.prev = _context8.next) {
         case 0:
-          _context7.prev = 0;
+          _context8.prev = 0;
           if (req.files) {
-            _context7.next = 3;
+            _context8.next = 3;
             break;
           }
-          return _context7.abrupt("return", next(new ErrorResponse("Must need ".concat(imageNumber, " images"), _httpStatus["default"].BAD_REQUEST)));
+          return _context8.abrupt("return", next(new ErrorResponse("Must need ".concat(imageNumber, " images"), _httpStatus["default"].BAD_REQUEST)));
         case 3:
           images = [];
           i = 0;
         case 5:
           if (!(i < req.files.length)) {
-            _context7.next = 29;
+            _context8.next = 29;
             break;
           }
           file = req.files[i]; //  console.log( file)
           // console.log(file)
           if (file) {
-            _context7.next = 9;
+            _context8.next = 9;
             break;
           }
-          return _context7.abrupt("continue", 26);
+          return _context8.abrupt("continue", 26);
         case 9:
           //  let image;
           uniqueSuffix = file.originalname.split(' ').join('-');
@@ -346,10 +383,10 @@ var MultipleImageHandler = exports.MultipleImageHandler = /*#__PURE__*/function 
           // Convert the image buffer to WebP format
           webpBuffer = file.buffer;
           if (!(file.mimetype !== 'application/pdf')) {
-            _context7.next = 19;
+            _context8.next = 19;
             break;
           }
-          _context7.next = 15;
+          _context8.next = 15;
           return (0, _sharp["default"])(file.buffer).webp().toBuffer();
         case 15:
           // Replace req.file values with the WebP buffer
@@ -367,7 +404,7 @@ var MultipleImageHandler = exports.MultipleImageHandler = /*#__PURE__*/function 
           }); // console.log(env.BUCKET)
           bucket = storage.bucket('b2bnodeimages'); //  console.log(bucket);
           fileData = bucket.file(file.originalname);
-          _context7.next = 24;
+          _context8.next = 24;
           return fileData.save(file.buffer, {
             contentType: file.mimetype,
             "public": true // Make the file publicly accessible
@@ -378,130 +415,81 @@ var MultipleImageHandler = exports.MultipleImageHandler = /*#__PURE__*/function 
           images.push(publicUrl);
         case 26:
           i++;
-          _context7.next = 5;
+          _context8.next = 5;
           break;
         case 29:
           req.images = images;
           // req.urls = urls;
           next();
-          _context7.next = 45;
+          _context8.next = 45;
           break;
         case 33:
-          _context7.prev = 33;
-          _context7.t0 = _context7["catch"](0);
-          console.log(_context7.t0);
+          _context8.prev = 33;
+          _context8.t0 = _context8["catch"](0);
+          console.log(_context8.t0);
           if (!req.images) {
-            _context7.next = 44;
+            _context8.next = 44;
             break;
           }
           _i = 0;
         case 38:
           if (!(_i < req.images.length)) {
-            _context7.next = 44;
+            _context8.next = 44;
             break;
           }
-          _context7.next = 41;
+          _context8.next = 41;
           return deleteImageFromURL(req.images[_i]);
         case 41:
           _i++;
-          _context7.next = 38;
+          _context8.next = 38;
           break;
         case 44:
-          next(_context7.t0);
-        case 45:
-        case "end":
-          return _context7.stop();
-      }
-    }, _callee7, null, [[0, 33]]);
-  }));
-  return function MultipleImageHandler(_x23, _x24, _x25, _x26) {
-    return _ref7.apply(this, arguments);
-  };
-}();
-var handleSpecificImage = exports.handleSpecificImage = /*#__PURE__*/function () {
-  var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(req, res, next) {
-    var _req$files, personal_image, passport_copy;
-    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
-      while (1) switch (_context8.prev = _context8.next) {
-        case 0:
-          _context8.prev = 0;
-          //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
-          //console.log(req.files);
-          _req$files = req.files, personal_image = _req$files.personal_image, passport_copy = _req$files.passport_copy;
-          if (!(!personal_image || !passport_copy)) {
-            _context8.next = 4;
-            break;
-          }
-          return _context8.abrupt("return", next(new ErrorResponse('You must specify one profile pic and one nid copy', _httpStatus["default"].FORBIDDEN)));
-        case 4:
-          if (!(personal_image.length !== 1 || passport_copy.length !== 1)) {
-            _context8.next = 6;
-            break;
-          }
-          return _context8.abrupt("return", next(new ErrorResponse('You must specify one profile pic and one nid copy', _httpStatus["default"].FORBIDDEN)));
-        case 6:
-          //console.log(profilePic[0], nidCopy[0])
-
-          // use in saveGCP file
-          req.file = personal_image[0];
-          _context8.next = 9;
-          return saveOnGCP(req);
-        case 9:
-          req.personal_image = _context8.sent;
-          req.file = passport_copy[0];
-          _context8.next = 13;
-          return saveOnGCP(req);
-        case 13:
-          req.passport_copy = _context8.sent;
-          next();
-          _context8.next = 20;
-          break;
-        case 17:
-          _context8.prev = 17;
-          _context8.t0 = _context8["catch"](0);
           next(_context8.t0);
-        case 20:
+        case 45:
         case "end":
           return _context8.stop();
       }
-    }, _callee8, null, [[0, 17]]);
+    }, _callee8, null, [[0, 33]]);
   }));
-  return function handleSpecificImage(_x27, _x28, _x29) {
+  return function MultipleImageHandler(_x26, _x27, _x28, _x29) {
     return _ref8.apply(this, arguments);
   };
 }();
-var handlePassportVisa = exports.handlePassportVisa = /*#__PURE__*/function () {
+var handleSpecificImage = exports.handleSpecificImage = /*#__PURE__*/function () {
   var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(req, res, next) {
-    var _req$files2, passportCopy, visaCopy;
+    var _req$files, personal_image, passport_copy;
     return _regeneratorRuntime().wrap(function _callee9$(_context9) {
       while (1) switch (_context9.prev = _context9.next) {
         case 0:
           _context9.prev = 0;
           //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
-          _req$files2 = req.files, passportCopy = _req$files2.passportCopy, visaCopy = _req$files2.visaCopy;
-          if (visaCopy) {
+          //console.log(req.files);
+          _req$files = req.files, personal_image = _req$files.personal_image, passport_copy = _req$files.passport_copy;
+          if (!(!personal_image || !passport_copy)) {
             _context9.next = 4;
             break;
           }
-          return _context9.abrupt("return", next(new ErrorResponse('You must specify one passport copy and one visa copy', _httpStatus["default"].FORBIDDEN)));
+          return _context9.abrupt("return", next(new ErrorResponse('You must specify one profile pic and one nid copy', _httpStatus["default"].FORBIDDEN)));
         case 4:
-          if (!(visaCopy.length === 0)) {
+          if (!(personal_image.length !== 1 || passport_copy.length !== 1)) {
             _context9.next = 6;
             break;
           }
-          return _context9.abrupt("return", next(new ErrorResponse('You must upload visa copy', _httpStatus["default"].FORBIDDEN)));
+          return _context9.abrupt("return", next(new ErrorResponse('You must specify one profile pic and one nid copy', _httpStatus["default"].FORBIDDEN)));
         case 6:
+          //console.log(profilePic[0], nidCopy[0])
+
           // use in saveGCP file
-          req.file = passportCopy[0];
+          req.file = personal_image[0];
           _context9.next = 9;
           return saveOnGCP(req);
         case 9:
-          req.passportCopy = _context9.sent;
-          req.file = visaCopy[0];
+          req.personal_image = _context9.sent;
+          req.file = passport_copy[0];
           _context9.next = 13;
           return saveOnGCP(req);
         case 13:
-          req.visaCopy = _context9.sent;
+          req.passport_copy = _context9.sent;
           next();
           _context9.next = 20;
           break;
@@ -515,7 +503,56 @@ var handlePassportVisa = exports.handlePassportVisa = /*#__PURE__*/function () {
       }
     }, _callee9, null, [[0, 17]]);
   }));
-  return function handlePassportVisa(_x30, _x31, _x32) {
+  return function handleSpecificImage(_x30, _x31, _x32) {
     return _ref9.apply(this, arguments);
+  };
+}();
+var handlePassportVisa = exports.handlePassportVisa = /*#__PURE__*/function () {
+  var _ref10 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(req, res, next) {
+    var _req$files2, passportCopy, visaCopy;
+    return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+      while (1) switch (_context10.prev = _context10.next) {
+        case 0:
+          _context10.prev = 0;
+          //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
+          _req$files2 = req.files, passportCopy = _req$files2.passportCopy, visaCopy = _req$files2.visaCopy;
+          if (visaCopy) {
+            _context10.next = 4;
+            break;
+          }
+          return _context10.abrupt("return", next(new ErrorResponse('You must specify one passport copy and one visa copy', _httpStatus["default"].FORBIDDEN)));
+        case 4:
+          if (!(visaCopy.length === 0)) {
+            _context10.next = 6;
+            break;
+          }
+          return _context10.abrupt("return", next(new ErrorResponse('You must upload visa copy', _httpStatus["default"].FORBIDDEN)));
+        case 6:
+          // use in saveGCP file
+          req.file = passportCopy[0];
+          _context10.next = 9;
+          return saveOnGCP(req);
+        case 9:
+          req.passportCopy = _context10.sent;
+          req.file = visaCopy[0];
+          _context10.next = 13;
+          return saveOnGCP(req);
+        case 13:
+          req.visaCopy = _context10.sent;
+          next();
+          _context10.next = 20;
+          break;
+        case 17:
+          _context10.prev = 17;
+          _context10.t0 = _context10["catch"](0);
+          next(_context10.t0);
+        case 20:
+        case "end":
+          return _context10.stop();
+      }
+    }, _callee10, null, [[0, 17]]);
+  }));
+  return function handlePassportVisa(_x33, _x34, _x35) {
+    return _ref10.apply(this, arguments);
   };
 }();

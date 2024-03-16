@@ -106,7 +106,6 @@ const myTravelerList = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const result = await UserService.updateUser(req,res)
-
   return result;
 };
 

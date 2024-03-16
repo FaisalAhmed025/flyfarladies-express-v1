@@ -79,7 +79,32 @@ export const imageHandler = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const optionalImage = async (req, res, next) => {
+
+  try {
+      if (!req.file) {
+          //  delete req.url
+          return next()
+      } else {
+          await imageHandler(req, res, next)
+          // next()
+      }
+
+  } catch (err) {
+
+      next(err)
+  }
+}
+
+
 export const imageHandlerUpdate = async (req, res, next) => {
+
+  if (!req.file) {
+    //  delete req.url
+    return next()
+} 
   // Check if req.file is defined
   if (req.file) {
     // File upload is available

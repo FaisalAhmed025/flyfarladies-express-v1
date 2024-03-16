@@ -11,6 +11,7 @@ var _userroute = _interopRequireDefault(require("./user/userroute"));
 var _depositeRoute = _interopRequireDefault(require("./deposit/depositeRoute"));
 var _bookingRoute = _interopRequireDefault(require("./booking/bookingRoute"));
 var _route = _interopRequireDefault(require("./presscoverage/route"));
+var _route2 = _interopRequireDefault(require("./payment/route"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 var app = (0, _express["default"])();
 app.use(_express["default"].json());
@@ -38,6 +39,7 @@ app.use('/api/v1/user', _userroute["default"]);
 app.use("/api/v1/deposit", _depositeRoute["default"]);
 app.use("/api/v1/booking", _bookingRoute["default"]);
 app.use("/api/v1/press", _route["default"]);
+app.use("/api/v1/payment", _route2["default"]);
 app.get("/", function (req, res, next) {
   res.send("Welcome to FlyFar Ladies Express");
 });

@@ -4,7 +4,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.BookingService = void 0;
+exports.bookingStatus = exports.BookingService = void 0;
 var _httpStatus = _interopRequireDefault(require("http-status"));
 var _expressSharp = require("express-sharp");
 var _db = _interopRequireDefault(require("../database/db"));
@@ -19,13 +19,20 @@ function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" !=
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+var bookingStatus = exports.bookingStatus = {
+  HOLD: "hold",
+  PAID: "paid",
+  ISSUE_IN_PROCESS: "issue_in_process",
+  CONFIRMED: 'confirmed',
+  CANCELLED: "cancelled"
+};
 var generatebookingId = function generatebookingId() {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLB" + Math.floor(Math.random() * 10000);
 };
 var Book$Hold = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(req, res) {
-    var userid, userQuery, _yield$pool$query, _yield$pool$query2, user, _user$, email, wallet, name, phone, packgeId, packgaeQuery, _yield$pool$query3, _yield$pool$query4, tourpackage, _req$body, adult, child, infant, bookingid, adultTravelersValues, _iterator, _step, adulttraveler, afName, alName, adob, passDate, PassportNumber, Nationality, agender, aPaxType, addpassenger, childTravelersValues, _iterator2, _step2, childtraveler, cfName, clName, cdob, cpassDate, cpassportNumber, cnationality, cgender, cpaxType, addChildPassengerQuery, newTravelerResult, newTravelers, infantTravelersValues, _iterator3, _step3, infanttraveler, ipaxType, ifName, ilName, inationality, igender, idob, ipassDate, ipassportNumber, addInfantPassengerQuery, totaladult, totalchild, totalinfant, adultprice, childprice, infantprice, totalpackageprice, values, _yield$pool$query5, _yield$pool$query6, result;
+    var userid, userQuery, _yield$pool$query, _yield$pool$query2, user, _user$, email, wallet, name, phone, packgeId, packgaeQuery, _yield$pool$query3, _yield$pool$query4, tourpackage, _req$body, adult, child, infant, bookingid, adultTravelersValues, _iterator, _step, adulttraveler, afName, alName, adob, passDate, PassportNumber, Nationality, agender, aPaxType, addpassenger, childTravelersValues, _iterator2, _step2, childtraveler, cfName, clName, cdob, cpassDate, cpassportNumber, cnationality, cgender, cpaxType, addChildPassengerQuery, newTravelerResult, newTravelers, infantTravelersValues, _iterator3, _step3, infanttraveler, ipaxType, ifName, ilName, inationality, igender, idob, ipassDate, ipassportNumber, addInfantPassengerQuery, totaladult, totalchild, totalinfant, _bookingStatus, adultprice, childprice, infantprice, totalpackageprice, values, _yield$pool$query5, _yield$pool$query6, result;
     return _regeneratorRuntime().wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
@@ -136,17 +143,18 @@ var Book$Hold = /*#__PURE__*/function () {
           totaladult = adult.length;
           totalchild = child.length;
           totalinfant = infant.length;
+          _bookingStatus = _bookingStatus.HOLD;
           adultprice = tourpackage[0].adult_base_price * totaladult;
           childprice = tourpackage[0].child_base_price * totalchild;
           infantprice = tourpackage[0].infant_base_price * totalinfant;
           console.log(adultprice, childprice, infantprice);
           totalpackageprice = adultprice + childprice + infantprice;
           console.log(totalpackageprice);
-          values = [bookingid, userid, email, name, wallet, tourpackage[0].PkID, tourpackage[0].MainTitle, tourpackage[0].StartDate, tourpackage[0].EndDate, tourpackage[0].TripType, tourpackage[0].TotalDuration, tourpackage[0].adult_base_price, tourpackage[0].child_base_price, tourpackage[0].infant_base_price, tourpackage[0].booking_money, tourpackage[0].first_installment, tourpackage[0].second_installment, tourpackage[0].booking_money_due_date, tourpackage[0].first_installment_due_date, tourpackage[0].second_installment_due_date, totaladult, totalchild, totalinfant, totalpackageprice];
+          values = [bookingid, userid, email, name, wallet, tourpackage[0].PkID, tourpackage[0].MainTitle, tourpackage[0].StartDate, tourpackage[0].EndDate, tourpackage[0].TripType, tourpackage[0].TotalDuration, tourpackage[0].adult_base_price, tourpackage[0].child_base_price, tourpackage[0].infant_base_price, tourpackage[0].booking_money, tourpackage[0].first_installment, tourpackage[0].second_installment, tourpackage[0].booking_money_due_date, tourpackage[0].first_installment_due_date, tourpackage[0].second_installment_due_date, totaladult, totalchild, totalinfant, totalpackageprice, _bookingStatus];
           console.log(values);
-          _context.next = 59;
-          return _db["default"].query("INSERT INTO booking (\n        bookingid,\n        userid,\n        email,\n        name,\n        wallet,\n        PkID,\n        MainTitle,\n        StartDate,\n        EndDate,\n        TripType,\n        TotalDuration,\n        adult_base_price,\n        child_base_price,\n        infant_base_price,\n        booking_money,\n        first_installment,\n        second_installment,\n        booking_money_due_date,\n        first_installment_due_date,\n        second_installment_due_date,\n        totaladult,\n        totalchild,\n        totalinfant,\n        totalAmount\n\n      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)", values);
-        case 59:
+          _context.next = 60;
+          return _db["default"].query("INSERT INTO booking (\n        bookingid,\n        userid,\n        email,\n        name,\n        wallet,\n        PkID,\n        MainTitle,\n        StartDate,\n        EndDate,\n        TripType,\n        TotalDuration,\n        adult_base_price,\n        child_base_price,\n        infant_base_price,\n        booking_money,\n        first_installment,\n        second_installment,\n        booking_money_due_date,\n        first_installment_due_date,\n        second_installment_due_date,\n        totaladult,\n        totalchild,\n        totalinfant,\n        totalAmount,\n        bookingStatus\n\n      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)", values);
+        case 60:
           _yield$pool$query5 = _context.sent;
           _yield$pool$query6 = _slicedToArray(_yield$pool$query5, 1);
           result = _yield$pool$query6[0];
@@ -155,15 +163,15 @@ var Book$Hold = /*#__PURE__*/function () {
             status: "success",
             message: "Travel package added successfully"
           }));
-        case 66:
-          _context.prev = 66;
+        case 67:
+          _context.prev = 67;
           _context.t0 = _context["catch"](0);
           console.log(_context.t0);
-        case 69:
+        case 70:
         case "end":
           return _context.stop();
       }
-    }, _callee, null, [[0, 66]]);
+    }, _callee, null, [[0, 67]]);
   }));
   return function Book$Hold(_x, _x2) {
     return _ref.apply(this, arguments);

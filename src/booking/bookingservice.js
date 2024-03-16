@@ -3,6 +3,17 @@ import {HttpException} from "express-sharp";
 import pool from "../database/db";
 
 
+export const bookingStatus = {
+  HOLD: "hold",
+  PAID: "paid",
+  ISSUE_IN_PROCESS: "issue_in_process",
+  CONFIRMED:'confirmed',
+  CANCELLED: "cancelled"
+};
+
+
+
+
 const generatebookingId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLB" + Math.floor(Math.random() * 10000);
@@ -172,6 +183,8 @@ const totaladult = adult.length
 const totalchild = child.length
 const totalinfant = infant.length
 
+const bookingStatus  =  bookingStatus.HOLD
+
 const adultprice =  tourpackage[0].adult_base_price *totaladult;
 const childprice=  tourpackage[0].child_base_price * totalchild;
 const infantprice  = tourpackage[0].infant_base_price * totalinfant;
@@ -208,6 +221,7 @@ console.log(totalpackageprice);
       totalchild,
       totalinfant,
       totalpackageprice,
+      bookingStatus
       
     ];
 
@@ -238,7 +252,8 @@ console.log(totalpackageprice);
         totaladult,
         totalchild,
         totalinfant,
-        totalAmount
+        totalAmount,
+        bookingStatus
 
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)`,
       values
@@ -277,5 +292,5 @@ const getSingleBooking = async (req,res) =>{
 export const BookingService = {
   Book$Hold,
   getAllBooking,
-  getSingleBooking
+  getSingleBooking,
 }

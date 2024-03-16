@@ -140,6 +140,8 @@ const updateUser = async (req, res) => {
         // Validate the request body against the schema
         req.body = userSchema.parse(req.body);
 
+        if(req.publicImageLink) req.body.passport_copy  = req.publicImageLink
+
         const updateQuery = `
             UPDATE ${table}
             SET ?
@@ -231,6 +233,7 @@ const addtravler = async (req) => {
   }
 };
 
+
 const travelerSchema = object({
   first_name: string(),
   last_name: string(),
@@ -241,8 +244,12 @@ const travelerSchema = object({
   passport_ex_date: date(),
   email: string().email(),
   phone: string(),
-  pax_type: string()
+  pax_type: string(),
+
 }).partial()
+
+
+
 
 
 const updateTraveler = async (req, res) => {
@@ -253,10 +260,9 @@ const updateTraveler = async (req, res) => {
     const table = 'travel_partners';
     // Validate the request body against the schema
     req.body = travelerSchema.parse(req.body);
+    if(req.publicImageLink) req.body.passport_copy  = req.publicImageLink
 
-   const travellerimages = req.publicImageLink
-
-    console.log(req.body)
+    console.log(req.publicImageLink) 
 
     const updateQuery = `
         UPDATE ${table}
@@ -265,13 +271,12 @@ const updateTraveler = async (req, res) => {
     `;
 
     // Execute the update query with the validated data
-    const [updateData] = await pool.query(updateQuery, [req.body, travellerimages, partnerId]);
+    const [updateData] = await pool.query(updateQuery, [req.body, partnerId]);
     return updateData;
 } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ error: "Error updating user" });
 }
-
 };
 
 const myTravelerList = async (req, res) => {
