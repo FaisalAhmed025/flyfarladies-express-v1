@@ -55,6 +55,7 @@ const updateTravlercontroller = async (req, res) => {
       message: 'traveller updated successfully',
       data: result,
     });
+    
   } catch (error) {
     console.error(error);
     return res.status(500).json({

@@ -276,7 +276,12 @@ const updateTraveler = async (req, res) => {
 
     // Execute the update query with the validated data
     const [updateData] = await pool.query(updateQuery, [req.body, partnerId]);
-    return updateData;
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      message: 'traveller updated successfully',
+      data: updateData,
+    });
 } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ error: "Error updating user" });
@@ -288,7 +293,11 @@ const myTravelerList = async (req, res) => {
     const userid = req.params.user_id;
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
-    return result;
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      data: result,
+    });
   } catch (error) {
     console.log();
   }
@@ -299,7 +308,11 @@ const deleteTraveller = async (req, res) => {
     const partnerId = req.params.partnerId;
     const query = `DELETE FROM travel_partners WHERE  partnerId = ?`;
     const [result] = await pool.query(query, [partnerId]);
-    return result;
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      data: result,
+    });
   } catch (error) {
     console.log();
   }
