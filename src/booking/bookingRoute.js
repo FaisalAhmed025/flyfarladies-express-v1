@@ -8,5 +8,4 @@ router.get("/book/allbooking", bookingController.getAllBookings)
 router.get("/book/single/:bookingid", bookingController.getSingleBookings)
 
 
-
 export default router;

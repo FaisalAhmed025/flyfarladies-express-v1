@@ -54,7 +54,6 @@ try {
     const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
     await pool.query(updateuserbalancequery,walletvalue);
 
-   
 
     const bookingstatus = bookingStatus.CONFIRMED
     const paymentstatus = payementStatus.PAID
@@ -93,6 +92,41 @@ try {
   throw error;
   
 }
+
+
+
+
+
+}
+
+
+const paywithfirstInstalment = async (req,res) =>{
+
+  const bookingid = req.params.bookingid
+  const userid = req.params.id
+
+  const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
+
+  const [booking] = await pool.query(packagequery, [bookingid])
+
+  if (!booking || booking.length === 0) {
+    throw new NotFoundException('Booking not found');
+  }
+
+  if (booking[0].bookingStatus !== 'HOLD') {
+    throw new NotFoundException('Booking request already approved or Rejected');
+  }
+  const userquery =  `SELECT * FROM user WHERE id = ?`
+
+  const [user] = await pool.query(userquery, [userid]);
+
+  if (!user || user.length === 0) {
+    throw new NotFoundException('User not found');
+  }
+
+  const bookingamount = booking[0].booking_money;
+  console.log(user[0].wallet)
+  console.log(bookingamount)
 
 
 
