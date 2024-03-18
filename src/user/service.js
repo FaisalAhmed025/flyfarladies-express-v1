@@ -55,7 +55,11 @@ const Register = async (req, res) => {
     );
 
     console.log("User created successfully");
-    res.status(201).json(newUser);
+    return result && res.status(200).send({
+      success: true,
+      message: 'Register successfully',
+      data: result
+  })
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ error: "Error creating user" });
@@ -99,7 +103,7 @@ const login = async (req, res) => {
       user[0].id,
     ]);
     console.log("User login successful");
-    res
+    return res
       .status(200)
       .json({
         status: "success",

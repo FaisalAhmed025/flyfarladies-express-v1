@@ -3,21 +3,13 @@ import { UserService } from "./service";
 
 
 const RegisterUser = async (req, res) => {
-  const result = await UserService.Register(req,res)
- return result && res.status(200).send({
-      success: true,
-      message: 'Register successfully',
-      data: result
-  })
+   await UserService.Register(req,res)
+
 };
 
 const loginuser = async (req, res) => {
-  const result = await UserService.login(req,res)
- return result && res.status(200).send({
-      success: true,
-      message: 'login successfully',
-      data: result
-  })
+   await UserService.login(req,res)
+
 };
 
 
