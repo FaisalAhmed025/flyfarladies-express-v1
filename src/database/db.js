@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise'
 const db = {
-    port: 3306,
+    // port: 3306,
     // host: '127.0.0.1',
     // user: 'root',
     // password: '',

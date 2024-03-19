@@ -23,9 +23,31 @@ const paybookingamount =  async (req,res)=>{
   });
 }
 
+const paySecondInstallment =  async (req,res)=>{
+  const result = await payemntService.paySecondInstallment(req,res)
+  res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      'payment Successful',
+    data: result,
+  });
+}
+
+const paythiredInstallment =  async (req,res)=>{
+  const result = await payemntService.paythiredInstallment(req,res)
+  res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      'payment Successful',
+    data: result,
+  });
+}
+
 
 export const paymentController =  {
   paywithwallet,
-  paybookingamount
+  paybookingamount,
+  paySecondInstallment,
+  paythiredInstallment
 }
 
