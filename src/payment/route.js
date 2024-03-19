@@ -5,5 +5,6 @@ import { paymentController } from './controller';
 const router  = express.Router()
 
 router.post('/wallet/userid/:id/bookingid/:bookingid', paymentController.paywithwallet)
+router.post('/wallet/bookingamount/userid/:id/bookingid/:bookingid', paymentController.paybookingamount)
 
 export default router;

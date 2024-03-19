@@ -276,12 +276,7 @@ const updateTraveler = async (req, res) => {
 
     // Execute the update query with the validated data
     const [updateData] = await pool.query(updateQuery, [req.body, partnerId]);
-    return res.status(200).json({
-      success: true,
-      status: httpStatus.OK,
-      message: 'traveller updated successfully',
-      data: updateData,
-    });
+    return updateData;
 } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ error: "Error updating user" });

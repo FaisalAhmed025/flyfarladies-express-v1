@@ -5,14 +5,21 @@ import { HttpException, NotFoundException } from "express-sharp"
 
 export const payementStatus ={
   PAID: 'paid',
-  UNPAID: "unpaid"
+  UNPAID: 'unpaid',
+  BOOKINGSTATUS: 'bookingamount paid',
+  FIRSTINSTALLMENT:'first installment paid',
+  SECONDINSTALLMENT: 'second installment paid'
+}
+
+export const bookingAmountStatus = {
+  COMPLETED: 'completed',
+  INCOMPLETED: 'incompleted'
 }
 
 
 
 const paywithwallet = async(req,res)=>{
 try {
-
   const  userid = req.params.id
   const bookingid = req.params.bookingid
   const  bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
@@ -100,7 +107,7 @@ try {
 }
 
 
-const paywithfirstInstalment = async (req,res) =>{
+const paybookingamount = async (req,res) =>{
 
   const bookingid = req.params.bookingid
   const userid = req.params.id
@@ -123,17 +130,57 @@ const paywithfirstInstalment = async (req,res) =>{
   if (!user || user.length === 0) {
     throw new NotFoundException('User not found');
   }
-
   const bookingamount = booking[0].booking_money;
-  console.log(user[0].wallet)
-  console.log(bookingamount)
+  console.log(user[0].wallet);
+  console.log(bookingamount);
 
+  const currentDate = new Date(); // Use JavaScript Date objects
+  const dueDate = booking.booking_money_due_date;
+  if (currentDate > dueDate) {
+    throw new HttpException(
+      'The due date for the installment has passed please contact with us',
+      httpStatus.BAD_REQUEST,
+    );
+  }
 
+    // Check wallet balance
+    if (user[0].wallet < bookingamount) {
+    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+  }
 
+ 
+   const updatedwalet =  user[0].wallet - bookingamount
+   console.log(updatedwalet);
 
+   const value =[
+    updatedwalet,
+    userid
+   ]
+
+  const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
+  await pool.query(updatequery, value)
+
+  const paymentstatus  = payementStatus.BOOKINGSTATUS
+  const bookingamountstatus = booking[0].bookingAmountStatus
+  const lastbalance = user[0].wallet
+  const bookingamountpaiddate = new Date()
+
+  const valuedata =  [
+    paymentstatus,
+    bookingamountstatus,
+    bookingamountpaiddate,
+    lastbalance,
+    bookingid
+  ]
+
+  const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
+
+  const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
+  return updatebooing;
 
 }
 
 export const payemntService = {
-  paywithwallet
+  paywithwallet,
+  paybookingamount
 }
