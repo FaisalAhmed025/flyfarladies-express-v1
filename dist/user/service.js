@@ -79,9 +79,11 @@ var Register = /*#__PURE__*/function () {
           _yield$pool$query4 = _slicedToArray(_yield$pool$query3, 1);
           result = _yield$pool$query4[0];
           console.log("User created successfully");
-          res.status(201).json(newUser);
-          _context.next = 28;
-          break;
+          return _context.abrupt("return", result && res.status(200).send({
+            success: true,
+            message: 'Register successfully',
+            data: result
+          }));
         case 24:
           _context.prev = 24;
           _context.t0 = _context["catch"](0);
@@ -145,14 +147,12 @@ var login = /*#__PURE__*/function () {
           return _db["default"].query("UPDATE user SET token = ? WHERE id = ?", [token, user[0].id]);
         case 16:
           console.log("User login successful");
-          res.status(200).json({
+          return _context2.abrupt("return", res.status(200).json({
             status: "success",
             message: "Login successful",
             user: user[0],
             token: token
-          });
-          _context2.next = 24;
-          break;
+          }));
         case 20:
           _context2.prev = 20;
           _context2.t0 = _context2["catch"](0);
@@ -384,7 +384,11 @@ var myTravelerList = /*#__PURE__*/function () {
           _yield$pool$query15 = _context7.sent;
           _yield$pool$query16 = _slicedToArray(_yield$pool$query15, 1);
           result = _yield$pool$query16[0];
-          return _context7.abrupt("return", result);
+          return _context7.abrupt("return", res.status(200).json({
+            success: true,
+            status: httpStatus.OK,
+            data: result
+          }));
         case 11:
           _context7.prev = 11;
           _context7.t0 = _context7["catch"](0);
@@ -414,7 +418,11 @@ var deleteTraveller = /*#__PURE__*/function () {
           _yield$pool$query17 = _context8.sent;
           _yield$pool$query18 = _slicedToArray(_yield$pool$query17, 1);
           result = _yield$pool$query18[0];
-          return _context8.abrupt("return", result);
+          return _context8.abrupt("return", res.status(200).json({
+            success: true,
+            status: httpStatus.OK,
+            data: result
+          }));
         case 11:
           _context8.prev = 11;
           _context8.t0 = _context8["catch"](0);

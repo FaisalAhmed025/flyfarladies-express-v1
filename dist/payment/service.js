@@ -4,7 +4,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.payemntService = exports.payementStatus = void 0;
+exports.payemntService = exports.payementStatus = exports.installmentStatus = void 0;
 var _httpStatus = _interopRequireDefault(require("http-status"));
 var _db = _interopRequireDefault(require("../database/db"));
 var _bookingservice = require("../booking/bookingservice");
@@ -21,7 +21,14 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 var payementStatus = exports.payementStatus = {
   PAID: 'paid',
-  UNPAID: "unpaid"
+  UNPAID: 'unpaid',
+  BOOKINGSTATUS: 'bookingamount paid',
+  FIRSTINSTALLMENT: 'first installment paid',
+  SECONDINSTALLMENT: 'second installment paid'
+};
+var installmentStatus = exports.installmentStatus = {
+  COMPLETED: 'completed',
+  INCOMPLETED: 'incompleted'
 };
 var paywithwallet = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(req, res) {
@@ -116,14 +123,14 @@ var paywithwallet = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-var paywithfirstInstalment = /*#__PURE__*/function () {
+var paybookingamount = /*#__PURE__*/function () {
   var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(req, res) {
-    var bookingid, userid, packagequery, _yield$pool$query7, _yield$pool$query8, booking, userquery, _yield$pool$query9, _yield$pool$query10, user, bookingamount;
+    var bookingid, userid, packagequery, _yield$pool$query7, _yield$pool$query8, booking, userquery, _yield$pool$query9, _yield$pool$query10, user, bookingamount, currentDate, dueDate, updatedwalet, value, updatequery, paymentstatus, bookingamountstatus, lastbalance, bookingamountpaiddate, valuedata, updateBookingquery, _yield$pool$query11, _yield$pool$query12, updatebooing;
     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
-          bookingid = req.params.bookingid;
-          userid = req.params.id;
+          bookingid = req.body.bookingid;
+          userid = req.body.id;
           packagequery = "SELECT *  FROM booking WHERE bookingid =?";
           _context2.next = 5;
           return _db["default"].query(packagequery, [bookingid]);
@@ -159,16 +166,240 @@ var paywithfirstInstalment = /*#__PURE__*/function () {
           bookingamount = booking[0].booking_money;
           console.log(user[0].wallet);
           console.log(bookingamount);
-        case 23:
+          currentDate = new Date(); // Use JavaScript Date objects
+          dueDate = booking.booking_money_due_date;
+          if (!(currentDate > dueDate)) {
+            _context2.next = 27;
+            break;
+          }
+          throw new _expressSharp.HttpException('The due date for the installment has passed please contact with us', _httpStatus["default"].BAD_REQUEST);
+        case 27:
+          if (!(user[0].wallet < bookingamount)) {
+            _context2.next = 29;
+            break;
+          }
+          throw new _expressSharp.HttpException('Insufficient balance! please deposit to your wallet', _httpStatus["default"].BAD_REQUEST);
+        case 29:
+          updatedwalet = user[0].wallet - bookingamount;
+          console.log(updatedwalet);
+          value = [updatedwalet, userid];
+          updatequery = "UPDATE user SET wallet = ? WHERE id =? ";
+          _context2.next = 35;
+          return _db["default"].query(updatequery, value);
+        case 35:
+          paymentstatus = payementStatus.BOOKINGSTATUS;
+          bookingamountstatus = installmentStatus.COMPLETED;
+          lastbalance = user[0].wallet;
+          bookingamountpaiddate = new Date();
+          valuedata = [paymentstatus, bookingamountstatus, bookingamountpaiddate, lastbalance, bookingid];
+          updateBookingquery = "UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? ";
+          _context2.next = 43;
+          return _db["default"].query(updateBookingquery, valuedata);
+        case 43:
+          _yield$pool$query11 = _context2.sent;
+          _yield$pool$query12 = _slicedToArray(_yield$pool$query11, 1);
+          updatebooing = _yield$pool$query12[0];
+          return _context2.abrupt("return", updatebooing);
+        case 47:
         case "end":
           return _context2.stop();
       }
     }, _callee2);
   }));
-  return function paywithfirstInstalment(_x3, _x4) {
+  return function paybookingamount(_x3, _x4) {
     return _ref2.apply(this, arguments);
   };
 }();
+var paySecondInstallment = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
+    var bookingid, userid, packagequery, _yield$pool$query13, _yield$pool$query14, booking, userquery, _yield$pool$query15, _yield$pool$query16, user, first_installment, currentDate, dueDate, updatedwalet, value, updatequery, paymentstatus, firstInstallmentStatus, lastbalance, firstinstallmentpaiddate, valuedata, updateBookingquery, _yield$pool$query17, _yield$pool$query18, updatebooing;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          bookingid = req.body.bookingid;
+          userid = req.body.id;
+          packagequery = "SELECT *  FROM booking WHERE bookingid =?";
+          _context3.next = 5;
+          return _db["default"].query(packagequery, [bookingid]);
+        case 5:
+          _yield$pool$query13 = _context3.sent;
+          _yield$pool$query14 = _slicedToArray(_yield$pool$query13, 1);
+          booking = _yield$pool$query14[0];
+          if (!(!booking || booking.length === 0)) {
+            _context3.next = 10;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('Booking not found');
+        case 10:
+          if (!(booking[0].bookingStatus !== 'HOLD')) {
+            _context3.next = 12;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('Booking request already approved or Rejected');
+        case 12:
+          if (!(booking[0].bookingAmountStatus !== 'completed')) {
+            _context3.next = 14;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('booking amount is not paid yet');
+        case 14:
+          userquery = "SELECT * FROM user WHERE id = ?";
+          _context3.next = 17;
+          return _db["default"].query(userquery, [userid]);
+        case 17:
+          _yield$pool$query15 = _context3.sent;
+          _yield$pool$query16 = _slicedToArray(_yield$pool$query15, 1);
+          user = _yield$pool$query16[0];
+          if (!(!user || user.length === 0)) {
+            _context3.next = 22;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('User not found');
+        case 22:
+          first_installment = booking[0].first_installment;
+          console.log(user[0].wallet);
+          console.log(first_installment);
+          currentDate = new Date(); // Use JavaScript Date objects
+          dueDate = booking.first_installment_due_date;
+          if (!(currentDate > dueDate)) {
+            _context3.next = 29;
+            break;
+          }
+          throw new _expressSharp.HttpException('The due date for the installment has passed please contact with us', _httpStatus["default"].BAD_REQUEST);
+        case 29:
+          if (!(user[0].wallet < first_installment)) {
+            _context3.next = 31;
+            break;
+          }
+          throw new _expressSharp.HttpException('Insufficient balance! please deposit to your wallet', _httpStatus["default"].BAD_REQUEST);
+        case 31:
+          updatedwalet = user[0].wallet - first_installment;
+          console.log(updatedwalet);
+          value = [updatedwalet, userid];
+          updatequery = "UPDATE user SET wallet = ? WHERE id =? ";
+          _context3.next = 37;
+          return _db["default"].query(updatequery, value);
+        case 37:
+          paymentstatus = payementStatus.FIRSTINSTALLMENT;
+          firstInstallmentStatus = installmentStatus.COMPLETED;
+          lastbalance = user[0].wallet;
+          firstinstallmentpaiddate = new Date();
+          valuedata = [paymentstatus, firstInstallmentStatus, firstinstallmentpaiddate, lastbalance, bookingid];
+          updateBookingquery = "UPDATE booking SET paymentStatus = ?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? ";
+          _context3.next = 45;
+          return _db["default"].query(updateBookingquery, valuedata);
+        case 45:
+          _yield$pool$query17 = _context3.sent;
+          _yield$pool$query18 = _slicedToArray(_yield$pool$query17, 1);
+          updatebooing = _yield$pool$query18[0];
+          return _context3.abrupt("return", updatebooing);
+        case 49:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3);
+  }));
+  return function paySecondInstallment(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var paythiredInstallment = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(req, res) {
+    var bookingid, userid, packagequery, _yield$pool$query19, _yield$pool$query20, booking, userquery, _yield$pool$query21, _yield$pool$query22, user, second_installment, currentDate, dueDate, updatedwalet, value, updatequery, paymentstatus, InstallmentStatus, lastbalance, installmentpaidate, bookingstatus, valuedata, updateBookingquery, _yield$pool$query23, _yield$pool$query24, updatebooing;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          bookingid = req.body.bookingid;
+          userid = req.body.id;
+          packagequery = "SELECT *  FROM booking WHERE bookingid =?";
+          _context4.next = 5;
+          return _db["default"].query(packagequery, [bookingid]);
+        case 5:
+          _yield$pool$query19 = _context4.sent;
+          _yield$pool$query20 = _slicedToArray(_yield$pool$query19, 1);
+          booking = _yield$pool$query20[0];
+          if (!(!booking || booking.length === 0)) {
+            _context4.next = 10;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('Booking not found');
+        case 10:
+          if (!(booking[0].bookingStatus !== 'HOLD')) {
+            _context4.next = 12;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('Booking request already approved or Rejected');
+        case 12:
+          if (!(booking[0].firstInstallmentStatus !== 'completed')) {
+            _context4.next = 14;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('first installment is not paid yet');
+        case 14:
+          userquery = "SELECT * FROM user WHERE id = ?";
+          _context4.next = 17;
+          return _db["default"].query(userquery, [userid]);
+        case 17:
+          _yield$pool$query21 = _context4.sent;
+          _yield$pool$query22 = _slicedToArray(_yield$pool$query21, 1);
+          user = _yield$pool$query22[0];
+          if (!(!user || user.length === 0)) {
+            _context4.next = 22;
+            break;
+          }
+          throw new _expressSharp.NotFoundException('User not found');
+        case 22:
+          second_installment = booking[0].second_installment;
+          console.log(user[0].wallet);
+          console.log(second_installment);
+          currentDate = new Date(); // Use JavaScript Date objects
+          dueDate = booking.second_installment_due_date;
+          if (!(currentDate > dueDate)) {
+            _context4.next = 29;
+            break;
+          }
+          throw new _expressSharp.HttpException('The due date for the installment has passed please contact with us', _httpStatus["default"].BAD_REQUEST);
+        case 29:
+          if (!(user[0].wallet < second_installment)) {
+            _context4.next = 31;
+            break;
+          }
+          throw new _expressSharp.HttpException('Insufficient balance! please deposit to your wallet', _httpStatus["default"].BAD_REQUEST);
+        case 31:
+          updatedwalet = user[0].wallet - second_installment;
+          console.log(updatedwalet);
+          value = [updatedwalet, userid];
+          updatequery = "UPDATE user SET wallet = ? WHERE id =? ";
+          _context4.next = 37;
+          return _db["default"].query(updatequery, value);
+        case 37:
+          paymentstatus = payementStatus.PAID;
+          InstallmentStatus = installmentStatus.COMPLETED;
+          lastbalance = user[0].wallet;
+          installmentpaidate = new Date();
+          bookingstatus = _bookingservice.bookingStatus.ISSUE_IN_PROCESS;
+          valuedata = [paymentstatus, InstallmentStatus, installmentpaidate, bookingstatus, lastbalance, bookingid];
+          updateBookingquery = "UPDATE booking SET paymentStatus = ?, secondInstallmentStatus = ? ,secondinstallmentpaidate =?, bookingStatus = ?,  wallet = ? WHERE bookingid= ? ";
+          _context4.next = 46;
+          return _db["default"].query(updateBookingquery, valuedata);
+        case 46:
+          _yield$pool$query23 = _context4.sent;
+          _yield$pool$query24 = _slicedToArray(_yield$pool$query23, 1);
+          updatebooing = _yield$pool$query24[0];
+          return _context4.abrupt("return", updatebooing);
+        case 50:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4);
+  }));
+  return function paythiredInstallment(_x7, _x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 var payemntService = exports.payemntService = {
-  paywithwallet: paywithwallet
+  paywithwallet: paywithwallet,
+  paybookingamount: paybookingamount,
+  paySecondInstallment: paySecondInstallment,
+  paythiredInstallment: paythiredInstallment
 };

@@ -36,6 +36,84 @@ var paywithwallet = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var paybookingamount = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(req, res) {
+    var result;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.next = 2;
+          return _service.payemntService.paybookingamount(req, res);
+        case 2:
+          result = _context2.sent;
+          res.status(_httpStatus["default"].OK).json({
+            success: true,
+            message: 'payment Successful',
+            data: result
+          });
+        case 4:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2);
+  }));
+  return function paybookingamount(_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var paySecondInstallment = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(req, res) {
+    var result;
+    return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+      while (1) switch (_context3.prev = _context3.next) {
+        case 0:
+          _context3.next = 2;
+          return _service.payemntService.paySecondInstallment(req, res);
+        case 2:
+          result = _context3.sent;
+          res.status(_httpStatus["default"].OK).json({
+            success: true,
+            message: 'payment Successful',
+            data: result
+          });
+        case 4:
+        case "end":
+          return _context3.stop();
+      }
+    }, _callee3);
+  }));
+  return function paySecondInstallment(_x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+var paythiredInstallment = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(req, res) {
+    var result;
+    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+      while (1) switch (_context4.prev = _context4.next) {
+        case 0:
+          _context4.next = 2;
+          return _service.payemntService.paythiredInstallment(req, res);
+        case 2:
+          result = _context4.sent;
+          res.status(_httpStatus["default"].OK).json({
+            success: true,
+            message: 'payment Successful',
+            data: result
+          });
+        case 4:
+        case "end":
+          return _context4.stop();
+      }
+    }, _callee4);
+  }));
+  return function paythiredInstallment(_x7, _x8) {
+    return _ref4.apply(this, arguments);
+  };
+}();
 var paymentController = exports.paymentController = {
-  paywithwallet: paywithwallet
+  paywithwallet: paywithwallet,
+  paybookingamount: paybookingamount,
+  paySecondInstallment: paySecondInstallment,
+  paythiredInstallment: paythiredInstallment
 };

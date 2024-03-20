@@ -11,6 +11,7 @@ import depositRoute from './deposit/depositeRoute'
 import bookingRouter  from './booking/bookingRoute';
 import presscoverageRoute  from './presscoverage/route'
 import paymentRoute  from './payment/route'
+import wishlistRoute from './wishlist/route'
 
 const app = express();
 app.use(express.json());
@@ -47,6 +48,7 @@ app.use("/api/v1/deposit", depositRoute )
 app.use("/api/v1/booking",  bookingRouter )
 app.use("/api/v1/press", presscoverageRoute)
 app.use("/api/v1/payment", paymentRoute)
+app.use("/api/v1/wishlist", wishlistRoute)
 
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Express");
