@@ -18,13 +18,21 @@ const addwishlist = async (req,res) =>{
   const [tourpackage] = await pool.query(packagequery, [packageid])
   const  userquery =  `SELECT * FROM user WHERE id =?`
   const [user] = await pool.query(userquery, [userid])
-  const wishquery =  `SELECT * FROM wishlist WHERE packageid = ?`
-
-  const  [wishlist] = await pool.query(wishquery,[packageid])
-
-  if(wishlist[0] ===0){
-    throw new HttpException('wishlist already added', httpStatus.BAD_REQUEST)
+  if (user.length === 0) {
+    throw new Error('User ID not found');
   }
+
+  if (tourpackage.length === 0) {
+    throw new Error('Package ID not found');
+  }
+
+  const wishCheckQuery = `SELECT * FROM wishlist WHERE packageid = ? AND userid = ?`;
+  const [existingWishlist] = await pool.query(wishCheckQuery, [packageid, userid]);
+  
+  if (existingWishlist.length > 0) {
+    throw new Error('Wishlist already exists for this user and package ID');
+  }
+  
 
   const wishid = generatewishId()
 
@@ -109,5 +117,5 @@ export const wishlistService = {
   addwishlist,
   userwishlist,
   removeWishlist
-  
+
 }
