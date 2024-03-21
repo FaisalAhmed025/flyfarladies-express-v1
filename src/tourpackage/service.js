@@ -36,7 +36,7 @@ export const upload = multer({
 
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
-  return "FFLPK" + Math.floor(Math.random() * 10000);
+  return "It" + Math.floor(Math.random() * 10000);
 };
 
 const visitedimageid = () => {
@@ -52,6 +52,12 @@ const customiteneirary = () => {
 const custominclusion = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "I" + Math.floor(Math.random() * 10000);
+};
+
+
+const custommainid = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "MI" + Math.floor(Math.random() * 10000);
 };
 
 const customEXclusion = () => {
@@ -420,6 +426,18 @@ const getmainimage = async (PkID) => {
   }
 };
 
+const gettouritenerary  = async (req,res) =>{
+  const  id = req.params.id
+  const  tourplanquery = `SELECT * FROM tourplan WHERE id= ?`
+  const  [data] = await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    data: data
+  })
+}
+
+
+
 const getTourPlan = async (PkID) => {
   try {
     // Retrieve tour plan details with order by uId in ascending order
@@ -433,7 +451,6 @@ const getTourPlan = async (PkID) => {
   JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PkID
   WHERE tourplan.tour_package_id = ?;  
       `;
-
     const [tourPlanResults] = await pool.query(tourPlanQuery, [PkID]);
 
     return tourPlanResults;
@@ -443,6 +460,10 @@ const getTourPlan = async (PkID) => {
     // Release the database connection
   }
 };
+
+
+
+
 
 const getInclusion = async (PkID) => {
   try {
@@ -773,7 +794,7 @@ const MainImage = async (req, PkID) => {
 
     const insertResults = [];
     for (const imageurl of images) {
-      const imageId = customcancId();
+      const imageId = custommainid();
       const insertValues = [imageId, imageurl, packageId];
       console.log(insertValues);
       const [result] = await connection.execute(insertQuery, insertValues);
@@ -892,7 +913,7 @@ const createAlbumImage = async (req, PkID) => {
     const insertResults = [];
     const newalbumquery = `INSERT INTO albumimage (AlbumId, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
     for (let i = 0; i < images.length; i++) {
-      const id = visitedimageid();
+      const id = AlbumImageID();
       const insertValues = [
         id,
         images[i],
@@ -1146,7 +1167,6 @@ const createExclusion = async (req, PkID) => {
 const createBookingPolicy = async (req, PkID) => {
   try {
     const bookingPolicies = req.body;
-
     if (!bookingPolicies || !Array.isArray(bookingPolicies) || bookingPolicies.length === 0) {
       throw new Error("Booking policy data is required as an array of objects.");
     }
@@ -1182,7 +1202,7 @@ const createBookingPolicy = async (req, PkID) => {
         });
       } else {
         // If ID is not provided, it's a new booking policy to be inserted
-        const newId = customBookingPolicy();
+        const newId = customBookingPOlicy();
         const insertQuery = "INSERT INTO booking_policy (id, tour_package_id, booking_policy) VALUES (?, ?, ?)";
         await connection.execute(insertQuery, [newId, tour_package_id, booking_policy]);
         updatedOrInsertedPolicies.push({
@@ -1200,6 +1220,17 @@ const createBookingPolicy = async (req, PkID) => {
     throw new Error(error.message);
   }
 };
+
+const deletepolicy = async (req,res) =>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM booking_policy WHERE id= ? `
+   await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'booking policy has deleted'
+  })
+}
 
 const createCancelationPolicy = async (req, PkID) => {
   try {
@@ -1253,11 +1284,10 @@ const createCancelationPolicy = async (req, PkID) => {
 const createHighlights = async (req, PkID) => {
   try {
     const highlights = req.body;
-
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) {
       throw new Error("Highlights are required as an array of objects.");
     }
-
+    
     const connection = await pool.getConnection();
     const updatedOrInsertedHighlights = [];
 
@@ -1298,7 +1328,6 @@ const createHighlights = async (req, PkID) => {
         });
       }
     }
-
     connection.release();
     return updatedOrInsertedHighlights;
   } catch (error) {
@@ -1307,10 +1336,10 @@ const createHighlights = async (req, PkID) => {
   }
 };
 
+
 const createAddOns = async (tour_package_id, req) => {
   try {
     const addOns = req.body;
-
     if (!addOns || !Array.isArray(addOns) || addOns.length === 0) {
       throw new Error("Add-ons are required as an array of objects.");
     }
@@ -1400,11 +1429,13 @@ export const tourpackageService = {
   MainImage,
   createPlaceVisit,
   createTourPlan,
+  gettouritenerary,
   getTourPlan,
   deleteTourPlanEvents,
   createInclusion,
   createExclusion,
   createBookingPolicy,
+  deletepolicy,
   createCancelationPolicy,
   createHighlights,
   createAddOns,

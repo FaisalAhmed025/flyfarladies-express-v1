@@ -64,6 +64,12 @@ const getAllTourPackages = async (req, res, next) => {
 };
 
 
+const  gettouritenrary = async(req,res) =>{
+  return await tourpackageService.gettouritenerary(req,res)
+
+}
+
+
 
 const updatePackage = async (req,res)=>{
   try{
@@ -442,6 +448,12 @@ const addAddOnsController = async (req, res) => {
 
 
 
+const deletebookingpolicy = async (req, res) => {
+  return await tourpackageService.deletepolicy(req,res)
+};
+
+
+
 const createHighlights = async (req, res) => {
   try {
     const id = req.params.PkID;
@@ -511,7 +523,9 @@ export const tourpackageController = {
   mainimage,
   createPlaceVisit,
   createTourPlan,
+  gettouritenrary,
   updateTourPlanEvents,
+  deletebookingpolicy,
   deleteTourPlanEvents,
   getTourPlan,
   createInclusion,

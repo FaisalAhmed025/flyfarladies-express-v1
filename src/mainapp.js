@@ -4,6 +4,8 @@ import httpStatus from "http-status";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from 'swagger-ui-express'
 
 import tourpackageRoute from './tourpackage/router'
 import userRouter from './user/userroute'
@@ -14,6 +16,35 @@ import paymentRoute  from './payment/route'
 import wishlistRoute from './wishlist/route'
 
 const app = express();
+
+const options = {
+  definition: {
+    openapi: "3.1.0",
+    info: {
+      title: "LogRocket Express API with Swagger",
+      version: "0.1.0",
+      description:
+        "This is a simple CRUD API application made with Express and documented with Swagger",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
+      },
+      contact: {
+        name: "LogRocket",
+        url: "https://logrocket.com",
+        email: "info@email.com",
+      },
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJSDoc(options);
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
@@ -34,6 +65,11 @@ app.use(
   })
 );
 //parser
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+);
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

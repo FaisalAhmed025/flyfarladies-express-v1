@@ -25,7 +25,6 @@ const addwishlist = async (req,res) =>{
   if (tourpackage.length === 0) {
     throw new Error('Package ID not found');
   }
-
   const wishCheckQuery = `SELECT * FROM wishlist WHERE packageid = ? AND userid = ?`;
   const [existingWishlist] = await pool.query(wishCheckQuery, [packageid, userid]);
   
