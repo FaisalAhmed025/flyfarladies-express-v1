@@ -426,6 +426,8 @@ const getmainimage = async (PkID) => {
   }
 };
 
+
+
 const gettouritenerary  = async (req,res) =>{
   const  id = req.params.id
   const  tourplanquery = `SELECT * FROM tourplan WHERE id= ?`
@@ -433,6 +435,29 @@ const gettouritenerary  = async (req,res) =>{
   return res.status(200).json({
     status: true,
     data: data
+  })
+}
+
+
+
+const deleteTourPlanEventsouritenerary  = async (req,res) =>{
+  const  id = req.params.id
+  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  const  [data] = await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    message:'Tourplan has removed'
+  })
+}
+
+
+const deletTourItenerary  = async (req,res) =>{
+  const  id = req.params.id
+  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    message:'tour plan has deleted.'
   })
 }
 
@@ -1224,7 +1249,7 @@ const createBookingPolicy = async (req, PkID) => {
 const deletepolicy = async (req,res) =>{
   const id = req.params.id
   const deletequery = `DELETE FROM booking_policy WHERE id= ? `
-   await pool.query(deletequery, [id])
+  await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
@@ -1430,6 +1455,7 @@ export const tourpackageService = {
   createPlaceVisit,
   createTourPlan,
   gettouritenerary,
+  deletTourItenerary,
   getTourPlan,
   deleteTourPlanEvents,
   createInclusion,

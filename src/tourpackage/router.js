@@ -19,6 +19,7 @@ router.post('/albumimage/:PkID', upload.array('images', 10),  handleMultipleImag
 
 router.post('/createTourPlan/:PkID', tourpackageController.createTourPlan)
 router.get('/gettourplan/:id', tourpackageController.gettouritenrary)
+router.delete('/delete/:id', tourpackageController.deleteTourItenerary)
 router.post('/createinclusion/:PkID', tourpackageController.createInclusion)
 router.post('/createexclusion/:PkID', tourpackageController.createExclusion)
 router.post('/createbookingpolicy/:PkID', tourpackageController.createBookingPolicy)

@@ -6,13 +6,11 @@ const db = {
     // user: 'root',
     // password: '',
     // database: 'flyfar-express',
-
-
+    
     host: 'flyfarint.com',
     user: 'flyfarin_fflv2',
     password: '123Next2$',
     database: 'flyfarin_fflv2',
-
 
 };
 export const pool = mysql.createPool(db);

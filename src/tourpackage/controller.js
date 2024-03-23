@@ -481,6 +481,8 @@ const createHighlights = async (req, res) => {
   }
 };
 
+
+
 const getTourPlan = async (req, res) => {
   try {
     const tourPlanId = req.params.id; // Assuming the tourPlanId is provided as a URL parameter
@@ -516,6 +518,11 @@ const deleteTourPlanEvents = async (req, res) => {
   }
 };
 
+
+const deleteTourItenerary = async (req,res)=>{
+   await tourpackageService.deletTourItenerary(req,res)
+}
+
 export const tourpackageController = {
   getSingleTourPackages,
   getAllTourPackages,
@@ -524,6 +531,7 @@ export const tourpackageController = {
   createPlaceVisit,
   createTourPlan,
   gettouritenrary,
+  deleteTourItenerary,
   updateTourPlanEvents,
   deletebookingpolicy,
   deleteTourPlanEvents,
