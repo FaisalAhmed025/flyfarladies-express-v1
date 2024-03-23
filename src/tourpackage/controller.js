@@ -283,6 +283,12 @@ const createInclusion = async (req, res) => {
 };
 
 
+const deletetourinclusion = async (req,res)=>{
+  await tourpackageService.deleteinclusion(req,res)
+}
+
+
+
 const createExclusion = async (req, res) => {
   try {
     const id = req.params.PkID;
@@ -524,6 +530,7 @@ const deleteTourItenerary = async (req,res)=>{
 }
 
 export const tourpackageController = {
+  deletetourinclusion,
   getSingleTourPackages,
   getAllTourPackages,
   addpackage,

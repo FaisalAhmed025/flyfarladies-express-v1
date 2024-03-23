@@ -5,7 +5,6 @@ import { upload } from './imageUpload.midleware';
 import { handleMultipleImage, imageHandler, imageHandlerUpdate } from './imageHandler';
 const router = express.Router();
 
-
 router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
 router.put('/update/:PkID', upload.single('coverimage'), imageHandlerUpdate, tourpackageController.updatePackage)
 
@@ -20,7 +19,11 @@ router.post('/albumimage/:PkID', upload.array('images', 10),  handleMultipleImag
 router.post('/createTourPlan/:PkID', tourpackageController.createTourPlan)
 router.get('/gettourplan/:id', tourpackageController.gettouritenrary)
 router.delete('/delete/:id', tourpackageController.deleteTourItenerary)
+
+
 router.post('/createinclusion/:PkID', tourpackageController.createInclusion)
+router.delete('/delete/:id', tourpackageController.deletetourinclusion)
+
 router.post('/createexclusion/:PkID', tourpackageController.createExclusion)
 router.post('/createbookingpolicy/:PkID', tourpackageController.createBookingPolicy)
 router.delete('/deletepolicy/:id', tourpackageController.deletebookingpolicy)
@@ -29,6 +32,7 @@ router.post('/createhighlight/:PkID', tourpackageController.createHighlights)
 router.post('/createaddons/:PkID', tourpackageController.addAddOnsController)
 router.get('/get-tour-package/:PkID', tourpackageController.getSingleTourPackages)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
+
 router.put(
   '/updatealbum/:AlbumId',
   upload.single('images'),imageHandler,

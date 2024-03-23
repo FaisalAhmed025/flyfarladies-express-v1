@@ -627,7 +627,7 @@ const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
     SELECT
-      tourpackage.PkID AS tour_package_id,
+      tourpackage.PkID Id
       tourpackage.MainTitle,
       tourpackage.TripType,
       tourpackage.Location,
@@ -1188,6 +1188,17 @@ const createExclusion = async (req, PkID) => {
   }
 };
 
+const deleteinclusion = async (req,res)=>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM inclusion WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'inclusion has removed'
+  })
+}
+
 
 const createBookingPolicy = async (req, PkID) => {
   try {
@@ -1402,7 +1413,6 @@ const createAddOns = async (tour_package_id, req) => {
         });
       }
     }
-
     connection.release();
     return updatedOrInsertedAddOns;
   } catch (error) {
@@ -1447,6 +1457,7 @@ const deleteTourPlanEvents = async (req, id) => {
 
 
 export const tourpackageService = {
+  deleteinclusion,
   getSingleTourPackages,
   addtourpackage,
   getAllTourPackages,
