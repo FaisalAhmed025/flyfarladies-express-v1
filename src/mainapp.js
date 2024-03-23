@@ -5,15 +5,16 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from 'swagger-ui-express'
+import swaggerUi from "swagger-ui-express";
 
-import tourpackageRoute from './tourpackage/router'
-import userRouter from './user/userroute'
-import depositRoute from './deposit/depositeRoute'
-import bookingRouter  from './booking/bookingRoute';
-import presscoverageRoute  from './presscoverage/route'
-import paymentRoute  from './payment/route'
-import wishlistRoute from './wishlist/route'
+import tourpackageRoute from "./tourpackage/router";
+import userRouter from "./user/userroute";
+import depositRoute from "./deposit/depositeRoute";
+import bookingRouter from "./booking/bookingRoute";
+import presscoverageRoute from "./presscoverage/route";
+import paymentRoute from "./payment/route";
+import wishlistRoute from "./wishlist/route";
+import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
 
 const app = express();
 
@@ -65,27 +66,22 @@ app.use(
   })
 );
 //parser
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs)
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
 // routes
 
-app.use('/api/v1/package',  tourpackageRoute)
-app.use('/api/v1/user', userRouter)
-app.use("/api/v1/deposit", depositRoute )
-app.use("/api/v1/booking",  bookingRouter )
-app.use("/api/v1/press", presscoverageRoute)
-app.use("/api/v1/payment", paymentRoute)
-app.use("/api/v1/wishlist", wishlistRoute)
-
+app.use("/api/v1/package", tourpackageRoute);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/deposit", depositRoute);
+app.use("/api/v1/booking", bookingRouter);
+app.use("/api/v1/press", presscoverageRoute);
+app.use("/api/v1/payment", paymentRoute);
+app.use("/api/v1/wishlist", wishlistRoute);
+app.use("/api/v1/air-search/oneway", onWayPostRoute);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Express");
 });
