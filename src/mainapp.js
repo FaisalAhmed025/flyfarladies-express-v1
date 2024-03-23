@@ -15,6 +15,8 @@ import presscoverageRoute from "./presscoverage/route";
 import paymentRoute from "./payment/route";
 import wishlistRoute from "./wishlist/route";
 import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
+import { roundWayPostRoute } from "./air/sabre/sabreRoutes/roundWayRoute";
+import { multiCitySearch } from "./air/sabre/sabreRoutes/multiCityRoute";
 
 const app = express();
 
@@ -81,7 +83,9 @@ app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/press", presscoverageRoute);
 app.use("/api/v1/payment", paymentRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
-app.use("/api/v1/air-search/oneway", onWayPostRoute);
+app.post("/api/v1/air-search/oneway", onWayPostRoute);
+app.post("/api/v1/air-search/roundWay", roundWayPostRoute);
+app.post("/api/v1/air-search/multiCity", multiCitySearch);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Express");
 });
