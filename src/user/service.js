@@ -69,32 +69,28 @@ const Register = async (req, res) => {
   }
 };
 
-export async function verifyToken(token, secret) {
-  try {
-    //  console.log('there a')
-
-    return await jwt.verify(token, secret);
-  } catch (error) {
-    // Handle verification failure, e.g., token has expired or is invalid
-    console.error("Error verifying token:", error);
-    throw error; // You may choose to handle the error differently based on your requirements
-  }
-}
 
 export function verifyToken(req, res, next) {
-  const token = req.headers["authorization"];
+  const token = req.headers['authorization'];
+  console.log(token)
   if (!token) {
     return res.status(403).json({ message: "No token provided." });
   }
+  console.log("Received token:", token);
 
-  jwt.verify(token, secretKey, (err, decoded) => {
+  jwt.verify(token, "helloladies", (err, decoded) => {
     if (err) {
+      console.error("Error verifying token:", err);
       return res.status(401).json({ message: "Failed to authenticate token." });
     }
+    console.log("Decoded token payload:", decoded);
     req.user = decoded.id;
+
+    console.log("who m i?", req.user)
     next();
   });
 }
+
 
 const login = async (req, res) => {
   try {

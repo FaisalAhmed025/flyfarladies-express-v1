@@ -100,7 +100,6 @@ export const optionalImage = async (req, res, next) => {
 
 
 export const imageHandlerUpdate = async (req, res, next) => {
-
   if (!req.file) {
     //  delete req.url
     return next()

@@ -22,4 +22,11 @@ router.delete(
   verifyToken,
   flightBookingController.cancelFlightBooking
 );
+
+router.post(
+  "/issue-ticket",
+  verifyToken,
+  flightBookingController.IssueTicket
+);
+
 export const flightBookingRoute = router;
