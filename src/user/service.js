@@ -66,11 +66,40 @@ const Register = async (req, res) => {
   }
 };
 
+
+export async function verifyToken(token,  secret) {
+  try {
+    //  console.log('there a')
+
+      return await jwt.verify(token,  secret);
+  } catch (error) {
+      // Handle verification failure, e.g., token has expired or is invalid
+      console.error('Error verifying token:', error);
+      throw error; // You may choose to handle the error differently based on your requirements
+  }
+}
+
+
+ export function verifyToken(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(403).json({ message: 'No token provided.' });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Failed to authenticate token.' });
+    }
+    req.user = decoded.id;
+    next();
+  });
+}
+
+
 const login = async (req, res) => {
   try {
     // Extract the data from the request body
     const { email, password } = req.body;
-
     // Do some validation on the data
     if (!email || !password) {
       return res.status(400).json({ error: "Missing required fields" });

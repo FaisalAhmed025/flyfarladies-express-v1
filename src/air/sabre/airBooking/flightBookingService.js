@@ -3,10 +3,13 @@ import moment from "moment";
 import { fetchTestToken } from "../../utils/utils";
 import pool from "../../../database/db";
 import { generateUUID } from "../../../helper/generateUUID";
+import { verifyToken } from "../../../user/service";
 
 const createBooking = async (req, res, next) => {
   try {
     const requestData = req.body;
+
+
     // Fetch Access Token
     const accessToken = await fetchTestToken();
 
