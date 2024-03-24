@@ -47,7 +47,7 @@ const getAllBookingController = async (req, res, next) => {
   try {
     const id = req.params.id;
     // Call the getAllBookingData function with the provided user_id and booking_id
-    const result = await flightBookingService.getAllBookingData(id);
+    const result = await flightBookingService.getAllBookingData(req, id);
     console.log(result);
     // Check if the result is not null (i.e., data found)
     if (result) {

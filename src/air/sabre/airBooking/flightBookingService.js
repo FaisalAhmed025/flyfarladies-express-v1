@@ -3,36 +3,33 @@ import moment from "moment";
 import { fetchTestToken } from "../../utils/utils";
 import pool from "../../../database/db";
 import { generateUUID } from "../../../helper/generateUUID";
-import { verifyToken } from "../../../user/service";
 
 const createBooking = async (req, res, next) => {
   try {
     const requestData = req.body;
 
-
     // Fetch Access Token
     const accessToken = await fetchTestToken();
 
     //  Send Request to Booking API
-    // const apiEndpoint =
-    //   "https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking";
+    const apiEndpoint =
+      "https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking";
 
-    // const response = await axios.post(apiEndpoint, requestData, {
-    //   headers: {
-    //     Authorization: `Bearer ${accessToken?.data}`,
-    //   },
-    // });
+    const response = await axios.post(apiEndpoint, requestData, {
+      headers: {
+        Authorization: `Bearer ${accessToken?.data}`,
+      },
+    });
     //
-    const response = true;
+
     // console.log(response?.data);
-    // .data.success
-    if (response === true) {
+
+    if (response.data.success === true) {
       const headers = {
         Authorization: `Bearer ${accessToken?.data}`,
       };
-      console.log(headers);
-      // const bookingHistoryEndpoint = `https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking_history/${response.data.data[0].booking.id}`;
-      const bookingHistoryEndpoint = `https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking_history/5fc31d87d95811eea60c42010a63b002`;
+
+      const bookingHistoryEndpoint = `https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking_history/${response.data.data[0].booking.id}`;
       const bookingHistoryResponse = await axios.get(bookingHistoryEndpoint, {
         headers,
       });
@@ -41,15 +38,16 @@ const createBooking = async (req, res, next) => {
       const passengers = bookingHistoryResponse.data.data.passengers;
       const priceBreakdown =
         bookingHistoryResponse.data.data.bookingInfo.priceBreakDown;
-      await saveBookingData(bookingInfo);
+      await saveBookingData(req, bookingInfo);
       const bookingId = bookingInfo.id;
-      console.log(bookingId);
+
       //     // Additionally, you can save flight passengers if needed
       for (const passenger of passengers) {
         await saveFlightPassengers(req, passenger, bookingId);
       }
       //  await savePriceBreakdown(priceBreakdown, bookingId);
       await insertAdditionalData(
+        req,
         bookingId,
         priceBreakdown,
         bookingHistoryResponse.data.data.bookingInfo.flightDetailsAndPrices,
@@ -66,11 +64,11 @@ const createBooking = async (req, res, next) => {
     throw new Error(error.response.data.message);
   }
 };
-const saveBookingData = async (bookingInfo) => {
+const saveBookingData = async (req, bookingInfo) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    const userId = "FFLU525";
+    const userId = req.user.id;
     const tableName = "flight_booking";
     const airlinesName =
       bookingInfo.flightDetailsAndPrices.flightDetailsByType[0].airlineName;
@@ -132,7 +130,7 @@ const saveBookingData = async (bookingInfo) => {
 };
 const saveFlightPassengers = async (req, passengerData, bookingId) => {
   try {
-    const userId = "FFLU525";
+    const userId = req.user.id;
     const createdAt = moment().format("YYYY-MM-DD HH:mm");
     const updatedAt = createdAt;
     const values = [
@@ -172,6 +170,7 @@ const saveFlightPassengers = async (req, passengerData, bookingId) => {
   }
 };
 const insertAdditionalData = async (
+  req,
   bookingId,
   priceBreakdown,
   flightDetailsAndPrices,
@@ -187,8 +186,7 @@ const insertAdditionalData = async (
       flightDetailsAndPrices,
       fare,
     };
-    console.log(combinedAdditionalData);
-    const userId = "FFLU525";
+    const userId = req.user.id;
     // Insert additional data into the booking_additional_data table
     const [result] = await connection.query(
       "INSERT INTO flight_details(id, booking_id, data,user_id) VALUES (?, ?, ?, ?)",
@@ -232,11 +230,11 @@ const cancelBooking = async (req, res, next) => {
     throw new Error(error.response.data.message);
   }
 };
-const getAllBookingData = async (booking_id) => {
+const getAllBookingData = async (req, booking_id) => {
   try {
     const connection = await pool.getConnection();
     try {
-      const user_id = "FFLU525";
+      const user_id = req.user.id;
 
       // Fetch data from the booking table
       const [bookingResults] = await connection.query(
@@ -280,7 +278,7 @@ const getAllBookingData = async (booking_id) => {
 };
 const getBookingHistory = async (req, res) => {
   try {
-    const userId = "FFLU525";
+    const userId = req.user.id;
     const query = `
       SELECT
         b.id,

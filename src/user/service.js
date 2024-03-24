@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import pool from "../database/db";
 
-import{ object, string, date, boolean } from 'zod';
+import { object, string, date, boolean } from "zod";
 
 const generateUserId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
@@ -55,46 +55,46 @@ const Register = async (req, res) => {
     );
 
     console.log("User created successfully");
-    return result && res.status(200).send({
-      success: true,
-      message: 'Register successfully',
-      data: result
-  })
+    return (
+      result &&
+      res.status(200).send({
+        success: true,
+        message: "Register successfully",
+        data: result,
+      })
+    );
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ error: "Error creating user" });
   }
 };
 
-
-export async function verifyToken(token,  secret) {
+export async function verifyToken(token, secret) {
   try {
     //  console.log('there a')
 
-      return await jwt.verify(token,  secret);
+    return await jwt.verify(token, secret);
   } catch (error) {
-      // Handle verification failure, e.g., token has expired or is invalid
-      console.error('Error verifying token:', error);
-      throw error; // You may choose to handle the error differently based on your requirements
+    // Handle verification failure, e.g., token has expired or is invalid
+    console.error("Error verifying token:", error);
+    throw error; // You may choose to handle the error differently based on your requirements
   }
 }
 
-
- export function verifyToken(req, res, next) {
-  const token = req.headers['authorization'];
+export function verifyToken(req, res, next) {
+  const token = req.headers["authorization"];
   if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
+    return res.status(403).json({ message: "No token provided." });
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ message: 'Failed to authenticate token.' });
+      return res.status(401).json({ message: "Failed to authenticate token." });
     }
     req.user = decoded.id;
     next();
   });
 }
-
 
 const login = async (req, res) => {
   try {
@@ -132,67 +132,65 @@ const login = async (req, res) => {
       user[0].id,
     ]);
     console.log("User login successful");
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "Login successful",
-        user: user[0],
-        token,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      user: user[0],
+      token,
+    });
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ error: "Error during login" });
   }
 };
 
-
 // Define a schema for the request body
 const userSchema = object({
-    email: string().email(),
-    password: string(),
-    phone: string(),
-    userType: string(),
-    dob: date(),
-    gender: string(),
-    isactive: boolean(),
-    profession: string(),
-    nationality: string(),
-    nid: string(),
-    passportNumber: string(),
-    passportExpireDate: date(),
-    facebookId: string(),
-    whatsApp: string(),
-    linkedIn: string()
-}).partial()
+  email: string().email(),
+  password: string(),
+  phone: string(),
+  userType: string(),
+  dob: date(),
+  gender: string(),
+  isactive: boolean(),
+  profession: string(),
+  nationality: string(),
+  nid: string(),
+  passportNumber: string(),
+  passportExpireDate: date(),
+  facebookId: string(),
+  whatsApp: string(),
+  linkedIn: string(),
+}).partial();
 
 const updateUser = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const table = 'user';
-        // Validate the request body against the schema
-        req.body = userSchema.parse(req.body);
+  try {
+    const id = req.params.id;
+    const table = "user";
+    // Validate the request body against the schema
+    req.body = userSchema.parse(req.body);
 
-        if(req.publicImageLink) req.body.passport_copy  = req.publicImageLink
+    if (req.publicImageLink) req.body.passport_copy = req.publicImageLink;
 
-        const updateQuery = `
+    const updateQuery = `
             UPDATE ${table}
             SET ?
             WHERE id = ?;
         `;
 
-        // Execute the update query with the validated data
-        const [updateData] = await pool.query(updateQuery, [req.body, id]);
+    // Execute the update query with the validated data
+    const [updateData] = await pool.query(updateQuery, [req.body, id]);
 
-        console.log(updateData);
+    console.log(updateData);
 
-        return res.status(200).json({ status: 'success', message: 'User updated successfully' });
-    } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ error: "Error updating user" });
-    }
+    return res
+      .status(200)
+      .json({ status: "success", message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Error updating user" });
+  }
 };
-
 
 const userdashBoard = async (req, res) => {
   try {
@@ -266,7 +264,6 @@ const addtravler = async (req) => {
   }
 };
 
-
 const travelerSchema = object({
   first_name: string(),
   last_name: string(),
@@ -278,24 +275,17 @@ const travelerSchema = object({
   email: string().email(),
   phone: string(),
   pax_type: string(),
-
-}).partial()
-
-
-
-
+}).partial();
 
 const updateTraveler = async (req, res) => {
-
   try {
-  
     const partnerId = req.params.partnerId;
-    const table = 'travel_partners';
+    const table = "travel_partners";
     // Validate the request body against the schema
     req.body = travelerSchema.parse(req.body);
-    if(req.publicImageLink) req.body.passport_copy  = req.publicImageLink
+    if (req.publicImageLink) req.body.passport_copy = req.publicImageLink;
 
-    console.log(req.publicImageLink) 
+    console.log(req.publicImageLink);
 
     const updateQuery = `
         UPDATE ${table}
@@ -306,10 +296,10 @@ const updateTraveler = async (req, res) => {
     // Execute the update query with the validated data
     const [updateData] = await pool.query(updateQuery, [req.body, partnerId]);
     return updateData;
-} catch (error) {
+  } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ error: "Error updating user" });
-}
+  }
 };
 
 const myTravelerList = async (req, res) => {
