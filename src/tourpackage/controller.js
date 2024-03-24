@@ -283,6 +283,12 @@ const createInclusion = async (req, res) => {
 };
 
 
+const deletetourinclusion = async (req,res)=>{
+  await tourpackageService.deleteinclusion(req,res)
+}
+
+
+
 const createExclusion = async (req, res) => {
   try {
     const id = req.params.PkID;
@@ -481,6 +487,8 @@ const createHighlights = async (req, res) => {
   }
 };
 
+
+
 const getTourPlan = async (req, res) => {
   try {
     const tourPlanId = req.params.id; // Assuming the tourPlanId is provided as a URL parameter
@@ -516,7 +524,13 @@ const deleteTourPlanEvents = async (req, res) => {
   }
 };
 
+
+const deleteTourItenerary = async (req,res)=>{
+   await tourpackageService.deletTourItenerary(req,res)
+}
+
 export const tourpackageController = {
+  deletetourinclusion,
   getSingleTourPackages,
   getAllTourPackages,
   addpackage,
@@ -524,6 +538,7 @@ export const tourpackageController = {
   createPlaceVisit,
   createTourPlan,
   gettouritenrary,
+  deleteTourItenerary,
   updateTourPlanEvents,
   deletebookingpolicy,
   deleteTourPlanEvents,

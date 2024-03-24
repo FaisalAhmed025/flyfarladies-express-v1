@@ -426,6 +426,8 @@ const getmainimage = async (PkID) => {
   }
 };
 
+
+
 const gettouritenerary  = async (req,res) =>{
   const  id = req.params.id
   const  tourplanquery = `SELECT * FROM tourplan WHERE id= ?`
@@ -433,6 +435,29 @@ const gettouritenerary  = async (req,res) =>{
   return res.status(200).json({
     status: true,
     data: data
+  })
+}
+
+
+
+const deleteTourPlanEventsouritenerary  = async (req,res) =>{
+  const  id = req.params.id
+  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  const  [data] = await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    message:'Tourplan has removed'
+  })
+}
+
+
+const deletTourItenerary  = async (req,res) =>{
+  const  id = req.params.id
+  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    message:'tour plan has deleted.'
   })
 }
 
@@ -602,7 +627,7 @@ const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
     SELECT
-      tourpackage.PkID AS tour_package_id,
+      tourpackage.PkID Id
       tourpackage.MainTitle,
       tourpackage.TripType,
       tourpackage.Location,
@@ -1163,6 +1188,17 @@ const createExclusion = async (req, PkID) => {
   }
 };
 
+const deleteinclusion = async (req,res)=>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM inclusion WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'inclusion has removed'
+  })
+}
+
 
 const createBookingPolicy = async (req, PkID) => {
   try {
@@ -1224,7 +1260,7 @@ const createBookingPolicy = async (req, PkID) => {
 const deletepolicy = async (req,res) =>{
   const id = req.params.id
   const deletequery = `DELETE FROM booking_policy WHERE id= ? `
-   await pool.query(deletequery, [id])
+  await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
@@ -1377,7 +1413,6 @@ const createAddOns = async (tour_package_id, req) => {
         });
       }
     }
-
     connection.release();
     return updatedOrInsertedAddOns;
   } catch (error) {
@@ -1422,6 +1457,7 @@ const deleteTourPlanEvents = async (req, id) => {
 
 
 export const tourpackageService = {
+  deleteinclusion,
   getSingleTourPackages,
   addtourpackage,
   getAllTourPackages,
@@ -1430,6 +1466,7 @@ export const tourpackageService = {
   createPlaceVisit,
   createTourPlan,
   gettouritenerary,
+  deletTourItenerary,
   getTourPlan,
   deleteTourPlanEvents,
   createInclusion,

@@ -11,9 +11,6 @@ export const bookingStatus = {
   CANCELLED: "cancelled"
 };
 
-
-
-
 const generatebookingId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLB" + Math.floor(Math.random() * 10000);
@@ -54,7 +51,6 @@ const Book$Hold = async (req, res) => {
     if (Array.isArray(adult) && adult.length > 0) {
       // Prepare an array to hold all adult traveler values
       const adultTravelersValues = [];
-
       for (const adulttraveler of adult) {
         const {
           afName,
@@ -254,7 +250,6 @@ console.log(totalpackageprice);
         totalinfant,
         totalAmount,
         bookingStatus
-
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)`,
       values
     );

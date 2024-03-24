@@ -1,6 +1,5 @@
 import { HttpException } from "express-sharp";
 import pool from "../database/db"
-import httpStatus from "http-status";
 
 
 
