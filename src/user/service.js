@@ -77,7 +77,6 @@ export function verifyToken(req, res, next) {
     return res.status(403).json({ message: "No token provided." });
   }
   console.log("Received token:", token);
-
   jwt.verify(token, "helloladies", (err, decoded) => {
     if (err) {
       console.error("Error verifying token:", err);
