@@ -36,7 +36,7 @@ export const upload = multer({
 
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
-  return "It" + Math.floor(Math.random() * 10000);
+  return "FFLPK" + Math.floor(Math.random() * 10000);
 };
 
 const visitedimageid = () => {
@@ -193,7 +193,7 @@ const addtourpackage = async (req, res) => {
       second_installment, 
     ];
     const [result] = await pool.query(
-      `INSERT INTO tourpackage (PkId,
+      `INSERT INTO tourpackage (PKID,
         MainTitle, SubTitle, Price, PricePerAdult, PricePerChild, PricePerInfant,
         City, Discount, Location, Availability, StartDate, EndDate, TripType,
         TotalDuration, AvailableSeats, MinimumAge, MaximumAge, PackageOverview,

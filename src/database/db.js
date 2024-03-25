@@ -6,7 +6,7 @@ const db = {
     // user: 'root',
     // password: '',
     // database: 'flyfar-express',
-
+    
     user:"root",
     password: "FlyFarTech2$",
     host: "35.229.222.197",

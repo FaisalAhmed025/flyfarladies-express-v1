@@ -20,10 +20,8 @@ router.post('/createTourPlan/:PkID', tourpackageController.createTourPlan)
 router.get('/gettourplan/:id', tourpackageController.gettouritenrary)
 router.delete('/delete/:id', tourpackageController.deleteTourItenerary)
 
-
 router.post('/createinclusion/:PkID', tourpackageController.createInclusion)
 router.delete('/delete/:id', tourpackageController.deletetourinclusion)
-
 router.post('/createexclusion/:PkID', tourpackageController.createExclusion)
 router.post('/createbookingpolicy/:PkID', tourpackageController.createBookingPolicy)
 router.delete('/deletepolicy/:id', tourpackageController.deletebookingpolicy)
