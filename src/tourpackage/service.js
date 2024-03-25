@@ -622,38 +622,13 @@ const getBookingPolicy = async (PkID) => {
 };
 
 
-
 const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
-    SELECT
-      tourpackage.PkID Id
-      tourpackage.MainTitle,
-      tourpackage.TripType,
-      tourpackage.Location,
-      tourpackage.StartDate,
-      tourpackage.EndDate,
-      tourpackage.AvailableSeats,
-      tourpackage.PricePerAdult,
-      tourpackage.PricePerChild,
-      tourpackage.PricePerInfant,
-      tourpackage.GirlsTrip,
-      tourpackage.PackageOverview,
-      tourpackage.MinimumAge,
-      tourpackage.MaximumAge,
-      tourpackage.Price,
-      tourpackage.City,
-      tourpackage.Discount,
-      tourpackage.SelfGuided,
-      tourpackage.Flight,
-      tourpackage.Food,
-      tourpackage.Transport,
-      tourpackage.FullyGuided,
-      tourpackage.coverImage
+    SELECT*
     FROM
       tourpackage;
   `;
-
     const [tourPackageResults] = await pool.execute(tourPackageQuery);
     console.log(tourPackageResults);
     return tourPackageResults;

@@ -183,10 +183,9 @@ const paybookingamount = async (req,res) =>{
 
 
 const paySecondInstallment = async (req,res) =>{
-
   const bookingid = req.body.bookingid
   const userid = req.body.id
-
+  
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
 
   const [booking] = await pool.query(packagequery, [bookingid])

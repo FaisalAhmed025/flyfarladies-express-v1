@@ -23,9 +23,7 @@ const createBooking = async (req, res, next) => {
         Authorization: `Bearer ${accessToken?.data}`,
       },
     });
-    //
 
-    // console.log(response?.data);
 
     if (response.data.success === true) {
       const headers = {
@@ -67,6 +65,7 @@ const createBooking = async (req, res, next) => {
     throw new Error(error.response.data.message);
   }
 };
+
 const saveBookingData = async (req, bookingInfo) => {
   const connection = await pool.getConnection();
   try {
@@ -131,6 +130,7 @@ const saveBookingData = async (req, bookingInfo) => {
     throw new Error("Failed to save booking data");
   }
 };
+
 const saveFlightPassengers = async (req, passengerData, bookingId) => {
   try {
     const userId = req.user.id;
@@ -172,6 +172,7 @@ const saveFlightPassengers = async (req, passengerData, bookingId) => {
     throw new Error("Failed to save flight passenger data");
   }
 };
+
 const insertAdditionalData = async (
   req,
   bookingId,
