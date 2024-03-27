@@ -215,6 +215,7 @@ console.log(totalpackageprice);
       totaladult,
       totalchild,
       totalinfant,
+      phone,
       totalpackageprice,
       bookingstatus
       
@@ -247,9 +248,10 @@ console.log(totalpackageprice);
         totaladult,
         totalchild,
         totalinfant,
+        phone,
         totalAmount,
         bookingStatus
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
