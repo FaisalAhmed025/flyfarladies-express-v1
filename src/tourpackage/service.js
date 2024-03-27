@@ -232,10 +232,12 @@ const getSingleTourPackages = async (PKID) => {
     WHERE
       tourpackage.PKID = ?;
   `;
+  
+  console.log
     const [tourPackageResults] = await pool.execute(tourPackageQuery, [PKID]);
     console.log(tourPackageResults);
     if (tourPackageResults.length === 0) {
-      return null; // Tour package not found
+      return "Tourpackage not found" // Tour package not found
     }
 
     const tourPackagesData = [];
@@ -344,7 +346,7 @@ const getSingleTourPackages = async (PKID) => {
       bookingPolicy,
       cancellationPolicy,
       albumImage,
-      addOns,
+      // addOns,
     ] = await Promise.all([
       getmainimage(tourPackageData.PKID),
       getTourPlan(tourPackageData.PKID),
@@ -447,7 +449,7 @@ const getTourPlan = async (PKID) => {
   JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PKID
   WHERE tourplan.tour_package_id = ?;  
       `;
-    const [tourPlanResults] = await pool.query(tourPlanQuery, [PkID]);
+    const [tourPlanResults] = await pool.query(tourPlanQuery, [PKID]);
 
     return tourPlanResults;
   } catch (error) {

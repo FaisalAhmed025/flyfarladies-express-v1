@@ -89,7 +89,7 @@ const Book$Hold = async (req, res) => {
     if (Array.isArray(child) && child.length > 0) {
       // Prepare an array to hold all adult traveler values
       const childTravelersValues = [];
-
+      
       for (const childtraveler of child) {
         const {
           cfName,
