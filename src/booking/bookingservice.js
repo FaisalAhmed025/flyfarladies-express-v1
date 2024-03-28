@@ -22,7 +22,7 @@ const Book$Hold = async (req, res) => {
     const userid = req.params.id;
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
-    if (!user) {
+    if (user.length ===0) {
       throw new HttpException(
         `User not found with this id=${userid}`,
         httpStatus.BAD_REQUEST
@@ -34,7 +34,7 @@ const Book$Hold = async (req, res) => {
     const packgeId = req.params.PkID;
     const packgaeQuery = `SELECT * FROM tourpackage WHERE PkID = ?`;
     const [tourpackage] = await pool.query(packgaeQuery, [packgeId]);
-    if (!tourpackage) {
+    if (tourpackage.length ===0) {
       throw new HttpException(
         `TourPackage not found with this id=${packgeId}`,
         httpStatus.BAD_REQUEST
@@ -43,9 +43,7 @@ const Book$Hold = async (req, res) => {
 
     const { adult, child, infant } = req.body;
 
-
     const bookingid = generatebookingId()
-
 
     if (Array.isArray(adult) && adult.length > 0) {
       // Prepare an array to hold all adult traveler values
@@ -285,8 +283,34 @@ const getSingleBooking = async (req,res) =>{
 }
 
 
+const getBookingsByUserId = async (req, res) => {
+  try {
+    // Assuming userid is obtained from request parameters or session
+    const userId = req.params.userid;
+
+    // Query to fetch bookings for the given user
+    const bookingQuery = `SELECT * FROM booking WHERE userid = ?`;
+    const [bookingResults] = await pool.execute(bookingQuery, [userId]);
+
+    // Iterate through booking results to fetch passengers for each booking
+    const bookingsWithPassengers = await Promise.all(bookingResults.map(async (booking) => {
+      const passengerQuery = `SELECT * FROM passenger WHERE bookingid = ?`;
+      const [passengerResults] = await pool.execute(passengerQuery, [booking.bookingid]);
+      return { booking, passengers: passengerResults };
+    }));
+
+    res.status(200).json(bookingsWithPassengers);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ error: "Failed to fetch bookings" });
+  }
+};
+
+
+
 export const BookingService = {
   Book$Hold,
   getAllBooking,
   getSingleBooking,
+  getBookingsByUserId
 }

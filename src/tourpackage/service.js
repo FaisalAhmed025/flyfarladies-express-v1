@@ -233,7 +233,6 @@ const getSingleTourPackages = async (PKID) => {
       tourpackage.PKID = ?;
   `;
   
-  console.log
     const [tourPackageResults] = await pool.execute(tourPackageQuery, [PKID]);
     console.log(tourPackageResults);
     if (tourPackageResults.length === 0) {

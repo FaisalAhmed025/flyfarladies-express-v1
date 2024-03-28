@@ -108,7 +108,6 @@ try {
 
 
 const paybookingamount = async (req,res) =>{
-
   const bookingid = req.body.bookingid
   const userid = req.body.id
 
@@ -174,7 +173,6 @@ const paybookingamount = async (req,res) =>{
     lastbalance,
     bookingid
   ]
-
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
   const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
