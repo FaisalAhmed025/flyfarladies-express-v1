@@ -4,6 +4,9 @@ import { fetchTestToken } from "../../utils/utils";
 import pool from "../../../database/db";
 import { generateUUID } from "../../../helper/generateUUID";
 
+
+
+
 const createBooking = async (req, res, next) => {
   try {
     const requestData = req.body;
@@ -20,9 +23,7 @@ const createBooking = async (req, res, next) => {
         Authorization: `Bearer ${accessToken?.data}`,
       },
     });
-    //
 
-    // console.log(response?.data);
 
     if (response.data.success === true) {
       const headers = {
@@ -64,6 +65,7 @@ const createBooking = async (req, res, next) => {
     throw new Error(error.response.data.message);
   }
 };
+
 const saveBookingData = async (req, bookingInfo) => {
   const connection = await pool.getConnection();
   try {
@@ -128,6 +130,7 @@ const saveBookingData = async (req, bookingInfo) => {
     throw new Error("Failed to save booking data");
   }
 };
+
 const saveFlightPassengers = async (req, passengerData, bookingId) => {
   try {
     const userId = req.user.id;
@@ -169,6 +172,7 @@ const saveFlightPassengers = async (req, passengerData, bookingId) => {
     throw new Error("Failed to save flight passenger data");
   }
 };
+
 const insertAdditionalData = async (
   req,
   bookingId,
@@ -337,9 +341,114 @@ const getBookingHistory = async (req, res) => {
   }
 };
 
+//reisuue 
+
+const issueTicket = async (req, res, next) => {
+  try {
+    const booking_Id = req.body.booking_id;
+    const userId = req.body.id;
+    const tableName = 'ledger';
+
+
+    console.log(booking_Id, userId)
+    // Fetch data from flight_passenger table
+
+    // const [passengerData] = await pool.query(
+    //   'SELECT passportCopy, visaCopy FROM flight_passenger WHERE booking_id = ?',
+    //   [booking_Id]
+    // );
+
+    // console.log(passengerData);
+    // const { passportCopy, visaCopy } = passengerData[0];
+
+    // Fetch data from b2c_ledger table
+    const [ledgerData] = await pool.query(
+      'SELECT last_balance FROM ledger WHERE user_id = ?',
+      [userId]
+    );
+
+    const walletBalance = ledgerData[0]?.last_balance || 0;
+
+    // Fetch data from booking table
+    const [bookingData] = await pool.query(
+      'SELECT booking_id, amount, status, journeyType FROM flight_booking WHERE booking_id = ?',
+      [booking_Id]
+    );
+
+    console.log(bookingData)
+
+    const { amount, status, journeyType } = bookingData[0];
+
+    if (status !== 'Hold') {
+      return 'Booking is not in Hold state.';
+    }
+    // Check journey type for Outbound
+    // if (journeyType === 'Outbound' && (!passportCopy || !visaCopy)) {
+    //   return 'Passport copy and visa copy are required for Outbound journey.';
+    // }
+    // Check wallet balance
+    if (amount > walletBalance) {
+      return 'Insufficient balance in the wallet.';
+    }
+
+    // Start a transaction
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Update booking status to 'Issue Request'
+      await connection.query(
+        'UPDATE flight_booking SET status = ? WHERE booking_id = ?',
+        ['Issue Request', booking_Id]
+      );
+
+      // Update b2c_ledger table with the new wallet balance (wallet - amount)
+      const newWalletBalance = walletBalance - amount;
+      await connection.query(
+        'UPDATE ledger SET last_balance = ?, status = purchase + ?, amount =?, WHERE user_id = ?',
+        [newWalletBalance, amount, userId]
+      );
+   
+      const trxId = `FFTTRX${userId}`;
+      // Insert a new record into my_transaction table
+      const transactionQuery = `INSERT INTO my_transaction (id, reference, remarks, amount, last_balance, date, user_id, trxId, type) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, 'Issue Request')`;
+
+      const transactionId = generateUUID(); // Implement your own logic to generate a unique transaction ID
+      const remarksMessage = `${bookingId} Ticket issue in process. Amount deducted : ${amount} TK.`;
+
+      await connection.query(transactionQuery, [
+        transactionId,
+        booking_Id,
+        remarksMessage,
+        amount,
+        newWalletBalance,
+        userId,
+        trxId,
+      ]);
+
+      // Commit the transaction
+      await connection.commit();
+
+      return null; // Success
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await connection.rollback();
+      console.error('Error issuing ticket:', error.message);
+      throw new Error('Failed to issue ticket.');
+    } finally {
+      // Release the connection
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error issuing ticket:', error.message);
+    throw new Error('Failed to issue ticket.');
+  }
+};
+
 export const flightBookingService = {
   createBooking,
   cancelBooking,
   getAllBookingData,
   getBookingHistory,
+  issueTicket,
 };

@@ -120,7 +120,7 @@ const paybookingamount = async (req,res) =>{
     throw new NotFoundException('Booking not found');
   }
 
-  if (booking[0].bookingStatus !== 'HOLD') {
+  if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
   const userquery =  `SELECT * FROM user WHERE id = ?`
@@ -144,7 +144,9 @@ const paybookingamount = async (req,res) =>{
   }
 
     // Check wallet balance
-    if (user[0].wallet < bookingamount) {
+    console.log(parseInt(user[0].wallet))
+    console.log(parseInt(bookingamount))
+    if (parseInt(user[0].wallet) < parseInt(bookingamount)) {
     throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
   }
 
@@ -183,10 +185,9 @@ const paybookingamount = async (req,res) =>{
 
 
 const paySecondInstallment = async (req,res) =>{
-
   const bookingid = req.body.bookingid
   const userid = req.body.id
-
+  
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
 
   const [booking] = await pool.query(packagequery, [bookingid])

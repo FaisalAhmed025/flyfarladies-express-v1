@@ -36,7 +36,7 @@ export const upload = multer({
 
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
-  return "It" + Math.floor(Math.random() * 10000);
+  return "FFLPK" + Math.floor(Math.random() * 10000);
 };
 
 const visitedimageid = () => {
@@ -139,6 +139,7 @@ const addtourpackage = async (req, res) => {
 
     // Assuming the file field name is 'coverImage'
     // Extract cover image details from the uploaded file
+
     const coverImage = req.publicImageLink;
     const packgeId = generatePackageId();
 
@@ -193,7 +194,7 @@ const addtourpackage = async (req, res) => {
       second_installment, 
     ];
     const [result] = await pool.query(
-      `INSERT INTO tourpackage (PkId,
+      `INSERT INTO tourpackage (PKID,
         MainTitle, SubTitle, Price, PricePerAdult, PricePerChild, PricePerInfant,
         City, Discount, Location, Availability, StartDate, EndDate, TripType,
         TotalDuration, AvailableSeats, MinimumAge, MaximumAge, PackageOverview,
@@ -222,55 +223,27 @@ const addtourpackage = async (req, res) => {
   }
 };
 
-
-
-const getSingleTourPackages = async (PkID) => {
+const getSingleTourPackages = async (PKID) => {
   try {
     const tourPackageQuery = `
-    SELECT
-      tourpackage.PkID AS tour_package_id,
-      tourpackage.PkID,
-      tourpackage.MainTitle,
-      tourpackage.TripType,
-      tourpackage.Location,
-      tourpackage.StartDate,
-      tourpackage.EndDate,
-      tourpackage.AvailableSeats,
-      tourpackage.PricePerAdult,
-      tourpackage.PricePerChild,
-      tourpackage.PricePerInfant,
-      tourpackage.GirlsTrip,
-      tourpackage.PackageOverview,
-      tourpackage.MinimumAge,
-      tourpackage.MaximumAge,
-      tourpackage.Price,
-      tourpackage.City,
-      tourpackage.Discount,
-      tourpackage.SelfGuided,
-      tourpackage.Flight,
-      tourpackage.Food,
-      tourpackage.Transport,
-      tourpackage.FullyGuided,
-      tourpackage.coverImage  -- Assuming there's a column in main_image for the image URL
+    SELECT *
     FROM
       tourpackage
-
     WHERE
-      tourpackage.PkID = ?;
+      tourpackage.PKID = ?;
   `;
-
-    const [tourPackageResults] = await pool.execute(tourPackageQuery, [PkID]);
-
+  
+  console.log
+    const [tourPackageResults] = await pool.execute(tourPackageQuery, [PKID]);
     console.log(tourPackageResults);
     if (tourPackageResults.length === 0) {
-      return null; // Tour package not found
+      return "Tourpackage not found" // Tour package not found
     }
-
 
     const tourPackagesData = [];
     const tourPackageData = {
-      PkID: tourPackageResults[0].PkID,
-      tourpack_id: tourPackageResults[0].tourpack_id,
+      PKID: tourPackageResults[0].PKID,
+      tourpack_id: tourPackageResults[0].PKID,
       MainTitle: tourPackageResults[0].MainTitle,
       TripType: tourPackageResults[0].TripType,
       Location: tourPackageResults[0].Location,
@@ -373,17 +346,17 @@ const getSingleTourPackages = async (PkID) => {
       bookingPolicy,
       cancellationPolicy,
       albumImage,
-      addOns,
+      // addOns,
     ] = await Promise.all([
-      getmainimage(tourPackageData.PkID),
-      getTourPlan(tourPackageData.PkID),
-      getVisitedPlace(tourPackageData.PkID),
-      getInclusion(tourPackageData.PkID),
-      getExclusion(tourPackageData.PkID),
-      getHighlights(tourPackageData.PkID),
-      getBookingPolicy(tourPackageData.PkID),
-      getCancellationPolicy(tourPackageData.PkID),
-      getalbumImage(tourPackageData.PkID),
+      getmainimage(tourPackageData.PKID),
+      getTourPlan(tourPackageData.PKID),
+      getVisitedPlace(tourPackageData.PKID),
+      getInclusion(tourPackageData.PKID),
+      getExclusion(tourPackageData.PKID),
+      getHighlights(tourPackageData.PKID),
+      getBookingPolicy(tourPackageData.PKID),
+      getCancellationPolicy(tourPackageData.PKID),
+      getalbumImage(tourPackageData.PKID),
 
       // getAddOns(tourPackageData.id),
     ]);
@@ -407,19 +380,19 @@ const getSingleTourPackages = async (PkID) => {
 
 
 
-const getmainimage = async (PkID) => {
+const getmainimage = async (PKID) => {
   try {
-    console.log("id", PkID);
+    console.log("id", PKID);
     const mainimage = `
     SELECT
     mainimage.imageId,
     mainimage.packageId,
     mainimage.imageurl
   FROM mainimage
-  JOIN tourpackage ON mainimage.packageId = tourpackage.PkID
+  JOIN tourpackage ON mainimage.packageId = tourpackage.PKID
   WHERE mainimage.packageId = ?;  
     `;
-    const [results] = await pool.execute(mainimage, [PkID]);
+    const [results] = await pool.execute(mainimage, [PKID]);
     return results;
   } catch (error) {
     throw error;
@@ -463,7 +436,7 @@ const deletTourItenerary  = async (req,res) =>{
 
 
 
-const getTourPlan = async (PkID) => {
+const getTourPlan = async (PKID) => {
   try {
     // Retrieve tour plan details with order by uId in ascending order
     const tourPlanQuery = `
@@ -473,10 +446,10 @@ const getTourPlan = async (PkID) => {
     tourplan.day_title,
     tourplan.day_plan
   FROM tourplan
-  JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PKID
   WHERE tourplan.tour_package_id = ?;  
       `;
-    const [tourPlanResults] = await pool.query(tourPlanQuery, [PkID]);
+    const [tourPlanResults] = await pool.query(tourPlanQuery, [PKID]);
 
     return tourPlanResults;
   } catch (error) {
@@ -490,7 +463,7 @@ const getTourPlan = async (PkID) => {
 
 
 
-const getInclusion = async (PkID) => {
+const getInclusion = async (PKID) => {
   try {
     const inclusionQuery = `
     SELECT
@@ -498,17 +471,17 @@ const getInclusion = async (PkID) => {
     inclusion.tour_package_id,
     inclusion.inclusion
   FROM inclusion
-  JOIN tourpackage ON inclusion.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON inclusion.tour_package_id = tourpackage.PKID
   WHERE inclusion.tour_package_id = ?;  
 `;
-    const [results] = await pool.execute(inclusionQuery, [PkID]);
+    const [results] = await pool.execute(inclusionQuery, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 // Function to fetch exclusion data
-export const getExclusion = async (PkID) => {
+export const getExclusion = async (PKID) => {
   try {
     const exclusionQuery = `
     SELECT
@@ -516,18 +489,18 @@ export const getExclusion = async (PkID) => {
     exclusion.tour_package_id,
     exclusion.exclusion
   FROM exclusion
-  JOIN tourpackage ON exclusion.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON exclusion.tour_package_id = tourpackage.PKID
   WHERE exclusion.tour_package_id = ?;  
 `;
 
-    const [results] = await pool.execute(exclusionQuery, [PkID]);
+    const [results] = await pool.execute(exclusionQuery, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 // Function to fetch cancellation policy data
-export const getCancellationPolicy = async (PkID) => {
+export const getCancellationPolicy = async (PKID) => {
   try {
     const cancellationPolicyQuery = `
     SELECT
@@ -535,17 +508,17 @@ export const getCancellationPolicy = async (PkID) => {
     cancellation_policy.tour_package_id,
     cancellation_policy.cancellation_policy
   FROM cancellation_policy
-  JOIN tourpackage ON cancellation_policy.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON cancellation_policy.tour_package_id = tourpackage.PKID
   WHERE cancellation_policy.tour_package_id = ?;  
 `;
-    const [results] = await pool.execute(cancellationPolicyQuery, [PkID]);
+    const [results] = await pool.execute(cancellationPolicyQuery, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 // Function to fetch cancellation place visit data
-const getVisitedPlace = async (PkID) => {
+const getVisitedPlace = async (PKID) => {
   try {
     const visitedPlace = `
     SELECT
@@ -554,17 +527,17 @@ const getVisitedPlace = async (PkID) => {
     place_to_visit.placetovisit_name,
     place_to_visit.place_image
   FROM place_to_visit
-  JOIN tourpackage ON place_to_visit.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON place_to_visit.tour_package_id = tourpackage.PKID
   WHERE place_to_visit.tour_package_id = ?;  
 `;
-    const [results] = await pool.execute(visitedPlace, [PkID]);
+    const [results] = await pool.execute(visitedPlace, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 
-const getalbumImage = async (PkID) => {
+const getalbumImage = async (PKID) => {
   try {
     const albumimages = `
     SELECT
@@ -573,17 +546,17 @@ const getalbumImage = async (PkID) => {
   albumimage.albumtitle,
   albumimage.albumcoverimageurl
   FROM albumimage
-  JOIN tourpackage ON albumimage.tourpackageId = tourpackage.PkID
+  JOIN tourpackage ON albumimage.tourpackageId = tourpackage.PKID
   WHERE albumimage.tourpackageId = ?;  
 `;
-    const [results] = await pool.execute(albumimages, [PkID]);
+    const [results] = await pool.execute(albumimages, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 
-export const getHighlights = async (PkID) => {
+export const getHighlights = async (PKID) => {
   try {
     const highlightsQuery = `
       SELECT
@@ -592,18 +565,18 @@ export const getHighlights = async (PkID) => {
         highlights.highlights
       FROM
         highlights
-        JOIN tourpackage ON highlights.tour_package_id = tourpackage.PkID
+        JOIN tourpackage ON highlights.tour_package_id = tourpackage.PKID
       WHERE
         highlights.tour_package_id = ?
     `;
-    const [results] = await pool.execute(highlightsQuery, [PkID]);
+    const [results] = await pool.execute(highlightsQuery, [PKID]);
     return results;
   } catch (error) {
     throw error;
   }
 };
 
-const getBookingPolicy = async (PkID) => {
+const getBookingPolicy = async (PKID) => {
   try {
     const bookingPolicyQuery = `
     SELECT
@@ -611,10 +584,10 @@ const getBookingPolicy = async (PkID) => {
     booking_policy.tour_package_id,
     booking_policy.booking_policy
   FROM booking_policy
-  JOIN tourpackage ON booking_policy.tour_package_id = tourpackage.PkID
+  JOIN tourpackage ON booking_policy.tour_package_id = tourpackage.PKID
   WHERE booking_policy.tour_package_id = ?;
 `;
-    const [results] = await pool.execute(bookingPolicyQuery, [PkID]);
+    const [results] = await pool.execute(bookingPolicyQuery, [PKID]);
     return results;
   } catch (error) {
     throw error;
@@ -622,38 +595,13 @@ const getBookingPolicy = async (PkID) => {
 };
 
 
-
 const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
-    SELECT
-      tourpackage.PkID Id
-      tourpackage.MainTitle,
-      tourpackage.TripType,
-      tourpackage.Location,
-      tourpackage.StartDate,
-      tourpackage.EndDate,
-      tourpackage.AvailableSeats,
-      tourpackage.PricePerAdult,
-      tourpackage.PricePerChild,
-      tourpackage.PricePerInfant,
-      tourpackage.GirlsTrip,
-      tourpackage.PackageOverview,
-      tourpackage.MinimumAge,
-      tourpackage.MaximumAge,
-      tourpackage.Price,
-      tourpackage.City,
-      tourpackage.Discount,
-      tourpackage.SelfGuided,
-      tourpackage.Flight,
-      tourpackage.Food,
-      tourpackage.Transport,
-      tourpackage.FullyGuided,
-      tourpackage.coverImage
+    SELECT*
     FROM
       tourpackage;
   `;
-
     const [tourPackageResults] = await pool.execute(tourPackageQuery);
     console.log(tourPackageResults);
     return tourPackageResults;
@@ -667,7 +615,7 @@ const getAllTourPackages = async () => {
 
 const updateTourPackage = async (req, res) => {
   try {
-    const packgeId = req.params.PkID; // Assuming packageId is passed in the request parameters
+    const packgeId = req.params.PKID; // Assuming packageId is passed in the request parameters
     // Extract tour package details from request body
     const {
       MainTitle,
@@ -701,6 +649,16 @@ const updateTourPackage = async (req, res) => {
       SelfGuided,
       Guide,
       CancellationDate,
+      adult_base_price,
+      child_base_price,
+      infant_base_price,
+      booking_money_due_date,
+      first_installment_due_date,
+      second_installment_due_date,
+      booking_money,
+      first_installment,
+      second_installment
+
     } = req.body;
 
     // Assuming the file field name is 'coverImage'
@@ -743,7 +701,16 @@ const updateTourPackage = async (req, res) => {
       Guide,
       CancellationDate,
       coverImage,
-      packgeId, // Add packageId for WHERE clause
+      adult_base_price,
+      child_base_price,
+      infant_base_price,
+      booking_money_due_date,
+      first_installment_due_date,
+      second_installment_due_date,
+      booking_money,
+      first_installment,
+      second_installment,
+      packgeId // Add packageId for WHERE clause
     ];
 
     const [result] = await pool.query(
@@ -779,7 +746,16 @@ const updateTourPackage = async (req, res) => {
         SelfGuided = ?, 
         Guide = ?, 
         CancellationDate = ?, 
-        coverImage = ? 
+        coverImage = ? ,
+        adult_base_price =?,
+        child_base_price=?,
+        infant_base_price =?,
+        booking_money_due_date =?,
+        first_installment_due_date =?,
+        second_installment_due_date =?,
+        booking_money =?,
+        first_installment=?,
+        second_installment =?
       WHERE PkId = ?`,
       values
     );
@@ -795,21 +771,21 @@ const updateTourPackage = async (req, res) => {
 
 
 
-const MainImage = async (req, PkID) => {
+const MainImage = async (req, PKID) => {
   let connection;
   try {
-    console.log(PkID);
+    console.log(PKID);
     const images = req.images;
     connection = await pool.getConnection();
-    const packageQuery = "SELECT PkID  FROM tourpackage WHERE PkID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const packageQuery = "SELECT PKID  FROM tourpackage WHERE PKID = ?";
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
     console.log(packageResults);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
 
-    const packageId = packageResults[0]?.PkID;
+    const packageId = packageResults[0]?.PKID;
     console.log(packageId);
 
     // Insert each image URL into the cover_image table
@@ -867,20 +843,20 @@ return result;
 
 };
 
-const createPlaceVisit = async (req, PkID) => {
+const createPlaceVisit = async (req, PKID) => {
   let connection;
   try {
     const images = req.images;
     let placetovisit_names = req.body?.placetovisit_name;
     connection = await pool.getConnection();
 
-    const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
-    const tourPackageId = packageResults[0]?.PkID;
+    const tourPackageId = packageResults[0]?.PKID;
 
     // If placetovisit_names is a string, convert it to an array
     if (typeof placetovisit_names === "string") {
@@ -921,20 +897,20 @@ const createPlaceVisit = async (req, PkID) => {
   }
 };
 
-const createAlbumImage = async (req, PkID) => {
+const createAlbumImage = async (req, PKID) => {
   let connection;
   try {
     const images = req.images;
     const { albumtitle } = req.body;
     connection = await pool.getConnection();
-    const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
+    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PkID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
 
-    const tourPackageId = packageResults[0]?.PkID;
+    const tourPackageId = packageResults[0]?.PKID;
     const insertResults = [];
     const newalbumquery = `INSERT INTO albumimage (AlbumId, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
     for (let i = 0; i < images.length; i++) {
@@ -1029,7 +1005,7 @@ const createTourPlan = async (req) => {
       if (packageResults.length === 0) {
         throw new Error("Tour package not found.");
       }
-      const tourPackageId = packageResults[0]?.PkID;
+      const tourPackageId = packageResults[0]?.PKID;
 
       if (id) {
         // Check if ID is provided

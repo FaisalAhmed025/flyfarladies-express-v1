@@ -41,7 +41,6 @@ const Book$Hold = async (req, res) => {
       );
     }
 
-
     const { adult, child, infant } = req.body;
 
 
@@ -90,7 +89,7 @@ const Book$Hold = async (req, res) => {
     if (Array.isArray(child) && child.length > 0) {
       // Prepare an array to hold all adult traveler values
       const childTravelersValues = [];
-
+      
       for (const childtraveler of child) {
         const {
           cfName,
@@ -179,7 +178,7 @@ const totaladult = adult.length
 const totalchild = child.length
 const totalinfant = infant.length
 
-const bookingStatus  =  bookingStatus.HOLD
+const bookingstatus  =  bookingStatus.HOLD
 
 const adultprice =  tourpackage[0].adult_base_price *totaladult;
 const childprice=  tourpackage[0].child_base_price * totalchild;
@@ -216,8 +215,9 @@ console.log(totalpackageprice);
       totaladult,
       totalchild,
       totalinfant,
+      phone,
       totalpackageprice,
-      bookingStatus
+      bookingstatus
       
     ];
 
@@ -248,9 +248,10 @@ console.log(totalpackageprice);
         totaladult,
         totalchild,
         totalinfant,
+        phone,
         totalAmount,
         bookingStatus
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
@@ -258,7 +259,7 @@ console.log(totalpackageprice);
 
     return res.status(200).json({
       status: "success",
-      message: "Travel package added successfully",
+      message: "Booking success",
     });
   } catch (error) {
     console.log(error);

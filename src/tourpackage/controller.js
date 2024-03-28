@@ -10,7 +10,7 @@ const addpackage = async (req, res)=>{
 
 const getSingleTourPackages = async (req, res, next) => {
   try {
-    const id = req.params.PkID;
+    const id = req.params.PKID;
     const result = await tourpackageService.getSingleTourPackages(id);
 
     // Check if the result is an error

@@ -71,15 +71,20 @@ const Register = async (req, res) => {
 
 export function verifyToken(req, res, next) {
   const token = req.headers["authorization"];
+  console.log(token);
   if (!token) {
     return res.status(403).json({ message: "No token provided." });
   }
-
-  jwt.verify(token, secretKey, (err, decoded) => {
+  console.log("Received token:", token);
+  jwt.verify(token, "helloladies", (err, decoded) => {
     if (err) {
+      console.error("Error verifying token:", err);
       return res.status(401).json({ message: "Failed to authenticate token." });
     }
+    console.log("Decoded token payload:", decoded);
     req.user = decoded.id;
+
+    console.log("who m i?", req.user);
     next();
   });
 }
