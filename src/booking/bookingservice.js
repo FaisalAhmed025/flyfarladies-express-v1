@@ -59,7 +59,8 @@ const Book$Hold = async (req, res) => {
           agender,
           aPaxType,
         } = adulttraveler;
-
+        const passportDateValue = passDate ? passDate : null;
+        const passportNumber = PassportNumber ? PassportNumber:null;
         // Add current adult traveler's values to the array
         adultTravelersValues.push([
           aPaxType,
@@ -68,8 +69,8 @@ const Book$Hold = async (req, res) => {
           Nationality,
           agender,
           adob,
-          passDate,
-          PassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
@@ -82,6 +83,7 @@ const Book$Hold = async (req, res) => {
       // Execute the SQL query to insert all adult travelers
        await pool.query(addpassenger, [adultTravelersValues]);
     }
+
 
     
     if (Array.isArray(child) && child.length > 0) {
@@ -100,6 +102,9 @@ const Book$Hold = async (req, res) => {
           cpaxType,
         } = childtraveler;
 
+        const passportDateValue = cpassDate ? cpassDate : null;
+        const passportNumber = cpassportNumber ? cpassportNumber:null;
+
         // Add current adult traveler's values to the array
         childTravelersValues.push([
           cpaxType,
@@ -108,8 +113,8 @@ const Book$Hold = async (req, res) => {
           cnationality,
           cgender,
           cdob,
-          cpassDate,
-          cpassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
@@ -148,6 +153,10 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
+
+       const passportDateValue =ipassDate? ipassDate:null
+       const passportNumber = ipassportNumber ? ipassportNumber:null
+
         // Add current adult traveler's values to the array
         infantTravelersValues.push([
           ipaxType,
@@ -156,8 +165,8 @@ const Book$Hold = async (req, res) => {
           inationality,
           igender,
           idob,
-          ipassDate,
-          ipassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
