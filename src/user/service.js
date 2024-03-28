@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import pool from "../database/db";
 
 import { object, string, date, boolean } from "zod";
+import { HttpException } from "express-sharp";
+import httpStatus from "http-status";
 
 const generateUserId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
@@ -277,7 +279,6 @@ const updateTraveler = async (req, res) => {
     // Validate the request body against the schema
     req.body = travelerSchema.parse(req.body);
     if (req.publicImageLink) req.body.passport_copy = req.publicImageLink;
-
     console.log(req.publicImageLink);
 
     const updateQuery = `
@@ -300,6 +301,9 @@ const myTravelerList = async (req, res) => {
     const userid = req.params.user_id;
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
+    if(result.length ===0){
+      throw new HttpException('no travler list', httpStatus.BAD_REQUEST)
+    }
     return res.status(200).json({
       success: true,
       status: httpStatus.OK,

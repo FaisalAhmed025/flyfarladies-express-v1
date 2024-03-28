@@ -178,8 +178,7 @@ const Book$Hold = async (req, res) => {
   `;
       // Execute the SQL query to insert all adult travelers
     await pool.query(addInfantPassengerQuery , [infantTravelersValues]);
-
-    }
+  }
 
 const totaladult = adult.length
 const totalchild = child.length
