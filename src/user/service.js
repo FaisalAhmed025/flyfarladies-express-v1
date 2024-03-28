@@ -141,6 +141,10 @@ const login = async (req, res) => {
 
 // Define a schema for the request body
 const userSchema = object({
+  nameTitle:string(),
+  name: string(),
+  firstName:string(),
+  lastName:string(),
   email: string().email(),
   password: string(),
   phone: string(),
@@ -152,7 +156,7 @@ const userSchema = object({
   nationality: string(),
   nid: string(),
   passportNumber: string(),
-  passportExpireDate: date(),
+  passportExpireDate: string(),
   facebookId: string(),
   whatsApp: string(),
   linkedIn: string(),
@@ -177,7 +181,6 @@ const updateUser = async (req, res) => {
     const [updateData] = await pool.query(updateQuery, [req.body, id]);
 
     console.log(updateData);
-
     return res
       .status(200)
       .json({ status: "success", message: "User updated successfully" });
@@ -302,7 +305,7 @@ const myTravelerList = async (req, res) => {
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
     if(result.length ===0){
-      throw new HttpException('no travler list', httpStatus.BAD_REQUEST)
+      throw new HttpException('no traveler list', httpStatus.BAD_REQUEST)
     }
     return res.status(200).json({
       success: true,
