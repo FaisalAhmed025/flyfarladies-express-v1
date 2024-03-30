@@ -179,7 +179,6 @@ const updateUser = async (req, res) => {
 
     // Execute the update query with the validated data
     const [updateData] = await pool.query(updateQuery, [req.body, id]);
-
     console.log(updateData);
     return res
       .status(200)

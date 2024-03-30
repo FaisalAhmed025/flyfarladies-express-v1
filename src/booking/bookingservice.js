@@ -185,7 +185,6 @@ const totalchild = child.length
 const totalinfant = infant.length
 
 const bookingstatus  =  bookingStatus.HOLD
-
 const adultprice =  tourpackage[0].adult_base_price *totaladult;
 const childprice=  tourpackage[0].child_base_price * totalchild;
 const infantprice  = tourpackage[0].infant_base_price * totalinfant;
@@ -196,22 +195,21 @@ console.log(adultprice,childprice, infantprice)
 const totalpackageprice = adultprice+childprice+infantprice
 
 console.log(totalpackageprice);
-
     const values = [
       bookingid,
       userid,
       email,
       name,
       wallet,
-      tourpackage[0].PkID,
+      tourpackage[0].PKID,
       tourpackage[0].MainTitle,
       tourpackage[0].StartDate,
       tourpackage[0].EndDate,
       tourpackage[0].TripType,
       tourpackage[0].TotalDuration,
-      tourpackage[0].adult_base_price,
-      tourpackage[0].child_base_price,
-      tourpackage[0].infant_base_price,
+      adultprice,
+      childprice,
+      infantprice,
       tourpackage[0].booking_money,
       tourpackage[0].first_installment,
       tourpackage[0].second_installment,
@@ -242,9 +240,9 @@ console.log(totalpackageprice);
         EndDate,
         TripType,
         TotalDuration,
-        adult_base_price,
-        child_base_price,
-        infant_base_price,
+        adult_price,
+        child_price,
+        infant_price,
         booking_money,
         first_installment,
         second_installment,
