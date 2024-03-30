@@ -20,10 +20,10 @@ router.post(
 );
 
 router.post(
-  '/create-cash-deposit/:id',
+  '/create-mobile-deposit/:id',
   upload.single('attachment'),
   imageHandler,
-  depositeControlller.cashDepositController
+  depositeControlller.createMobilebankDeposit
 );
 
 router.put(

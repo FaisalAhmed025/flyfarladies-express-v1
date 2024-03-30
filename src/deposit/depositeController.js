@@ -41,13 +41,13 @@ const CheckDepositController = async (req, res) => {
 };
 
 
-const cashDepositController = async (req, res) => {
+const createMobilebankDeposit = async (req, res) => {
   try {
-    const result = await depositeService.createCashDeposit(req);
+    const result = await depositeService.createMobilebank(req);
     res.status(httpStatus.OK).json({
       success: true,
       message:
-        'Cash deposit request created successfully.Please wait for approval',
+        'mobile deposit request created successfully.Please wait for approval',
       data: result,
     });
   } catch (error) {
@@ -120,7 +120,7 @@ const approvedCheckDeposit = async (req, res) => {
 export const depositeControlller = {
   createBankDeposit,
   CheckDepositController,
-  cashDepositController,
+  createMobilebankDeposit,
   updateDepositStatus,
   approvedCashDEposit,
   approvedCheckDeposit

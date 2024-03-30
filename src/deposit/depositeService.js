@@ -121,10 +121,10 @@ const createCheckDeposit = async (req) => {
 }
 
 
-const createCashDeposit = async (req) => {
+const createMobilebank = async (req) => {
   const connection = await pool.getConnection();
   try {
-    const {depositor_name,receiver_name,cheque_date,reference, amount}=req.body
+    const {payment_method, accountNumber,transactionID,reference, amount}=req.body
     await connection.beginTransaction(); // Begin a new database transaction
     const requested_by = req.params.id;
     const userquery = `SELECT * FROM user WHERE id = ? `
@@ -132,10 +132,8 @@ const createCashDeposit = async (req) => {
     if (user.length === 0) {
       throw new Error('User not found');
     }
-
     const attachment = req.publicImageLink;
-    const tableName = 'cash_deposit';
-    const status = 'pending';
+    const tableName = 'mobilebank';
     console.log(tableName)
     if (amount < 0) {
       throw new Error(
@@ -144,16 +142,19 @@ const createCashDeposit = async (req) => {
     }
     // Generate a UUID-like ID for the bank transfer
     const deposit_id = generateDepoId();
-    const transactionDate = new Date(cheque_date);
-    const formattedDate = transactionDate.toDateString();
-    const remarks = `Cash Deposit request from ${depositor_name} to ${receiver_name} ${reference} ${amount}`;
+    const fee = (amount*1.5)/100
+    // const transactionDate = new Date(cheque_date);
+    const requestDate = new Date()
+    const remarks = `mobilebank request from ${accountNumber} by ${payment_method} ${reference} ${amount} at ${requestDate}`;
     const [results] = await connection.query(
-      'INSERT INTO cash_deposit (deposit_id, depositor_name, receiver_name, status, requested_by, amount, reference, remarks, attachment) VALUES (?, ?, ?, ?, ?, ?,?,?, ?)',
+      'INSERT INTO mobilebank (deposit_id, payment_method, accountNumber, requestDate, gatewayFee,transactionID, requested_by, amount, reference, remarks, attachment) VALUES (?, ?, ?, ?, ?, ?,?,?, ?, ?, ?)',
       [
         deposit_id,
-        depositor_name,
-        receiver_name,
-        status,
+        payment_method,
+        accountNumber,
+        requestDate,
+        fee,
+        transactionID,
         requested_by,
         amount,
         reference,
@@ -344,7 +345,7 @@ const ApprovedCheckDeposit = async(req)=>{
 export const depositeService = {
   createBankDeposit,
   createCheckDeposit,
-  createCashDeposit,
+  createMobilebank,
   ApprovedBankDeposit,
   ApprovedCashDeposit,
   ApprovedCheckDeposit
