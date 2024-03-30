@@ -41,4 +41,9 @@ router.put(
   depositeControlller.approvedCheckDeposit
 );
 
+router.get(
+  '/depositlist/:requested_by',
+  depositeControlller.getuserdeposit
+);
+
 export default router;

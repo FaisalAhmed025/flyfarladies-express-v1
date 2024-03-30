@@ -342,11 +342,29 @@ const ApprovedCheckDeposit = async(req)=>{
   }
 }
 
+
+const getuserdeposit = async(req,res)=>{
+  const userid = req.params.requested_by
+
+  const bankdepoquery = `SELECT * FROM bank_transfer WHERE requested_by =? `
+  const [bankdeposit] = await pool.query(bankdepoquery, [userid])
+
+  const cheqdepoquery = `SELECT * FROM cheque_deposit WHERE requested_by =? `
+  const [chequedeposit] = await pool.query(cheqdepoquery, [userid])
+
+  const mobilebankepoquery = `SELECT * FROM mobilebank WHERE requested_by =? `
+  const [mobiledeposit] = await pool.query(mobilebankepoquery, [userid])
+  return  res.json({bankdeposit, chequedeposit, mobiledeposit})
+
+}
+
+
 export const depositeService = {
   createBankDeposit,
   createCheckDeposit,
   createMobilebank,
   ApprovedBankDeposit,
   ApprovedCashDeposit,
-  ApprovedCheckDeposit
+  ApprovedCheckDeposit,
+  getuserdeposit
 };

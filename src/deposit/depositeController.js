@@ -3,6 +3,7 @@
 import httpStatus from "http-status";
 
 import { depositeService } from "./depositeService";
+import pool from "../database/db";
 
 
 
@@ -57,6 +58,10 @@ const createMobilebankDeposit = async (req, res) => {
     });
   }
 };
+
+const getuserdeposit = async(req,res)=>{
+  return await depositeService.getuserdeposit(req,res)
+}
 
 
 
@@ -123,5 +128,6 @@ export const depositeControlller = {
   createMobilebankDeposit,
   updateDepositStatus,
   approvedCashDEposit,
-  approvedCheckDeposit
+  approvedCheckDeposit,
+  getuserdeposit
 };
