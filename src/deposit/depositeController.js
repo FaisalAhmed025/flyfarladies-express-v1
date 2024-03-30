@@ -47,7 +47,7 @@ const createMobilebankDeposit = async (req, res) => {
     res.status(httpStatus.OK).json({
       success: true,
       message:
-        'mobile deposit request created successfully.Please wait for approval',
+        'Mobile deposit request created successfully',
       data: result,
     });
   } catch (error) {
