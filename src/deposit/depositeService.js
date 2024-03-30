@@ -343,20 +343,32 @@ const ApprovedCheckDeposit = async(req)=>{
 }
 
 
-const getuserdeposit = async(req,res)=>{
-  const userid = req.params.requested_by
+const getuserdeposit = async (req, res) => {
+  try {
+    const userid = req.params.requested_by;
 
-  const bankdepoquery = `SELECT * FROM bank_transfer WHERE requested_by =? `
-  const [bankdeposit] = await pool.query(bankdepoquery, [userid])
+    const bankDepoQuery = `SELECT * FROM bank_transfer WHERE requested_by = ?`;
+    const [bankDeposit] = await pool.query(bankDepoQuery, [userid]);
 
-  const cheqdepoquery = `SELECT * FROM cheque_deposit WHERE requested_by =? `
-  const [chequedeposit] = await pool.query(cheqdepoquery, [userid])
+    const cheqDepoQuery = `SELECT * FROM cheque_deposit WHERE requested_by = ?`;
+    const [chequeDeposit] = await pool.query(cheqDepoQuery, [userid]);
 
-  const mobilebankepoquery = `SELECT * FROM mobilebank WHERE requested_by =? `
-  const [mobiledeposit] = await pool.query(mobilebankepoquery, [userid])
-  return  res.json({bankdeposit, chequedeposit, mobiledeposit})
+    const mobileBankDepoQuery = `SELECT * FROM mobilebank WHERE requested_by = ?`;
+    const [mobileDeposit] = await pool.query(mobileBankDepoQuery, [userid]);
 
-}
+    const combinedResult = [
+      ...bankDeposit,
+      ...chequeDeposit,
+      ...mobileDeposit
+    ];
+
+    return res.json({alldeposit:combinedResult});
+  } catch (error) {
+    console.error("Error fetching user deposits:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 
 export const depositeService = {
