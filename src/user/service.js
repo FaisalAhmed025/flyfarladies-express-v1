@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import pool from "../database/db";
-
 import { object, string, date, boolean } from "zod";
+import { HttpException } from "express-sharp";
 import httpStatus from "http-status";
 
 const generateUserId = () => {
@@ -67,30 +67,10 @@ const Register = async (req, res) => {
     res.status(500).json({ error: "Error creating user" });
   }
 };
-// export const verifyToken = (req, res, next) => {
-//   let token = req.header("authorization");
-//   console.log(token);
-//   if (!token) {
-//     return res.status(403).json({ message: "No token provided." });
-//   }
 
-//   console.log("Received token:", token);
-//   jwt.verify(token, "helloladies");
-//   if (err) {
-//     console.log(err.message);
-//     console.error("Error verifying token:", err);
-//     return res.status(401).json({ message: "Failed to authenticate token." });
-//   }
-//   console.log("Decoded token payload:", decoded);
-//   req.user = decoded.id;
-
-//   console.log("who m i?", req.user);
-//   next();
-// };
-
-const verifyToken = async (req, res, next) => {
-  const token = req.header("Authorization");
-
+export function verifyToken(req, res, next) {
+  const token = req.headers["authorization"];
+  console.log(token);
   if (!token) {
     return res.status(httpStatus.UNAUTHORIZED).json({
       success: false,
@@ -127,7 +107,7 @@ const verifyToken = async (req, res, next) => {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-};
+}
 export default verifyToken;
 const login = async (req, res) => {
   try {
@@ -178,6 +158,10 @@ const login = async (req, res) => {
 };
 // Define a schema for the request body
 const userSchema = object({
+  nameTitle: string(),
+  name: string(),
+  firstName: string(),
+  lastName: string(),
   email: string().email(),
   password: string(),
   phone: string(),
@@ -189,7 +173,7 @@ const userSchema = object({
   nationality: string(),
   nid: string(),
   passportNumber: string(),
-  passportExpireDate: date(),
+  passportExpireDate: string(),
   facebookId: string(),
   whatsApp: string(),
   linkedIn: string(),
@@ -212,9 +196,7 @@ const updateUser = async (req, res) => {
 
     // Execute the update query with the validated data
     const [updateData] = await pool.query(updateQuery, [req.body, id]);
-
     console.log(updateData);
-
     return res
       .status(200)
       .json({ status: "success", message: "User updated successfully" });
@@ -316,7 +298,6 @@ const updateTraveler = async (req, res) => {
     // Validate the request body against the schema
     req.body = travelerSchema.parse(req.body);
     if (req.publicImageLink) req.body.passport_copy = req.publicImageLink;
-
     console.log(req.publicImageLink);
 
     const updateQuery = `
@@ -339,6 +320,9 @@ const myTravelerList = async (req, res) => {
     const userid = req.params.user_id;
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
+    if (result.length === 0) {
+      throw new HttpException("no traveler list", httpStatus.BAD_REQUEST);
+    }
     return res.status(200).json({
       success: true,
       status: httpStatus.OK,

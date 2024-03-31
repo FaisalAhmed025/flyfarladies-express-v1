@@ -22,11 +22,17 @@ const getSingleBookings  = async (req, res) => {
   })
 }
 
+const getuserBookings  = async (req, res) => {
+   await BookingService.getBookingsByUserId(req,res);
+}
+
+
 
 
 
 export const bookingController = {
   Book$Hold,
   getAllBookings,
-  getSingleBookings
+  getSingleBookings,
+  getuserBookings
 }

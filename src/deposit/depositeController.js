@@ -3,6 +3,7 @@
 import httpStatus from "http-status";
 
 import { depositeService } from "./depositeService";
+import pool from "../database/db";
 
 
 
@@ -41,13 +42,13 @@ const CheckDepositController = async (req, res) => {
 };
 
 
-const cashDepositController = async (req, res) => {
+const createMobilebankDeposit = async (req, res) => {
   try {
-    const result = await depositeService.createCashDeposit(req);
+    const result = await depositeService.createMobilebank(req);
     res.status(httpStatus.OK).json({
       success: true,
       message:
-        'Cash deposit request created successfully.Please wait for approval',
+        'Mobile deposit request created successfully',
       data: result,
     });
   } catch (error) {
@@ -57,6 +58,10 @@ const cashDepositController = async (req, res) => {
     });
   }
 };
+
+const getuserdeposit = async(req,res)=>{
+  return await depositeService.getuserdeposit(req,res)
+}
 
 
 
@@ -120,8 +125,9 @@ const approvedCheckDeposit = async (req, res) => {
 export const depositeControlller = {
   createBankDeposit,
   CheckDepositController,
-  cashDepositController,
+  createMobilebankDeposit,
   updateDepositStatus,
   approvedCashDEposit,
-  approvedCheckDeposit
+  approvedCheckDeposit,
+  getuserdeposit
 };

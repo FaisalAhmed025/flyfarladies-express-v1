@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import {HttpException} from "express-sharp";
 import pool from "../database/db";
+import { payementStatus } from "../payment/service";
 
 
 export const bookingStatus = {
@@ -22,7 +23,7 @@ const Book$Hold = async (req, res) => {
     const userid = req.params.id;
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
-    if (!user) {
+    if (user.length ===0) {
       throw new HttpException(
         `User not found with this id=${userid}`,
         httpStatus.BAD_REQUEST
@@ -31,10 +32,10 @@ const Book$Hold = async (req, res) => {
 
     const { email, wallet, name, phone } = user[0];
 
-    const packgeId = req.params.PkID;
-    const packgaeQuery = `SELECT * FROM tourpackage WHERE PkID = ?`;
+    const packgeId = req.params.PKID;
+    const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
     const [tourpackage] = await pool.query(packgaeQuery, [packgeId]);
-    if (!tourpackage) {
+    if (tourpackage.length ===0) {
       throw new HttpException(
         `TourPackage not found with this id=${packgeId}`,
         httpStatus.BAD_REQUEST
@@ -43,9 +44,7 @@ const Book$Hold = async (req, res) => {
 
     const { adult, child, infant } = req.body;
 
-
     const bookingid = generatebookingId()
-
 
     if (Array.isArray(adult) && adult.length > 0) {
       // Prepare an array to hold all adult traveler values
@@ -61,7 +60,8 @@ const Book$Hold = async (req, res) => {
           agender,
           aPaxType,
         } = adulttraveler;
-
+        const passportDateValue = passDate ? passDate : null;
+        const passportNumber = PassportNumber ? PassportNumber:null;
         // Add current adult traveler's values to the array
         adultTravelersValues.push([
           aPaxType,
@@ -70,8 +70,8 @@ const Book$Hold = async (req, res) => {
           Nationality,
           agender,
           adob,
-          passDate,
-          PassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
@@ -84,6 +84,7 @@ const Book$Hold = async (req, res) => {
       // Execute the SQL query to insert all adult travelers
        await pool.query(addpassenger, [adultTravelersValues]);
     }
+
 
     
     if (Array.isArray(child) && child.length > 0) {
@@ -102,6 +103,9 @@ const Book$Hold = async (req, res) => {
           cpaxType,
         } = childtraveler;
 
+        const passportDateValue = cpassDate ? cpassDate : null;
+        const passportNumber = cpassportNumber ? cpassportNumber:null;
+
         // Add current adult traveler's values to the array
         childTravelersValues.push([
           cpaxType,
@@ -110,8 +114,8 @@ const Book$Hold = async (req, res) => {
           cnationality,
           cgender,
           cdob,
-          cpassDate,
-          cpassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
@@ -150,6 +154,10 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
+
+       const passportDateValue =ipassDate? ipassDate:null
+       const passportNumber = ipassportNumber ? ipassportNumber:null
+
         // Add current adult traveler's values to the array
         infantTravelersValues.push([
           ipaxType,
@@ -158,8 +166,8 @@ const Book$Hold = async (req, res) => {
           inationality,
           igender,
           idob,
-          ipassDate,
-          ipassportNumber,
+          passportDateValue,
+          passportNumber,
           bookingid,
           userid
         ]);
@@ -171,15 +179,13 @@ const Book$Hold = async (req, res) => {
   `;
       // Execute the SQL query to insert all adult travelers
     await pool.query(addInfantPassengerQuery , [infantTravelersValues]);
-
-    }
+  }
 
 const totaladult = adult.length
 const totalchild = child.length
 const totalinfant = infant.length
 
 const bookingstatus  =  bookingStatus.HOLD
-
 const adultprice =  tourpackage[0].adult_base_price *totaladult;
 const childprice=  tourpackage[0].child_base_price * totalchild;
 const infantprice  = tourpackage[0].infant_base_price * totalinfant;
@@ -187,25 +193,24 @@ const infantprice  = tourpackage[0].infant_base_price * totalinfant;
 
 console.log(adultprice,childprice, infantprice)
 
-const totalpackageprice = adultprice+childprice+infantprice
-
+const totalpackageprice = adultprice+childprice+infantprice;
+const paymentstatus = payementStatus.UNPAID
 console.log(totalpackageprice);
-
     const values = [
       bookingid,
       userid,
       email,
       name,
       wallet,
-      tourpackage[0].PkID,
+      tourpackage[0].PKID,
       tourpackage[0].MainTitle,
       tourpackage[0].StartDate,
       tourpackage[0].EndDate,
       tourpackage[0].TripType,
       tourpackage[0].TotalDuration,
-      tourpackage[0].adult_base_price,
-      tourpackage[0].child_base_price,
-      tourpackage[0].infant_base_price,
+      adultprice,
+      childprice,
+      infantprice,
       tourpackage[0].booking_money,
       tourpackage[0].first_installment,
       tourpackage[0].second_installment,
@@ -217,6 +222,7 @@ console.log(totalpackageprice);
       totalinfant,
       phone,
       totalpackageprice,
+      paymentstatus,
       bookingstatus
       
     ];
@@ -236,9 +242,9 @@ console.log(totalpackageprice);
         EndDate,
         TripType,
         TotalDuration,
-        adult_base_price,
-        child_base_price,
-        infant_base_price,
+        adult_price,
+        child_price,
+        infant_price,
         booking_money,
         first_installment,
         second_installment,
@@ -250,8 +256,9 @@ console.log(totalpackageprice);
         totalinfant,
         phone,
         totalAmount,
+        paymentStatus,
         bookingStatus
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
@@ -285,8 +292,34 @@ const getSingleBooking = async (req,res) =>{
 }
 
 
+const getBookingsByUserId = async (req, res) => {
+  try {
+    // Assuming userid is obtained from request parameters or session
+    const userId = req.params.userid;
+
+    // Query to fetch bookings for the given user
+    const bookingQuery = `SELECT * FROM booking WHERE userid = ?`;
+    const [bookingResults] = await pool.execute(bookingQuery, [userId]);
+
+    // Iterate through booking results to fetch passengers for each booking
+    const bookingsWithPassengers = await Promise.all(bookingResults.map(async (booking) => {
+      const passengerQuery = `SELECT * FROM passenger WHERE bookingid = ?`;
+      const [passengerResults] = await pool.execute(passengerQuery, [booking.bookingid]);
+      return { booking, passengers: passengerResults };
+    }));
+
+    res.status(200).json(bookingsWithPassengers);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ error: "Failed to fetch bookings" });
+  }
+};
+
+
+
 export const BookingService = {
   Book$Hold,
   getAllBooking,
   getSingleBooking,
+  getBookingsByUserId
 }

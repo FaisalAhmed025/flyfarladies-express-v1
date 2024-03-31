@@ -17,7 +17,6 @@ export const installmentStatus = {
 }
 
 
-
 const paywithwallet = async(req,res)=>{
 try {
   const  userid = req.params.id
@@ -108,7 +107,6 @@ try {
 
 
 const paybookingamount = async (req,res) =>{
-
   const bookingid = req.body.bookingid
   const userid = req.body.id
 
@@ -174,12 +172,10 @@ const paybookingamount = async (req,res) =>{
     lastbalance,
     bookingid
   ]
-
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
   const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
   return updatebooing;
-
 }
 
 
@@ -187,11 +183,8 @@ const paybookingamount = async (req,res) =>{
 const paySecondInstallment = async (req,res) =>{
   const bookingid = req.body.bookingid
   const userid = req.body.id
-  
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
-
   const [booking] = await pool.query(packagequery, [bookingid])
-
   if (!booking || booking.length === 0) {
     throw new NotFoundException('Booking not found');
   }
@@ -320,7 +313,7 @@ const paythiredInstallment = async (req,res) =>{
 
   const paymentstatus  = payementStatus.PAID
   const InstallmentStatus = installmentStatus.COMPLETED
-  const lastbalance = user[0].wallet
+  const lastbalance = user[0].walletp
   const installmentpaidate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
 
