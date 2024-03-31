@@ -32,9 +32,7 @@ export const multiCity = async (
     // Make the API request with pagination parameters
     const response = await axios.post(authUrl, body, { headers });
 
-    return {
-      results: response.data.results,
-    };
+    return response.data;
   } catch (error) {
     console.log(error);
     return [];

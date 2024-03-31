@@ -6,7 +6,6 @@ import bodyParser from "body-parser";
 import logger from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-
 import tourpackageRoute from "./tourpackage/router";
 import userRouter from "./user/userroute";
 import depositRoute from "./deposit/depositeRoute";
@@ -18,7 +17,9 @@ import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
 import { roundWayPostRoute } from "./air/sabre/sabreRoutes/roundWayRoute";
 import { multiCitySearch } from "./air/sabre/sabreRoutes/multiCityRoute";
 import { flightBookingRoute } from "./air/sabre/airBooking/flightBookingRoute";
-
+import rateHawkAutoCompleteResult from "./hotel/hotelRoute/autoCompleteRoute";
+import { hotelSearchRoute } from "./hotel/hotelRoute/hotelSearchRoute";
+import "dotenv/config";
 const app = express();
 
 const options = {
@@ -88,6 +89,8 @@ app.post("/api/v1/air-search/oneway", onWayPostRoute);
 app.post("/api/v1/air-search/roundWay", roundWayPostRoute);
 app.post("/api/v1/air-search/multiCity", multiCitySearch);
 app.use("/api/v1/air/booking", flightBookingRoute);
+app.get("/api/v1/hotel/autocomplete/:asking", rateHawkAutoCompleteResult);
+app.post("/api/v1/hotel/search", hotelSearchRoute);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Express");
 });

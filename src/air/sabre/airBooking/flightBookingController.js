@@ -43,14 +43,12 @@ const cancelFlightBooking = async (req, res, next) => {
     });
   }
 };
-
-
 const getAllBookingController = async (req, res, next) => {
   try {
     const id = req.params.id;
     // Call the getAllBookingData function with the provided user_id and booking_id
     const result = await flightBookingService.getAllBookingData(req, id);
-    console.log(result);
+
     // Check if the result is not null (i.e., data found)
     if (result) {
       res.status(200).json({
@@ -68,8 +66,6 @@ const getAllBookingController = async (req, res, next) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-
 const IssueTicket = async (req, res, next) => {
   try {
     const result = await flightBookingService.issueTicket(req, res, next);
@@ -86,12 +82,10 @@ const IssueTicket = async (req, res, next) => {
   }
 };
 
-
-
 export const flightBookingController = {
   createFlightBooking,
   getBookingHistory,
   cancelFlightBooking,
   getAllBookingController,
-  IssueTicket
+  IssueTicket,
 };

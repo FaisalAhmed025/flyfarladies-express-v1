@@ -4,16 +4,11 @@ import { fetchTestToken } from "../../utils/utils";
 import pool from "../../../database/db";
 import { generateUUID } from "../../../helper/generateUUID";
 
-
-
-
 const createBooking = async (req, res, next) => {
   try {
     const requestData = req.body;
-
     // Fetch Access Token
     const accessToken = await fetchTestToken();
-
     //  Send Request to Booking API
     const apiEndpoint =
       "https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking";
@@ -23,7 +18,6 @@ const createBooking = async (req, res, next) => {
         Authorization: `Bearer ${accessToken?.data}`,
       },
     });
-
 
     if (response.data.success === true) {
       const headers = {
@@ -65,12 +59,11 @@ const createBooking = async (req, res, next) => {
     throw new Error(error.response.data.message);
   }
 };
-
 const saveBookingData = async (req, bookingInfo) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    const userId = req.user.id;
+    const userId = req.user;
     const tableName = "flight_booking";
     const airlinesName =
       bookingInfo.flightDetailsAndPrices.flightDetailsByType[0].airlineName;
@@ -130,10 +123,9 @@ const saveBookingData = async (req, bookingInfo) => {
     throw new Error("Failed to save booking data");
   }
 };
-
 const saveFlightPassengers = async (req, passengerData, bookingId) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user;
     const createdAt = moment().format("YYYY-MM-DD HH:mm");
     const updatedAt = createdAt;
     const values = [
@@ -159,6 +151,7 @@ const saveFlightPassengers = async (req, passengerData, bookingId) => {
       updatedAt,
       bookingId,
     ];
+    console.log(values);
     const [rows] = await pool.query(
       "INSERT INTO flight_passenger (id,passenger_id,user_id, paxId, prefix, firstName, " +
         "lastName, dob, type, passNation, passNo, passEx, phone, email, address, " +
@@ -172,7 +165,6 @@ const saveFlightPassengers = async (req, passengerData, bookingId) => {
     throw new Error("Failed to save flight passenger data");
   }
 };
-
 const insertAdditionalData = async (
   req,
   bookingId,
@@ -190,7 +182,7 @@ const insertAdditionalData = async (
       flightDetailsAndPrices,
       fare,
     };
-    const userId = req.user.id;
+    const userId = req.user;
     // Insert additional data into the booking_additional_data table
     const [result] = await connection.query(
       "INSERT INTO flight_details(id, booking_id, data,user_id) VALUES (?, ?, ?, ?)",
@@ -204,7 +196,6 @@ const insertAdditionalData = async (
 
     await connection.commit();
     connection.release();
-    console.log(result);
   } catch (error) {
     await connection.rollback();
     connection.release();
@@ -238,7 +229,7 @@ const getAllBookingData = async (req, booking_id) => {
   try {
     const connection = await pool.getConnection();
     try {
-      const user_id = req.user.id;
+      const user_id = req.user;
 
       // Fetch data from the booking table
       const [bookingResults] = await connection.query(
@@ -282,7 +273,7 @@ const getAllBookingData = async (req, booking_id) => {
 };
 const getBookingHistory = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user;
     const query = `
       SELECT
         b.id,
@@ -340,17 +331,14 @@ const getBookingHistory = async (req, res) => {
     throw new Error("Failed to fetch booking history", error.message);
   }
 };
-
-//reisuue 
+//reisuue
 
 const issueTicket = async (req, res, next) => {
   try {
     const booking_Id = req.body.booking_id;
     const userId = req.body.id;
-    const tableName = 'ledger';
+    const tableName = "ledger";
 
-
-    console.log(booking_Id, userId)
     // Fetch data from flight_passenger table
 
     // const [passengerData] = await pool.query(
@@ -363,7 +351,7 @@ const issueTicket = async (req, res, next) => {
 
     // Fetch data from b2c_ledger table
     const [ledgerData] = await pool.query(
-      'SELECT last_balance FROM ledger WHERE user_id = ?',
+      "SELECT last_balance FROM ledger WHERE user_id = ?",
       [userId]
     );
 
@@ -371,16 +359,14 @@ const issueTicket = async (req, res, next) => {
 
     // Fetch data from booking table
     const [bookingData] = await pool.query(
-      'SELECT booking_id, amount, status, journeyType FROM flight_booking WHERE booking_id = ?',
+      "SELECT booking_id, amount, status, journeyType FROM flight_booking WHERE booking_id = ?",
       [booking_Id]
     );
 
-    console.log(bookingData)
-
     const { amount, status, journeyType } = bookingData[0];
 
-    if (status !== 'Hold') {
-      return 'Booking is not in Hold state.';
+    if (status !== "Hold") {
+      return "Booking is not in Hold state.";
     }
     // Check journey type for Outbound
     // if (journeyType === 'Outbound' && (!passportCopy || !visaCopy)) {
@@ -388,7 +374,7 @@ const issueTicket = async (req, res, next) => {
     // }
     // Check wallet balance
     if (amount > walletBalance) {
-      return 'Insufficient balance in the wallet.';
+      return "Insufficient balance in the wallet.";
     }
 
     // Start a transaction
@@ -398,17 +384,17 @@ const issueTicket = async (req, res, next) => {
     try {
       // Update booking status to 'Issue Request'
       await connection.query(
-        'UPDATE flight_booking SET status = ? WHERE booking_id = ?',
-        ['Issue Request', booking_Id]
+        "UPDATE flight_booking SET status = ? WHERE booking_id = ?",
+        ["Issue Request", booking_Id]
       );
 
       // Update b2c_ledger table with the new wallet balance (wallet - amount)
       const newWalletBalance = walletBalance - amount;
       await connection.query(
-        'UPDATE ledger SET last_balance = ?, status = purchase + ?, amount =?, WHERE user_id = ?',
+        "UPDATE ledger SET last_balance = ?, status = purchase + ?, amount =?, WHERE user_id = ?",
         [newWalletBalance, amount, userId]
       );
-   
+
       const trxId = `FFTTRX${userId}`;
       // Insert a new record into my_transaction table
       const transactionQuery = `INSERT INTO my_transaction (id, reference, remarks, amount, last_balance, date, user_id, trxId, type) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, 'Issue Request')`;
@@ -433,15 +419,15 @@ const issueTicket = async (req, res, next) => {
     } catch (error) {
       // Rollback the transaction in case of an error
       await connection.rollback();
-      console.error('Error issuing ticket:', error.message);
-      throw new Error('Failed to issue ticket.');
+      console.error("Error issuing ticket:", error.message);
+      throw new Error("Failed to issue ticket.");
     } finally {
       // Release the connection
       connection.release();
     }
   } catch (error) {
-    console.error('Error issuing ticket:', error.message);
-    throw new Error('Failed to issue ticket.');
+    console.error("Error issuing ticket:", error.message);
+    throw new Error("Failed to issue ticket.");
   }
 };
 

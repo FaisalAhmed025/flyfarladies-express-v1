@@ -1,6 +1,6 @@
 import express from "express";
 import { flightBookingController } from "./flightBookingController";
-import { verifyToken } from "../../../user/service";
+import verifyToken from "../../../user/service";
 const router = express.Router();
 router.post(
   "/create-flight-booking",
@@ -23,10 +23,6 @@ router.delete(
   flightBookingController.cancelFlightBooking
 );
 
-router.post(
-  "/issue-ticket",
-  verifyToken,
-  flightBookingController.IssueTicket
-);
+router.post("/issue-ticket", verifyToken, flightBookingController.IssueTicket);
 
 export const flightBookingRoute = router;

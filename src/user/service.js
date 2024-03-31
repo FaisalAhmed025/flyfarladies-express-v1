@@ -2,17 +2,16 @@ import jwt from "jsonwebtoken";
 import pool from "../database/db";
 
 import { object, string, date, boolean } from "zod";
+import httpStatus from "http-status";
 
 const generateUserId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLU" + Math.floor(Math.random() * 10000);
 };
-
 const TravellerId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "T" + Math.floor(Math.random() * 10000);
 };
-
 const Register = async (req, res) => {
   try {
     // Extract the data from the request body
@@ -68,27 +67,68 @@ const Register = async (req, res) => {
     res.status(500).json({ error: "Error creating user" });
   }
 };
+// export const verifyToken = (req, res, next) => {
+//   let token = req.header("authorization");
+//   console.log(token);
+//   if (!token) {
+//     return res.status(403).json({ message: "No token provided." });
+//   }
 
-export function verifyToken(req, res, next) {
-  const token = req.headers["authorization"];
-  console.log(token);
+//   console.log("Received token:", token);
+//   jwt.verify(token, "helloladies");
+//   if (err) {
+//     console.log(err.message);
+//     console.error("Error verifying token:", err);
+//     return res.status(401).json({ message: "Failed to authenticate token." });
+//   }
+//   console.log("Decoded token payload:", decoded);
+//   req.user = decoded.id;
+
+//   console.log("who m i?", req.user);
+//   next();
+// };
+
+const verifyToken = async (req, res, next) => {
+  const token = req.header("Authorization");
+
   if (!token) {
-    return res.status(403).json({ message: "No token provided." });
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      success: false,
+      status: httpStatus.UNAUTHORIZED,
+      error: "Unauthorized",
+      message: "Please log in",
+    });
   }
-  console.log("Received token:", token);
-  jwt.verify(token, "helloladies", (err, decoded) => {
-    if (err) {
-      console.error("Error verifying token:", err);
-      return res.status(401).json({ message: "Failed to authenticate token." });
+  try {
+    // Verify the JWT token
+    const decoded = jwt.verify(token, "helloladies");
+    // Check if the user exists in your database using the decoded token information
+    const user = decoded.id; // Replace with your actual function to fetch the user by ID
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({
+        success: false,
+        status: httpStatus.UNAUTHORIZED,
+        error: "Unauthorized",
+        message: "User not found",
+      });
     }
-    console.log("Decoded token payload:", decoded);
-    req.user = decoded.id;
 
-    console.log("who m i?", req.user);
+    // Attach the user information to the request object
+    req.user = user;
+    req.token = token;
     next();
-  });
-}
-
+  } catch (err) {
+    console.log(err);
+    if (err.name === "JsonWebTokenError") {
+      return res.status(403).json({ error: "Token is invalid" });
+    } else if (err.name === "TokenExpiredError") {
+      return res.status(403).json({ error: "Token has expired" });
+    } else {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+};
+export default verifyToken;
 const login = async (req, res) => {
   try {
     // Extract the data from the request body
@@ -114,7 +154,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { id: user[0].id, email: user[0].email },
       "helloladies",
-      { expiresIn: "1h" }
+      { expiresIn: "15d" }
     );
 
     console.log(token);
@@ -136,7 +176,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: "Error during login" });
   }
 };
-
 // Define a schema for the request body
 const userSchema = object({
   email: string().email(),
