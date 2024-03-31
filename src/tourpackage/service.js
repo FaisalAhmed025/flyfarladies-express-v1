@@ -1111,7 +1111,7 @@ const createInclusion = async (req, PKID) => {
 };
 
 
-const createExclusion = async (req, PkID) => {
+const createExclusion = async (req, PKID) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -1122,14 +1122,14 @@ const createExclusion = async (req, PkID) => {
       throw new Error("Exclusion data is required as an array of objects.");
     }
 
-    const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
 
-    const tour_package_id = packageResults[0].PkID;
+    const tour_package_id = packageResults[0].PKID;
 
     for (const exclusionObj of exclusions) {
       const exclusionId = exclusionObj.id;
@@ -1183,7 +1183,7 @@ const deleteinclusion = async (req,res)=>{
 }
 
 
-const createBookingPolicy = async (req, PkID) => {
+const createBookingPolicy = async (req, PKID) => {
   try {
     const bookingPolicies = req.body;
     if (!bookingPolicies || !Array.isArray(bookingPolicies) || bookingPolicies.length === 0) {
@@ -1201,14 +1201,14 @@ const createBookingPolicy = async (req, PkID) => {
         throw new Error("Booking policy text is required for each object.");
       }
 
-      const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-      const [packageResults] = await connection.execute(packageQuery, [PkID]);
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
       if (packageResults.length === 0) {
         throw new Error("Tour package not found.");
       }
 
-      const tour_package_id = packageResults[0].PkID;
+      const tour_package_id = packageResults[0].PKID;
 
       if (id) {
         // If ID is provided, update the existing booking policy
@@ -1251,7 +1251,7 @@ const deletepolicy = async (req,res) =>{
   })
 }
 
-const createCancelationPolicy = async (req, PkID) => {
+const createCancelationPolicy = async (req, PKID) => {
   try {
     const cancellationPolicies = req.body;
 
@@ -1267,13 +1267,13 @@ const createCancelationPolicy = async (req, PkID) => {
 
     const connection = await pool.getConnection();
     const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
 
-    const tour_package_id = packageResults[0].PkID;
+    const tour_package_id = packageResults[0].PKID;
 
     const insertQuery =
       "INSERT INTO cancellation_policy (id, tour_package_id, cancellation_policy) VALUES (?, ?, ?)";
@@ -1300,7 +1300,7 @@ const createCancelationPolicy = async (req, PkID) => {
   }
 };
 
-const createHighlights = async (req, PkID) => {
+const createHighlights = async (req, PKID) => {
   try {
     const highlights = req.body;
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) {
@@ -1317,14 +1317,14 @@ const createHighlights = async (req, PkID) => {
         throw new Error("Highlight text is required for each object.");
       }
 
-      const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-      const [packageResults] = await connection.execute(packageQuery, [PkID]);
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
       if (packageResults.length === 0) {
         throw new Error("Tour package not found.");
       }
 
-      const tour_package_id = packageResults[0].PkID;
+      const tour_package_id = packageResults[0].PKID;
 
       if (id) {
         // If ID is provided, update the existing highlight
