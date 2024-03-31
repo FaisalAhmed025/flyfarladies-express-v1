@@ -216,6 +216,7 @@ const addtourpackage = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Travel package added successfully",
+      Id:packgeId
     });
   } catch (error) {
     console.error("Error adding travel package:", error);
@@ -617,6 +618,14 @@ const updateTourPackage = async (req, res) => {
   try {
     const packgeId = req.params.PKID; // Assuming packageId is passed in the request parameters
     // Extract tour package details from request body
+
+    const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
+    const [tourpackage] = await pool.query(packageQuery, [packgeId]);
+    
+    if (tourpackage.length ===0) {
+       res.status(404).json({message:'tourpackage not found'})
+    }
+    
     const {
       MainTitle,
       SubTitle,
@@ -756,15 +765,13 @@ const updateTourPackage = async (req, res) => {
         booking_money =?,
         first_installment=?,
         second_installment =?
-      WHERE PkId = ?`,
+      WHERE PKID = ?`,
       values
     );
     return result;
-
- 
   } catch (error) {
     console.error("Error updating travel package:", error);
-    res.status(500).json({ error: "Error updating travel package" });
+
   }
 };
 
@@ -1045,7 +1052,7 @@ const createTourPlan = async (req) => {
   }
 };
 
-const createInclusion = async (req, PkID) => {
+const createInclusion = async (req, PKID) => {
   try {
     const inclusions = req.body;
 
@@ -1064,14 +1071,14 @@ const createInclusion = async (req, PkID) => {
         throw new Error("Inclusion text is required for each object.");
       }
 
-      const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
-      const [packageResults] = await connection.execute(packageQuery, [PkID]);
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
       if (packageResults.length === 0) {
         throw new Error("Tour package not found.");
       }
 
-      const tourPackageId = packageResults[0].PkID;
+      const tourPackageId = packageResults[0].PKID;
 
       if (id) {
         // If ID is provided, update the existing inclusion
