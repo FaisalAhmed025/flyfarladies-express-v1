@@ -915,7 +915,7 @@ const createAlbumImage = async (req, PKID) => {
     const { albumtitle } = req.body;
     connection = await pool.getConnection();
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
@@ -1117,17 +1117,18 @@ const createInclusion = async (req, PKID) => {
 
 const createExclusion = async (req, PKID) => {
   let connection;
-  console.log(PKID)
   try {
     connection = await pool.getConnection();
     const updatedOrInsertedExclusions = [];
     const exclusions = req.body;
 
-    if (!exclusions || !Array.isArray(exclusions) || exclusions.length === 0) {
-      throw new Error("Exclusion data is required as an array of objects.");
-    }
+    // if (!exclusions || !Array.isArray(exclusions) || exclusions.length === 0) {
+    //   throw new Error("Exclusion data is required as an array of objects.");
+    // }
 
-    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+    console.log(exclusions);
+
+    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?` ;
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
@@ -1314,7 +1315,7 @@ const createHighlights = async (req, PKID) => {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) {
       throw new Error("Highlights are required as an array of objects.");
     }
-    
+
     const connection = await pool.getConnection();
     const updatedOrInsertedHighlights = [];
 

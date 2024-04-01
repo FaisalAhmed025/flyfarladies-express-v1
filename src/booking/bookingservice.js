@@ -197,7 +197,7 @@ const totalInfantprice  = tourpackage[0].infant_base_price * totalinfant;
 
 console.log(adultprice,childprice, infantprice)
 
-const totalpackageprice = adultprice+childprice+infantprice;
+const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice;
 const paymentstatus = payementStatus.UNPAID
 console.log(totalpackageprice);
     const values = [
