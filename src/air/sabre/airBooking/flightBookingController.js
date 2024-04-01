@@ -75,17 +75,49 @@ const IssueTicket = async (req, res, next) => {
       message: "Booking reissue successfully",
     });
   } catch (error) {
-    res.status(httpStatus.CONFLICT).json({
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
   }
 };
+const uploadPassportAndVisaController = async (req, res, next) => {
+  try {
+    console.log(req.params.id);
+    const passengerId = req.params.id;
 
+    // Call the service function to upload passport and visa copies
+    const result = await flightBookingService.uploadPassportAndVisaCopy(
+      req,
+      passengerId,
+      next
+    );
+
+    // Check if the result is an error
+    if (result instanceof Error) {
+      return res.status(500).json({
+        error: "An error occurred while uploading passport and visa copies",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Passport and visa copies uploaded successfully",
+      data: result, // You can return additional data if needed
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 export const flightBookingController = {
   createFlightBooking,
   getBookingHistory,
   cancelFlightBooking,
   getAllBookingController,
   IssueTicket,
+  uploadPassportAndVisaController,
 };

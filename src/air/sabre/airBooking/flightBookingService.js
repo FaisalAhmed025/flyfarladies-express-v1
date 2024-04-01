@@ -343,9 +343,41 @@ const updateBookingStatusToCancelled = async (bookingId) => {
     throw new Error("Failed to update booking status");
   }
 };
+const uploadPassportAndVisaCopy = async (req, passengerId, next) => {
+  try {
+    const passportCopy = req.passportCopy;
+    const visaCopy = req.visaCopy;
+    console.log(req.passportCopy);
+    console.log(req.visaCopy);
+    // Check if the passenger exists
+    const [existingPassenger] = await pool.query(
+      `SELECT * FROM flight_passenger WHERE id = ?`,
+      [passengerId]
+    );
+    console.log(existingPassenger);
+    if (existingPassenger.length === 0) {
+      // Handle the case where the passenger doesn't exist
+      throw new Error("Passenger not found");
+    }
+
+    // Update passportCopy and visaCopy in the flight_passenger table
+    const updateQuery =
+      "UPDATE flight_passenger SET passportCopy = ?, visaCopy = ? WHERE id = ?";
+
+    const updateValues = [passportCopy, visaCopy, passengerId];
+    console.log(updateValues);
+    const [updateResult] = await pool.query(updateQuery, updateValues);
+
+    // Return the updated result or any relevant information
+    return "Passport and visa copy updated successfully";
+  } catch (error) {
+    throw new Error(error.message); // Throw an error or handle it according to your requirements
+  }
+};
 //reisuue
 const issueTicket = async (req, res, next) => {
   try {
+    console.log(req.params.id);
     const booking_Id = req.params.id;
     const userId = req.user;
 
@@ -354,7 +386,6 @@ const issueTicket = async (req, res, next) => {
       "SELECT passportCopy, visaCopy FROM flight_passenger WHERE booking_id = ?",
       [booking_Id]
     );
-    console.log(passengerData);
     const { passportCopy, visaCopy } = passengerData[0];
 
     // Fetch data from b2c_ledger table
@@ -364,7 +395,7 @@ const issueTicket = async (req, res, next) => {
     );
 
     const walletBalance = ledgerData[0]?.wallet || 0;
-
+    console.log(walletBalance);
     // Fetch data from booking table
     const [bookingData] = await pool.query(
       "SELECT bookingId, amount, status, journeyType FROM flight_booking WHERE booking_id = ?",
@@ -372,18 +403,20 @@ const issueTicket = async (req, res, next) => {
     );
 
     const { bookingId, amount, status, journeyType } = bookingData[0];
-
+    console.log(bookingData);
     if (status !== "Hold") {
-      return "Booking is not in Hold state.";
+      throw new Error("Booking is not in Hold state.");
     }
     // Check journey type for Outbound
     if (journeyType === "Outbound" && (!passportCopy || !visaCopy)) {
-      return "Passport copy and visa copy are required for Outbound journey.";
+      throw new Error(
+        "Passport copy and visa copy are required for Outbound journey."
+      );
     }
 
     // Check wallet balance
     if (parseFloat(amount) > parseFloat(walletBalance)) {
-      return "Insufficient balance in the wallet.";
+      throw new Error("Insufficient balance in the wallet.");
     }
 
     // Start a transaction
@@ -399,10 +432,14 @@ const issueTicket = async (req, res, next) => {
 
       // Update b2c_ledger table with the new wallet balance (wallet - amount)
       const newWalletBalance = walletBalance - amount;
+      await connection.query("UPDATE user SET wallet = ? WHERE id = ?", [
+        newWalletBalance,
+        userId,
+      ]);
       const transactionId = generateUUID();
       const remarksMessage = `${bookingId} Ticket issue in process. Amount deducted : ${amount} TK.`;
       await connection.query(
-        "UPDATE ledger SET id = ?,wallet = ?, purchase = purchase + ?,remarks= ? WHERE user_id = ?",
+        "INSERT INTO ledger (id, lastBalance, purchase, remarks, user_id) VALUES (?, ?, ?, ?, ?)",
         [transactionId, newWalletBalance, amount, remarksMessage, userId]
       );
 
@@ -414,14 +451,14 @@ const issueTicket = async (req, res, next) => {
       // Rollback the transaction in case of an error
       await connection.rollback();
       console.error("Error issuing ticket:", error.message);
-      throw new Error("Failed to issue ticket.");
+      throw new Error(error.message);
     } finally {
       // Release the connection
       connection.release();
     }
   } catch (error) {
     console.error("Error issuing ticket:", error.message);
-    throw new Error("Failed to issue ticket.");
+    throw new Error(error.message);
   }
 };
 export const flightBookingService = {
@@ -430,4 +467,5 @@ export const flightBookingService = {
   getAllBookingData,
   getBookingHistory,
   issueTicket,
+  uploadPassportAndVisaCopy,
 };
