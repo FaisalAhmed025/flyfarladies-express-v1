@@ -1,4 +1,4 @@
--- Active: 1711176259310@@flyfarint.com@3306@flyfarin_fflv2
+-- Active: 1705563169667@@35.229.222.197@3306@flyfarLadiesExpress
 CREATE TABLE flight_booking(
     id VARCHAR(100) COLLATE utf8mb4_general_ci PRIMARY  KEY,
     uId INT AUTO_INCREMENT UNIQUE,
@@ -69,5 +69,19 @@ create table flight_details(
     data       json                               null,
     user_id    varchar(100)    COLLATE utf8mb4_general_ci                   null,
     createdAt  datetime default CURRENT_TIMESTAMP null,
+    Foreign Key (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE SET NULL
+)
+
+
+CREATE TABLE ledger(
+    id varchar(100) COLLATE utf8mb4_general_ci not null primary key,
+    uid INT AUTO_INCREMENT UNIQUE,
+    wallet FLOAT DEFAULT(0.00),
+    purchase FLOAT DEFAULT(0.00),
+    withdraw FLOAT DEFAULT(0.00),
+    createdAt VARCHAR(25),
+    actionBy VARCHAR(100),
+    updatedAt VARCHAR(25),
+    user_id varchar(100) COLLATE utf8mb4_general_ci null,
     Foreign Key (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE SET NULL
 )

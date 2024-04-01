@@ -7,6 +7,7 @@ import { generateUUID } from "../../../helper/generateUUID";
 const createBooking = async (req, res, next) => {
   try {
     const requestData = req.body;
+    console.log(requestData);
     // Fetch Access Token
     const accessToken = await fetchTestToken();
     //  Send Request to Booking API
@@ -23,7 +24,7 @@ const createBooking = async (req, res, next) => {
       const headers = {
         Authorization: `Bearer ${accessToken?.data}`,
       };
-
+      console.log(response.data.data);
       const bookingHistoryEndpoint = `https://quickticketsb2b-nodejs.de.r.appspot.com/api/v1/api_agent/booking/booking_history/${response.data.data[0].booking.id}`;
       const bookingHistoryResponse = await axios.get(bookingHistoryEndpoint, {
         headers,
@@ -99,7 +100,7 @@ const saveBookingData = async (req, bookingInfo) => {
       payAmount,
       isRefundable,
     ];
-
+    console.log(values);
     const [rows] = await pool.query(
       "INSERT INTO flight_booking (id, bookingRef, pax, booking_id, adultBag, deptFrom, arrivalTo, " +
         "childBag, infantBag, adultCount, childCount, infantCount, currency, status, timeLimit, " +
@@ -331,49 +332,57 @@ const getBookingHistory = async (req, res) => {
     throw new Error("Failed to fetch booking history", error.message);
   }
 };
+const updateBookingStatusToCancelled = async (bookingId) => {
+  try {
+    const updateQuery =
+      "UPDATE flight_booking SET status = ? WHERE booking_id = ?";
+    await pool.query(updateQuery, ["Cancelled", bookingId]);
+  } catch (error) {
+    console.log(error);
+    console.error("Error updating booking status:", error.message);
+    throw new Error("Failed to update booking status");
+  }
+};
 //reisuue
-
 const issueTicket = async (req, res, next) => {
   try {
-    const booking_Id = req.body.booking_id;
-    const userId = req.body.id;
-    const tableName = "ledger";
+    const booking_Id = req.params.id;
+    const userId = req.user;
 
     // Fetch data from flight_passenger table
-
-    // const [passengerData] = await pool.query(
-    //   'SELECT passportCopy, visaCopy FROM flight_passenger WHERE booking_id = ?',
-    //   [booking_Id]
-    // );
-
-    // console.log(passengerData);
-    // const { passportCopy, visaCopy } = passengerData[0];
+    const [passengerData] = await pool.query(
+      "SELECT passportCopy, visaCopy FROM flight_passenger WHERE booking_id = ?",
+      [booking_Id]
+    );
+    console.log(passengerData);
+    const { passportCopy, visaCopy } = passengerData[0];
 
     // Fetch data from b2c_ledger table
     const [ledgerData] = await pool.query(
-      "SELECT last_balance FROM ledger WHERE user_id = ?",
+      "SELECT wallet FROM user WHERE id = ?",
       [userId]
     );
 
-    const walletBalance = ledgerData[0]?.last_balance || 0;
+    const walletBalance = ledgerData[0]?.wallet || 0;
 
     // Fetch data from booking table
     const [bookingData] = await pool.query(
-      "SELECT booking_id, amount, status, journeyType FROM flight_booking WHERE booking_id = ?",
+      "SELECT bookingId, amount, status, journeyType FROM flight_booking WHERE booking_id = ?",
       [booking_Id]
     );
 
-    const { amount, status, journeyType } = bookingData[0];
+    const { bookingId, amount, status, journeyType } = bookingData[0];
 
     if (status !== "Hold") {
       return "Booking is not in Hold state.";
     }
     // Check journey type for Outbound
-    // if (journeyType === 'Outbound' && (!passportCopy || !visaCopy)) {
-    //   return 'Passport copy and visa copy are required for Outbound journey.';
-    // }
+    if (journeyType === "Outbound" && (!passportCopy || !visaCopy)) {
+      return "Passport copy and visa copy are required for Outbound journey.";
+    }
+
     // Check wallet balance
-    if (amount > walletBalance) {
+    if (parseFloat(amount) > parseFloat(walletBalance)) {
       return "Insufficient balance in the wallet.";
     }
 
@@ -390,32 +399,17 @@ const issueTicket = async (req, res, next) => {
 
       // Update b2c_ledger table with the new wallet balance (wallet - amount)
       const newWalletBalance = walletBalance - amount;
-      await connection.query(
-        "UPDATE ledger SET last_balance = ?, status = purchase + ?, amount =?, WHERE user_id = ?",
-        [newWalletBalance, amount, userId]
-      );
-
-      const trxId = `FFTTRX${userId}`;
-      // Insert a new record into my_transaction table
-      const transactionQuery = `INSERT INTO my_transaction (id, reference, remarks, amount, last_balance, date, user_id, trxId, type) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, 'Issue Request')`;
-
-      const transactionId = generateUUID(); // Implement your own logic to generate a unique transaction ID
+      const transactionId = generateUUID();
       const remarksMessage = `${bookingId} Ticket issue in process. Amount deducted : ${amount} TK.`;
-
-      await connection.query(transactionQuery, [
-        transactionId,
-        booking_Id,
-        remarksMessage,
-        amount,
-        newWalletBalance,
-        userId,
-        trxId,
-      ]);
+      await connection.query(
+        "UPDATE ledger SET id = ?,wallet = ?, purchase = purchase + ?,remarks= ? WHERE user_id = ?",
+        [transactionId, newWalletBalance, amount, remarksMessage, userId]
+      );
 
       // Commit the transaction
       await connection.commit();
 
-      return null; // Success
+      return "Success"; // Success
     } catch (error) {
       // Rollback the transaction in case of an error
       await connection.rollback();
@@ -430,7 +424,6 @@ const issueTicket = async (req, res, next) => {
     throw new Error("Failed to issue ticket.");
   }
 };
-
 export const flightBookingService = {
   createBooking,
   cancelBooking,
