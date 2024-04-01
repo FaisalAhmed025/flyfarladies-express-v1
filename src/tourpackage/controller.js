@@ -291,8 +291,8 @@ const deletetourinclusion = async (req,res)=>{
 
 const createExclusion = async (req, res) => {
   try {
-    const id = req.params.PKID;
-    const result = await tourpackageService.createExclusion(req, id);
+    const PKID = req.params.PKID;
+    const result = await tourpackageService.createExclusion(req, PKID);
 
     // Check if the result is an error
     if (result instanceof Error) {

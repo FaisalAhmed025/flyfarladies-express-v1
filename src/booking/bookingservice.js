@@ -186,9 +186,13 @@ const totalchild = child.length
 const totalinfant = infant.length
 
 const bookingstatus  =  bookingStatus.HOLD
-const adultprice =  tourpackage[0].adult_base_price *totaladult;
-const childprice=  tourpackage[0].child_base_price * totalchild;
-const infantprice  = tourpackage[0].infant_base_price * totalinfant;
+const adultprice =  tourpackage[0].adult_base_price 
+const childprice=  tourpackage[0].child_base_price
+const infantprice  = tourpackage[0].infant_base_price
+
+const totalAdultprice =  tourpackage[0].adult_base_price *totaladult;
+const totalChildprice=  tourpackage[0].child_base_price * totalchild;
+const totalInfantprice  = tourpackage[0].infant_base_price * totalinfant;
 
 
 console.log(adultprice,childprice, infantprice)
@@ -220,6 +224,9 @@ console.log(totalpackageprice);
       totaladult,
       totalchild,
       totalinfant,
+      totalAdultprice,
+      totalChildprice,
+      totalInfantprice,
       phone,
       totalpackageprice,
       paymentstatus,
@@ -254,11 +261,14 @@ console.log(totalpackageprice);
         totaladult,
         totalchild,
         totalinfant,
+        totalAdultprice,
+        totalChildprice,
+        totalInfantprice,
         phone,
         totalAmount,
         paymentStatus,
         bookingStatus
-      ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
