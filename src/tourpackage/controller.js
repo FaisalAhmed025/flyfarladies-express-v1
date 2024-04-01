@@ -73,15 +73,15 @@ const  gettouritenrary = async(req,res) =>{
 
 const updatePackage = async (req,res)=>{
   try{
-  const PkID = req.params.PkID;
-  const result = await tourpackageService.updateTourPackage(req, PkID)
+  // const PkID = req.params.PKID;
+  const result = await tourpackageService.updateTourPackage(req, res)
   // Check if the result is an error
-  if (result instanceof Error) {
-    return res.status(500).json({
-      error: 'An error occurred while creating Main Image',
-    });
-  }
-  return  res.status(200).json({
+  // if (result instanceof Error) {
+  //   return res.status(500).json({
+  //     error: 'An error occurred while creating Main Image',
+  //   });
+  // }
+ result && res.status(200).json({
     success: true,
     status: httpStatus.OK,
     message: 'package updated successfully',
@@ -89,7 +89,7 @@ const updatePackage = async (req,res)=>{
   });
 } catch (error) {
   console.error(error);
-  return res.status(500).json({
+   res.status(500).json({
     success: false,
     message: error.message,
   });
@@ -257,7 +257,7 @@ const createTourPlan = async (req, res) => {
 
 const createInclusion = async (req, res) => {
   try {
-    const PkID = req.params.PkID;
+    const PkID = req.params.PKID;
     const result = await tourpackageService.createInclusion(req, PkID);
 
     // Check if the result is an error
@@ -291,7 +291,7 @@ const deletetourinclusion = async (req,res)=>{
 
 const createExclusion = async (req, res) => {
   try {
-    const id = req.params.PkID;
+    const id = req.params.PKID;
     const result = await tourpackageService.createExclusion(req, id);
 
     // Check if the result is an error
@@ -319,7 +319,7 @@ const createExclusion = async (req, res) => {
 
 const createBookingPolicy = async (req, res) => {
   try {
-    const id = req.params.PkID;
+    const id = req.params.PKID;
     const result = await tourpackageService.createBookingPolicy(req, id);
 
     // Check if the result is an error
@@ -407,7 +407,7 @@ const updateTourPlanEvents = async eventsData => {
 
 const createCancelationPolicy = async (req, res) => {
   try {
-    const id = req.params.PkID;
+    const id = req.params.PKID;
 
     const result = await tourpackageService.createCancelationPolicy(req, id);
 
@@ -436,7 +436,7 @@ const createCancelationPolicy = async (req, res) => {
 
 const addAddOnsController = async (req, res) => {
   try {
-    const tour_package_id = req.params.PkID;
+    const tour_package_id = req.params.PKID;
     const result = await tourpackageService.createAddOns(tour_package_id, req);
     // Respond with the result
     res.status(200).json({
@@ -462,7 +462,7 @@ const deletebookingpolicy = async (req, res) => {
 
 const createHighlights = async (req, res) => {
   try {
-    const id = req.params.PkID;
+    const id = req.params.PKID;
     const result = await tourpackageService.createHighlights(req, id);
 
     // Check if the result is an error
