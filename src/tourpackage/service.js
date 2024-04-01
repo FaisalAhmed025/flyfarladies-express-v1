@@ -445,7 +445,11 @@ const getTourPlan = async (PKID) => {
     tour_itinerary.id,
     tour_itinerary.tour_package_id,
     tour_itinerary.day_title,
-    tour_itinerary.day_plan
+    tour_itinerary.day_plan,
+    tour_itinerary.staying_place,
+    tour_itinerary.meals,
+    tour_itinerary.breakFast,
+    tour_itinerary.dinner
   FROM tour_itinerary
   JOIN tourpackage ON tour_itinerary.tour_package_id = tourpackage.PKID
   WHERE tour_itinerary.tour_package_id = ?;  
