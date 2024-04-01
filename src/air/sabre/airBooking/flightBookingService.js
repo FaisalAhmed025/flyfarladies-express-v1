@@ -289,6 +289,8 @@ const getBookingHistory = async (req, res) => {
         b.timeLimit,
         b.remarks,
         b.tripType,
+        b.amount,
+        b.assignTime AS createdAt,
         b.airlinesName
         FROM
         flight_booking AS b

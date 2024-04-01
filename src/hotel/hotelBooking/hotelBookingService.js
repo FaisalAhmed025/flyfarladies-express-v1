@@ -20,7 +20,6 @@ export const hotelPrebook = async (requestData) => {
 };
 export const insertMultipleHotelBookings = async (bookings, req) => {
   const insertedIds = [];
-  console.log(bookings);
   const partnerOrderId = generateUUID(); // Generate a single partnerOrderId for all bookings
   for (const booking of bookings) {
     const data = await insertHotelBooking(
@@ -71,7 +70,7 @@ const insertHotelBooking = async (bookingData, req, partnerOrderId) => {
       bookingData.bookingCode,
       bookingData.hotelImage,
     ];
-    console.log(values);
+
     const [results] = await connection.execute(query, values);
     const hotelBookingId = `FFLHB${results.insertId}`;
     // Update the record in the database with the generated id
@@ -130,7 +129,7 @@ const insertGuestInformation = async (
         guestData.gender,
         guestData.nationality,
       ];
-      console.log(values);
+
       const [results] = await connection.execute(query, values);
       resultsArray.push(results.insertId);
     }
