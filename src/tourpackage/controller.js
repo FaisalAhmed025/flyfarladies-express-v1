@@ -102,8 +102,8 @@ const updatePackage = async (req,res)=>{
 
 const mainimage = async (req, res) => {
   try {
-    const PkID = req.params.PkID;
-    const result = await tourpackageService.MainImage(req, PkID)
+    const PkID = req.params.PKID;
+    const result = await tourpackageService.MainImage(req, PKID)
     // Check if the result is an error
     if (result instanceof Error) {
       return res.status(500).json({
@@ -180,7 +180,7 @@ const createPlaceVisit = async (req, res) => {
 
 const createAlbumimage = async (req, res) => {
   try {
-    const PkID = req.params.PkID;
+    const PkID = req.params.PKID;
     const result = await tourpackageService.createAlbumImage(req, PkID);
 
     // Check if the result is an error
@@ -291,8 +291,8 @@ const deletetourinclusion = async (req,res)=>{
 
 const createExclusion = async (req, res) => {
   try {
-    const id = req.params.PKID;
-    const result = await tourpackageService.createExclusion(req, id);
+    const PKID = req.params.PKID;
+    const result = await tourpackageService.createExclusion(req, PKID);
 
     // Check if the result is an error
     if (result instanceof Error) {

@@ -254,8 +254,8 @@ const getSingleTourPackages = async (PKID) => {
       AvailableSeats: tourPackageResults[0].AvailableSeats,
       MinimumAge: tourPackageResults[0].MinimumAge,
       MaximumAge: tourPackageResults[0].MaximumAge,
-      PricePerAdult: tourPackageResults[0].TotalDuration,
-      TotalDuration:tourPackageResults[0].PricePerAdult,
+      TotalDuration:tourPackageResults[0]. TotalDuration,
+      PricePerAdult: tourPackageResults[0].PricePerAdult,
       PricePerChild: tourPackageResults[0].PricePerChild,
       PricePerInfant: tourPackageResults[0].PricePerInfant,
       Discount: tourPackageResults[0].Discount,
@@ -328,7 +328,7 @@ const getSingleTourPackages = async (PKID) => {
           }))
           : [],
       main_image: [],
-      tour_plan: [], // Change here from tour_itinerary to tour_plan
+      tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
       place_to_visit: [],
       inclusion: [],
@@ -339,7 +339,7 @@ const getSingleTourPackages = async (PKID) => {
     };
     const [
       getmainimg,
-      tourPlan,
+      tour_itinerary,
       visitedPlaces,
       inclusions,
       exclusion,
@@ -363,7 +363,7 @@ const getSingleTourPackages = async (PKID) => {
     ]);
 
     tourPackageData.main_image = getmainimg;
-    tourPackageData.tour_plan = tourPlan;
+    tourPackageData.tour_itinerary = tour_itinerary;
     tourPackageData.place_to_visit = visitedPlaces;
     tourPackageData.inclusion = inclusions;
     tourPackageData.exclusion = exclusion;
@@ -442,13 +442,17 @@ const getTourPlan = async (PKID) => {
     // Retrieve tour plan details with order by uId in ascending order
     const tourPlanQuery = `
     SELECT
-    tourplan.id,
-    tourplan.tour_package_id,
-    tourplan.day_title,
-    tourplan.day_plan
-  FROM tourplan
-  JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PKID
-  WHERE tourplan.tour_package_id = ?;  
+    tour_itinerary.id,
+    tour_itinerary.tour_package_id,
+    tour_itinerary.day_title,
+    tour_itinerary.day_plan,
+    tour_itinerary.staying_place,
+    tour_itinerary.meals,
+    tour_itinerary.breakFast,
+    tour_itinerary.dinner
+  FROM tour_itinerary
+  JOIN tourpackage ON tour_itinerary.tour_package_id = tourpackage.PKID
+  WHERE tour_itinerary.tour_package_id = ?;  
       `;
     const [tourPlanResults] = await pool.query(tourPlanQuery, [PKID]);
 
@@ -911,7 +915,7 @@ const createAlbumImage = async (req, PKID) => {
     const { albumtitle } = req.body;
     connection = await pool.getConnection();
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PkID]);
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
@@ -1003,11 +1007,11 @@ const createTourPlan = async (req) => {
     const updatedOrInsertedTourPlans = [];
     // Iterate over the array of tour plan data
     for (const tourPlanData of req.body.tourplanData) {
-      const { day_title, day_plan, id } = tourPlanData; // Extract ID from tourPlanData
+      const { day_title, day_plan, stayingPlace, breakFast, meal,  dinner, id } = tourPlanData; // Extract ID from tourPlanData
       // Retrieve tour package ID from the database
-      const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
       const [packageResults] = await connection.execute(packageQuery, [
-        req.params.PkID,
+        req.params.PKID,
       ]);
       if (packageResults.length === 0) {
         throw new Error("Tour package not found.");
@@ -1018,8 +1022,8 @@ const createTourPlan = async (req) => {
         // Check if ID is provided
         // Update the tour plan in the database
         await pool.query(
-          `UPDATE tourplan SET day_title = ?, day_plan = ? WHERE id = ?`,
-          [day_title, day_plan, id]
+          `UPDATE tour_itinerary SET day_title = ?, day_plan = ? day_plan =?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
+          [day_title, day_plan, stayingPlace, breakFast, meal, dinner,  id]
         );
         updatedOrInsertedTourPlans.push({
           id,
@@ -1031,11 +1035,11 @@ const createTourPlan = async (req) => {
         const generatedId = generatePackageId();
 
         // Prepare values for the INSERT query
-        const values = [generatedId, tourPackageId, day_title, day_plan];
+        const values = [generatedId, tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner ];
 
         // Execute the INSERT query to add the tour plan to the database
         const [result] = await pool.query(
-          `INSERT INTO tourplan (id, tour_package_id, day_title, day_plan) VALUES (?, ?, ?, ?)`,
+          `INSERT INTO tour_itinerary (id, tour_package_id, day_title, day_plan, staying_place, breakFast, meals, dinner) VALUES (?, ?, ?, ?,?,?,?,?)`,
           values
         );
         updatedOrInsertedTourPlans.push(result); // Push the inserted record
@@ -1118,11 +1122,13 @@ const createExclusion = async (req, PKID) => {
     const updatedOrInsertedExclusions = [];
     const exclusions = req.body;
 
-    if (!exclusions || !Array.isArray(exclusions) || exclusions.length === 0) {
-      throw new Error("Exclusion data is required as an array of objects.");
-    }
+    // if (!exclusions || !Array.isArray(exclusions) || exclusions.length === 0) {
+    //   throw new Error("Exclusion data is required as an array of objects.");
+    // }
 
-    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+    console.log(exclusions);
+
+    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?` ;
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
@@ -1151,7 +1157,10 @@ const createExclusion = async (req, PKID) => {
         // If the exclusion ID doesn't exist, insert a new record
         const pack_id = custominclusion();
         const insertQuery = "INSERT INTO exclusion (id, tour_package_id, exclusion) VALUES (?, ?, ?)";
-        await connection.execute(insertQuery, [pack_id, tour_package_id, exclusionObj.exclusion]);
+
+        const values = [pack_id, tour_package_id, exclusionObj.exclusion]
+        console.log(values)
+        await connection.execute(insertQuery, values );
         updatedOrInsertedExclusions.push({
           id: pack_id,
           status: "success",
@@ -1266,7 +1275,7 @@ const createCancelationPolicy = async (req, PKID) => {
     }
 
     const connection = await pool.getConnection();
-    const packageQuery = "SELECT PkID FROM tourpackage WHERE PkID = ?";
+    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
@@ -1306,7 +1315,7 @@ const createHighlights = async (req, PKID) => {
     if (!highlights || !Array.isArray(highlights) || highlights.length === 0) {
       throw new Error("Highlights are required as an array of objects.");
     }
-    
+
     const connection = await pool.getConnection();
     const updatedOrInsertedHighlights = [];
 

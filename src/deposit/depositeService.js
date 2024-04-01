@@ -71,7 +71,7 @@ const createBankDeposit = async (req) => {
 const createCheckDeposit = async (req) => {
   const connection = await pool.getConnection();
   try {
-    const { cheque_number, bank_name, cheque_date, reference, amount } =
+    const { cheque_number, bank_name, cheque_date, reference, amount, depositType } =
       req.body;
     await connection.beginTransaction(); // Begin a new database transaction
     const requested_by = req.params.id;

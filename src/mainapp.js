@@ -94,7 +94,7 @@ app.get("/api/v1/hotel/autocomplete/:asking", rateHawkAutoCompleteResult);
 app.post("/api/v1/hotel/search", hotelSearchRoute);
 app.use("/api/v1/hotel/hotel-booking", hotelRoute);
 app.get("/", (req, res, next) => {
-  res.send("Welcome to FlyFar Ladies Express");
+  res.send("Welcome to FlyFar Ladies Express v1 ");
 });
 
 //handle not found
