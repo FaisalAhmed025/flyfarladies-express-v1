@@ -446,9 +446,9 @@ const getTourPlan = async (PKID) => {
     tourplan.tour_package_id,
     tourplan.day_title,
     tourplan.day_plan
-  FROM tourplan
-  JOIN tourpackage ON tourplan.tour_package_id = tourpackage.PKID
-  WHERE tourplan.tour_package_id = ?;  
+  FROM tour_itinerary
+  JOIN tourpackage ON tour_itinerary.tour_package_id = tourpackage.PKID
+  WHERE tour_itinerary.tour_package_id = ?;  
       `;
     const [tourPlanResults] = await pool.query(tourPlanQuery, [PKID]);
 
