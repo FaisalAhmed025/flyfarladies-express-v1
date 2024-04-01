@@ -328,7 +328,7 @@ const getSingleTourPackages = async (PKID) => {
           }))
           : [],
       main_image: [],
-      tour_plan: [], // Change here from tour_itinerary to tour_plan
+      tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
       place_to_visit: [],
       inclusion: [],
@@ -339,7 +339,7 @@ const getSingleTourPackages = async (PKID) => {
     };
     const [
       getmainimg,
-      tourPlan,
+      tour_itinerary,
       visitedPlaces,
       inclusions,
       exclusion,
@@ -363,7 +363,7 @@ const getSingleTourPackages = async (PKID) => {
     ]);
 
     tourPackageData.main_image = getmainimg;
-    tourPackageData.tour_plan = tourPlan;
+    tourPackageData.tour_itinerary = tour_itinerary;
     tourPackageData.place_to_visit = visitedPlaces;
     tourPackageData.inclusion = inclusions;
     tourPackageData.exclusion = exclusion;
@@ -442,10 +442,10 @@ const getTourPlan = async (PKID) => {
     // Retrieve tour plan details with order by uId in ascending order
     const tourPlanQuery = `
     SELECT
-    tourplan.id,
-    tourplan.tour_package_id,
-    tourplan.day_title,
-    tourplan.day_plan
+    tour_itinerary.id,
+    tour_itinerary.tour_package_id,
+    tour_itinerary.day_title,
+    tour_itinerary.day_plan
   FROM tour_itinerary
   JOIN tourpackage ON tour_itinerary.tour_package_id = tourpackage.PKID
   WHERE tour_itinerary.tour_package_id = ?;  
