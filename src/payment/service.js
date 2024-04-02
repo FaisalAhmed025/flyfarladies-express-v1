@@ -29,7 +29,7 @@ try {
     throw new NotFoundException('Booking not found');
   }
 
-  if (booking[0].bookingStatus !== 'HOLD') {
+  if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
   const userquery =  `SELECT * FROM user WHERE id = ?`
@@ -42,10 +42,13 @@ try {
 
   const totalprice = booking[0].totalAmount;
   console.log(user[0].wallet)
-  console.log(totalprice)
+
+  const data = parseInt(totalprice)
+
+  const wallet = parseInt(user[0].wallet)
 
     // Check wallet balance
-    if (user[0].wallet < totalprice) {
+    if (wallet < data) {
       throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
     }
 
@@ -78,20 +81,20 @@ try {
 
     const [updatedBooking] = await pool.query(updatebookingquery, value)
 
-    const depositby = `${user[0].name}`;
-    const status = 'purchase'
+    // const depositby = `${user[0].name}`;
+    // const status = 'purchase'
 
-    const ledgervalue = [
-      userid,
-      depositby,
-      paymentstatus,
-      totalprice,
-      bookingid,
-      status
-    ]
+    // const ledgervalue = [
+    //   userid,
+    //   depositby,
+    //   paymentstatus,
+    //   totalprice,
+    //   bookingid,
+    //   status
+    // ]
 
-    const insertledger = 'INSERT INTO ledger (userID, depositby, paymentStatus, amount, bookingrefId, Date, status) VALUES (?, ?, ?, ?, ?, NOW(), ?)'
-    await pool.query (insertledger, ledgervalue)
+    // const insertledger = 'INSERT INTO ledger (userID, depositby, paymentStatus, amount, bookingrefId, Date, status) VALUES (?, ?, ?, ?, ?, NOW(), ?)'
+    // await pool.query (insertledger, ledgervalue)
   
 } catch (error) {
   console.error("Error making payment with wallet:", error);
