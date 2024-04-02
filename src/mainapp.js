@@ -20,6 +20,7 @@ import { flightBookingRoute } from "./air/sabre/airBooking/flightBookingRoute";
 import rateHawkAutoCompleteResult from "./hotel/hotelRoute/autoCompleteRoute";
 import { hotelSearchRoute } from "./hotel/hotelRoute/hotelSearchRoute";
 import "dotenv/config";
+import { hotelRoute } from "./hotel/hotelRoute/allHotelRoute";
 const app = express();
 
 const options = {
@@ -91,6 +92,7 @@ app.post("/api/v1/air-search/multiCity", multiCitySearch);
 app.use("/api/v1/air/booking", flightBookingRoute);
 app.get("/api/v1/hotel/autocomplete/:asking", rateHawkAutoCompleteResult);
 app.post("/api/v1/hotel/search", hotelSearchRoute);
+app.use("/api/v1/hotel/hotel-booking", hotelRoute);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Express v1 ");
 });

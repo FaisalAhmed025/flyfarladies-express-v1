@@ -85,3 +85,41 @@ CREATE TABLE ledger(
     user_id varchar(100) COLLATE utf8mb4_general_ci null,
     Foreign Key (user_id) REFERENCES user(id) ON UPDATE CASCADE ON DELETE SET NULL
 )
+
+
+
+create table hotel_booking_data (
+    id varchar(100) not null primary key,
+    uId int auto_increment UNIQUE,
+    hotelBookingId varchar(50) null,
+    partnerOrderId varchar(100) null,
+    status varchar(20) null,
+    amount float null,
+    type varchar(50) null,
+    email varchar(255) null,
+    phone varchar(20) null,
+    createdAt varchar(50) null,
+    userId varchar(100)  COLLATE utf8mb4_general_ci null,
+    roomName text null,
+    freeCancellation varchar(50) null,
+    hotelName varchar(100) null,
+    bookingCode varchar(200) null,
+    hotelImage varchar(5000) null,
+     foreign key (userId) references user (id) on update cascade on delete set null
+);
+
+create table guestData (
+    id varchar(100) not null primary key,
+    uId int auto_increment unique,
+    firstName varchar(100) null,
+    lastName varchar(100) null,
+    passportNumber varchar(20) null,
+    dob varchar(100) null,
+    passportExpiryDate varchar(100) null,
+    passportCopy varchar(2000) null,
+    gender enum ('male', 'female') null,
+    nationality varchar(20) null,
+    hotelBookingId varchar(100) null,
+    partnerOrderId varchar(200) null,
+    foreign key (hotelBookingId) references hotel_booking_data (id) on update cascade
+);

@@ -1,50 +1,47 @@
-
 import {
   convertToWebP,
   deleteFile,
   deleteFolderRecursive,
   removeFileExtension,
-} from './folderDelete';
-import { Storage } from '@google-cloud/storage';
-import sharp from 'sharp';
-import httpStatus from 'http-status';
-import pool from '../database/db';
-
+} from "./folderDelete";
+import { Storage } from "@google-cloud/storage";
+import sharp from "sharp";
+import httpStatus from "http-status";
+import pool from "../database/db";
+import ErrorResponse from "../errorHandler.js/errorResponse";
 
 export const getCurrentUserInfo = async (req, res, next) =>
-  await storeData(req, res, next, 'createuser', 'id');
-
-
+  await storeData(req, res, next, "user", "id");
 
 export const handleMultipleImage = async (req, res, next) =>
   await MultipleImageHandler(req, res, next, 20);
 
 export const storeMultipleImage = async (req, res, next) =>
-  await storeData(req, res, next, 'createuser', 'id');
+  await storeData(req, res, next, "user", "id");
 
 /*   common function for image handler */
 async function saveOnGCP(req) {
-  const uniqueSuffix = req.file.originalname.split(' ').join('-');
+  const uniqueSuffix = req.file.originalname.split(" ").join("-");
   req.file.originalname = `${uniqueSuffix}_${Date.now()}.pdf`;
   // Convert the image buffer to WebP format
   let webpBuffer = req.file.buffer;
-  if (req.file.mimetype !== 'application/pdf') {
+  if (req.file.mimetype !== "application/pdf") {
     webpBuffer = await sharp(webpBuffer).webp().toBuffer();
     // Replace req.file values with the WebP buffer
     req.file.buffer = webpBuffer;
-    req.file.mimetype = 'image/webp';
+    req.file.mimetype = "image/webp";
 
     req.file.originalname = `${uniqueSuffix}_${Date.now()}.webp`;
     // If you need to set an extension, you can do so here
-    req.file.extension = 'webp';
+    req.file.extension = "webp";
   }
 
   const storage = new Storage({
     projectId: process.env.PROJECTID,
-    keyFilename: 'key.json',
+    keyFilename: "key.json",
   });
   // console.log(env.BUCKET)
-  const bucket = storage.bucket('b2bnodeimages');
+  const bucket = storage.bucket("b2bnodeimages");
   const fileData = bucket.file(req.file.originalname);
   await fileData.save(req.file.buffer, {
     contentType: req.file.mimetype,
@@ -54,7 +51,7 @@ async function saveOnGCP(req) {
   // Get the publicly accessible URL of the uploaded file
   const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileData.name}`;
   req.imageLink = publicUrl;
-  // console.log(req.imageLink);
+  //console.log(req.imageLink);
   //console.log('berofe undefine')
   return publicUrl;
 }
@@ -63,13 +60,13 @@ async function saveOnGCP(req) {
 export const imageHandler = async (req, res, next) => {
   try {
     if (!req.file)
-      return next(new ErrorResponse('Select file', httpStatus.BAD_REQUEST));
+      return next(new ErrorResponse("Select file", httpStatus.BAD_REQUEST));
     // get the image file name
     // console.log(req.file);
     req.publicImageLink = await saveOnGCP(req);
     if (!saveOnGCP)
       return next(
-        new ErrorResponse('failed to save image', httpStatus.BAD_REQUEST)
+        new ErrorResponse("failed to save image", httpStatus.BAD_REQUEST)
       );
     next();
   } catch (err) {
@@ -80,30 +77,25 @@ export const imageHandler = async (req, res, next) => {
   }
 };
 
-
 export const optionalImage = async (req, res, next) => {
-
   try {
-      if (!req.file) {
-          //  delete req.url
-          return next()
-      } else {
-          await imageHandler(req, res, next)
-          // next()
-      }
-
+    if (!req.file) {
+      //  delete req.url
+      return next();
+    } else {
+      await imageHandler(req, res, next);
+      // next()
+    }
   } catch (err) {
-
-      next(err)
+    next(err);
   }
-}
-
+};
 
 export const imageHandlerUpdate = async (req, res, next) => {
   if (!req.file) {
     //  delete req.url
-    return next()
-} 
+    return next();
+  }
   // Check if req.file is defined
   if (req.file) {
     // File upload is available
@@ -123,17 +115,17 @@ export const imageHandlerUpdate = async (req, res, next) => {
 export async function deleteImageFromURL(url) {
   try {
     if (!url) {
-      console.error('Invalid URL: ', url);
+      console.error("Invalid URL: ", url);
       return;
     }
     const parsedUrl = new URL(url);
-    const bucketName = parsedUrl.hostname.split('.')[0];
-    const pathSegments = decodeURIComponent(parsedUrl.pathname).split('/');
+    const bucketName = parsedUrl.hostname.split(".")[0];
+    const pathSegments = decodeURIComponent(parsedUrl.pathname).split("/");
     const objectName = pathSegments[pathSegments.length - 1]; // Get the last segment
     console.table({ bucketName, objectName });
     const storage = new Storage({
       projectId: process.env.gcp.project_id,
-      keyFilename: 'key.json',
+      keyFilename: "key.json",
     });
     await storage.bucket(process.env.gcp.bucket).file(objectName).delete();
     // console.log(`Image deleted: gs://${process.env..gcp.bucket}/${objectName}`);
@@ -188,19 +180,19 @@ export const MultipleImageHandler = async (req, res, next, imageNumber) => {
       }
 
       //  let image;
-      const uniqueSuffix = file.originalname.split(' ').join('-');
+      const uniqueSuffix = file.originalname.split(" ").join("-");
       file.originalname = `${uniqueSuffix}_${Date.now()}.pdf`;
       // Convert the image buffer to WebP format
       let webpBuffer = file.buffer;
-      if (file.mimetype !== 'application/pdf') {
+      if (file.mimetype !== "application/pdf") {
         await sharp(file.buffer).webp().toBuffer();
         // Replace req.file values with the WebP buffer
         file.buffer = webpBuffer;
-        file.mimetype = 'image/webp';
+        file.mimetype = "image/webp";
 
         file.originalname = `${uniqueSuffix}_${Date.now()}.webp`;
         // If you need to set an extension, you can do so here
-        file.extension = 'webp';
+        file.extension = "webp";
       }
 
       //  console.log('err')
@@ -209,10 +201,10 @@ export const MultipleImageHandler = async (req, res, next, imageNumber) => {
 
       const storage = new Storage({
         projectId: process.env.PROJECTID,
-        keyFilename: 'key.json',
+        keyFilename: "key.json",
       });
       // console.log(env.BUCKET)
-      const bucket = storage.bucket('b2bnodeimages');
+      const bucket = storage.bucket("b2bnodeimages");
       //  console.log(bucket);
       const fileData = bucket.file(file.originalname);
       await fileData.save(file.buffer, {
@@ -247,7 +239,7 @@ export const handleSpecificImage = async (req, res, next) => {
     if (!personal_image || !passport_copy)
       return next(
         new ErrorResponse(
-          'You must specify one profile pic and one nid copy',
+          "You must specify one profile pic and one nid copy",
           httpStatus.FORBIDDEN
         )
       );
@@ -255,7 +247,7 @@ export const handleSpecificImage = async (req, res, next) => {
     if (personal_image.length !== 1 || passport_copy.length !== 1) {
       return next(
         new ErrorResponse(
-          'You must specify one profile pic and one nid copy',
+          "You must specify one profile pic and one nid copy",
           httpStatus.FORBIDDEN
         )
       );
@@ -282,13 +274,13 @@ export const handlePassportVisa = async (req, res, next) => {
     if (!visaCopy)
       return next(
         new ErrorResponse(
-          'You must specify one passport copy and one visa copy',
+          "You must specify one passport copy and one visa copy",
           httpStatus.FORBIDDEN
         )
       );
     if (visaCopy.length === 0) {
       return next(
-        new ErrorResponse('You must upload visa copy', httpStatus.FORBIDDEN)
+        new ErrorResponse("You must upload visa copy", httpStatus.FORBIDDEN)
       );
     }
 
