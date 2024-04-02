@@ -51,9 +51,7 @@ try {
     if (wallet < data) {
       throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
     }
-
-
-
+    
     const newWalletBalance = user[0].wallet - totalprice;
 
     const walletvalue = [
