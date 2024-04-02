@@ -152,7 +152,7 @@ const updateMainImageController = async (req, res) => {
 };
 const createPlaceVisit = async (req, res) => {
   try {
-    const PkID = req.params.PkID;
+    const PkID = req.params.PKID;
     const result = await tourpackageService.createPlaceVisit(req, PkID);
 
     // Check if the result is an error
