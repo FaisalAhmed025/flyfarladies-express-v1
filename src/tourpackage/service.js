@@ -245,7 +245,7 @@ const getSingleTourPackages = async (PKID) => {
       PKID: tourPackageResults[0].PKID,
       tourpack_id: tourPackageResults[0].PKID,
       MainTitle: tourPackageResults[0].MainTitle,
-      SubTitle: tourpackageService[0].SubTitle,
+      SubTitle: tourPackageResults[0].SubTitle,
       TripType: tourPackageResults[0].TripType,
       Location: tourPackageResults[0].Location,
       StartDate: tourPackageResults[0].StartDate,
