@@ -462,8 +462,9 @@ const deletebookingpolicy = async (req, res) => {
 
 const createHighlights = async (req, res) => {
   try {
-    const id = req.params.PKID;
-    const result = await tourpackageService.createHighlights(req, id);
+    const PKID = req.params.PKID;
+    const result = await tourpackageService.createHighlights(req, PKID);
+    console.log(PKID)
 
     // Check if the result is an error
     if (result instanceof Error) {

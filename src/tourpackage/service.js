@@ -1324,14 +1324,14 @@ const createHighlights = async (req, PKID) => {
     const connection = await pool.getConnection();
     const updatedOrInsertedHighlights = [];
 
-    for (const highlightObj of highlights) {
-      const { id, highlights } = highlightObj;
+    for (const highlight of highlights) {
+      const { id, highlights } = highlight;
 
       if (!highlights) {
         throw new Error("Highlight text is required for each object.");
       }
 
-      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ? ";
       const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
       if (packageResults.length === 0) {
@@ -1339,6 +1339,8 @@ const createHighlights = async (req, PKID) => {
       }
 
       const tour_package_id = packageResults[0].PKID;
+
+      console.log(PKID)
 
       if (id) {
         // If ID is provided, update the existing highlight
