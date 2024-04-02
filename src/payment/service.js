@@ -19,8 +19,8 @@ export const installmentStatus = {
 
 const paywithwallet = async(req,res)=>{
 try {
-  const  userid = req.params.id
-  const bookingid = req.params.bookingid
+  const  userid = req.body.id
+  const bookingid = req.body.bookingid
   const  bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
 
   const [booking] = await pool.query(bookingquery, [bookingid])
