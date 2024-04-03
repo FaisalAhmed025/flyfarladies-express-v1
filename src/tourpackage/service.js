@@ -245,6 +245,7 @@ const getSingleTourPackages = async (PKID) => {
       PKID: tourPackageResults[0].PKID,
       tourpack_id: tourPackageResults[0].PKID,
       MainTitle: tourPackageResults[0].MainTitle,
+      SubTitle: tourPackageResults[0].SubTitle,
       TripType: tourPackageResults[0].TripType,
       Location: tourPackageResults[0].Location,
       StartDate: tourPackageResults[0].StartDate,
@@ -831,7 +832,6 @@ const MainImage = async (req, PKID) => {
 
 const UpdateMainImage = async (req, imageId) => {
   const imageUrl = req.publicImageLink;
-
   if (!imageUrl) {
     return 'No image URL provided';
   }
@@ -1065,7 +1065,7 @@ const createInclusion = async (req, PKID) => {
     // }
 
     const connection = await pool.getConnection();
-
+    
     const updatedOrInsertedInclusions = [];
 
     for (const inclusion of inclusions) {
@@ -1137,39 +1137,44 @@ const createExclusion = async (req, PKID) => {
 
     const tour_package_id = packageResults[0].PKID;
 
-    for (const exclusionObj of exclusions) {
-      const exclusionId = exclusionObj.id;
-      const existingExclusionQuery = "SELECT id FROM exclusion WHERE id = ?";
-      const [existingExclusionResults] = await connection.execute(existingExclusionQuery, [exclusionId]);
+    for (const exclusion of exclusions) {
+      const { id, exclusionText } = exclusion; // Assuming each object in the array has properties named 'id' and 'inclusionText'
 
-      if (existingExclusionResults.length > 0) {
-        // If the exclusion ID exists, update the existing record
-        await connection.execute(
-          "UPDATE exclusion SET exclusion = ? WHERE id = ?",
-          [exclusionObj.exclusion, exclusionId]
-        );
+      if (!exclusionText) {
+        throw new Error("exclusion text is required for each object.");
+      }
+
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const [packageResults] = await connection.execute(packageQuery, [PKID]);
+
+      if (packageResults.length === 0) {
+        throw new Error("Tour package not found.");
+      }
+
+      const tourPackageId = packageResults[0].PKID;
+
+      if (id) {
+        // If ID is provided, update the existing inclusion
+        const updateQuery = "UPDATE exclusion SET exclusion = ? WHERE id = ?";
+        await connection.execute(updateQuery, [exclusionText, id]);
         updatedOrInsertedExclusions.push({
-          id: exclusionId,
+          id,
           status: "success",
-          message: "Exclusion updated successfully",
+          message: "Inclusion updated successfully"
         });
       } else {
-        // If the exclusion ID doesn't exist, insert a new record
-        const pack_id = custominclusion();
+        // If ID is not provided, it's a new inclusion to be inserted
+        const newId = custominclusion();
         const insertQuery = "INSERT INTO exclusion (id, tour_package_id, exclusion) VALUES (?, ?, ?)";
-
-        const values = [pack_id, tour_package_id, exclusionObj.exclusion]
-        console.log(values)
-        await connection.execute(insertQuery, values );
+        await connection.execute(insertQuery, [newId, tourPackageId, exclusionText]);
         updatedOrInsertedExclusions.push({
-          id: pack_id,
+          id: newId,
           status: "success",
-          message: "Exclusion inserted successfully",
+          message: "New exclusion inserted successfully"
         });
       }
     }
-
-    return updatedOrInsertedExclusions;
+   
   } catch (error) {
     console.error(error);
     throw new Error(error.message);
@@ -1319,14 +1324,14 @@ const createHighlights = async (req, PKID) => {
     const connection = await pool.getConnection();
     const updatedOrInsertedHighlights = [];
 
-    for (const highlightObj of highlights) {
-      const { id, highlights } = highlightObj;
+    for (const highlight of highlights) {
+      const { id, highlights } = highlight;
 
       if (!highlights) {
         throw new Error("Highlight text is required for each object.");
       }
 
-      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+      const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ? ";
       const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
       if (packageResults.length === 0) {
@@ -1334,6 +1339,8 @@ const createHighlights = async (req, PKID) => {
       }
 
       const tour_package_id = packageResults[0].PKID;
+
+      console.log(PKID)
 
       if (id) {
         // If ID is provided, update the existing highlight
