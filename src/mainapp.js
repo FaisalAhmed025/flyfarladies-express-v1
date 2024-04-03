@@ -12,6 +12,7 @@ import depositRoute from "./deposit/depositeRoute";
 import bookingRouter from "./booking/bookingRoute";
 import presscoverageRoute from "./presscoverage/route";
 import paymentRoute from "./payment/route";
+import bkashRoute from  "./bkash/bkash.route"
 import wishlistRoute from "./wishlist/route";
 import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
 import { roundWayPostRoute } from "./air/sabre/sabreRoutes/roundWayRoute";
@@ -86,6 +87,7 @@ app.use("/api/v1/deposit", depositRoute);
 app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/press", presscoverageRoute);
 app.use("/api/v1/payment", paymentRoute);
+app.use("/api/v1/bkash", bkashRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
 app.post("/api/v1/air-search/oneway", onWayPostRoute);
 app.post("/api/v1/air-search/roundWay", roundWayPostRoute);

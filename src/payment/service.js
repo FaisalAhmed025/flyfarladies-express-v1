@@ -174,7 +174,6 @@ const paybookingamount = async (req,res) =>{
     bookingid
   ]
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
-
   const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
   return updatebooing;
 }
@@ -190,7 +189,7 @@ const paySecondInstallment = async (req,res) =>{
     throw new NotFoundException('Booking not found');
   }
 
-  if (booking[0].bookingStatus !== 'HOLD') {
+  if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
@@ -259,16 +258,13 @@ const paythiredInstallment = async (req,res) =>{
 
   const bookingid = req.body.bookingid
   const userid = req.body.id
-
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
-
   const [booking] = await pool.query(packagequery, [bookingid])
-
   if (!booking || booking.length === 0) {
     throw new NotFoundException('Booking not found');
   }
 
-  if (booking[0].bookingStatus !== 'HOLD') {
+  if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
