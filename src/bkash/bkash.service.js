@@ -2,6 +2,9 @@ import axios from "axios";
 import { any } from "zod";
 
 import { createHash } from "crypto";
+import { createPayment, executePayment, queryPayment, searchTransaction, refundTransaction } from "bkash-payment";
+import pool from "../database/db";
+import moment from "moment/moment";
 
 
  const generateCustomTransactionId =  async () =>  {
@@ -12,13 +15,27 @@ import { createHash } from "crypto";
   return shortenedHash;
 }
 
- const generateCustomorderId  =async () =>  {
+ const generateCustomorderId = async () =>  {
   const timestamp = Date.now().toString();
   const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
   const hash = createHash('sha256').update(`OI${timestamp}${randomString}`).digest('hex');
   const shortenedHash = hash.substr(0, 12).toUpperCase();
   return shortenedHash;
 }
+
+export function getFormatDateTimeWithSpace(date) {
+  return moment(date, 'YYYY-MM-DDTHH:mm:ss:SSS [GMT]Z').format('YYYY-MM-DD HH:mm:ss');
+}
+
+
+
+const bkashConfig = {
+  base_url : 'https://tokenized.pay.bka.sh/v1.2.0-beta',
+  username: '01755572096',
+  password: '(4G&85PThG!',
+  app_key: 'qsva78y6yL4wvTBKVkllhuditc',
+  app_secret: 'fzEl2yrbGpQOQ5UdS50hWADPUWgyccRdh24fJKuVaiuynJGBODpS'
+ }
 
 const generateToken = async(req, res) =>{
   try {
@@ -46,173 +63,117 @@ const generateToken = async(req, res) =>{
   }
 }
 
+const CreatePayment = async(req,res) =>{
 
-const  createPayment  = async (req,res) =>{
   try {
-    const token = await generateToken();
-    const endpoint = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/create'; // Replace with your actual base URL
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token,
-      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
-    };
 
-    const { amount, currency } = req.body;
-
-    if (parseFloat(amount) < 1) {
-      return res.status(400).json({ status: 'error', message: 'Minimum amount at least 1 TK' });
+    const id = await generateCustomorderId()
+    const { amount, callbackURL, reference } = req.body
+    const paymentDetails = {
+      amount: amount || 20,                                                 // your product price
+      callbackURL : callbackURL || 'http://localhost:4004/api/v1/bkash/callback',  // your callback route
+      orderID : id || 'Order_101',                                     // your orderID
+      reference : reference || '1'                                          // your reference
     }
-
-    const id = await generateCustomTransactionId()
-    const requestData = {
-      mode: '0000',
-      payerReference:  '01877722345',
-      callbackURL: 'http://localhost:4004/api/v1/bkash/callback',
-      amount: amount || '10',
-      currency: currency || 'BDT',
-      intent: 'sale',
-      merchantInvoiceNumber:  id,
-    };
-    console.log(requestData)
-
-    const response = await axios.post(endpoint, JSON.stringify(requestData), { headers });
-    if (response.status === 200) {
-      return res.json(response.data);
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: error.message });
-  }
-
-}
-
-const  executepayment = async (paymentID, res)=>{
-  try {
-    // const { paymentID } = req.body;
-    const token = await generateToken();
-    const endpoint = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout/execute'; // Replace with your actual base URL
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token,
-      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
-    };
-    const body = {
-      paymentID
-    };
-
-    console.log(paymentID)
-
-    const response = await axios.post(endpoint, body, { headers });
-    console.log(response.data);
-    if (response.status === 200) {
-      return response.data
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.log(paymentDetails);
+    const result =  await createPayment(bkashConfig, paymentDetails)
+    res.send(result)
+  } catch (e) {
+    console.log(e)
   }
 
 }
 
 
   const callback  = async (req,res )=>{
-    const { paymentID, status } = req.query;
-    console.log('Payment ID:', paymentID);
-    console.log('Status:', status);
     try {
-      if (status === 'success') {
-        const responsedata = await executepayment(paymentID);
-        console.log(responsedata)
-        if (responsedata.statusCode === '0000' && responsedata.agreementStatus === 'Completed') {
-          const { amount, trxID, customerMsisdn, merchantInvoiceNumber, paymentExecuteTime, currency, statusMessage } = responsedata;
-          // Save the response data in database
-          // const instantdeposit = new Bankdeposit({
-          //   status: 'APPROVED',
-          //   transactionid: trxID, // Using paymentID as transactionid
-          //   amount: parseFloat(amount),
-          //   paymentID,
-          //   status: transactionStatus,
-          //   customerMsisdn,
-          //   currency,
-          //   transactiondate: paymentExecuteTime,
-          //   merchantInvoiceNumber
-          // });
-          // await instantdeposit.save();
-          // await GeneralLedger.save(instantdeposit);
-          // Redirect to front end
-          console.log('Payment Successfully Processed and Saved!');
-          return res.redirect(`https://flyfarladies.com?message=${statusMessage}&status=${status}`);
-        } else {
-          const message = responsedata.statusMessage;
-          const status = 'fail';
-          return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${encodeURIComponent(status)}`);
+      const { status, paymentID } = req.query
+      console.log(paymentID)
+      // let result
+      // let response = {
+      //   statusCode : '4000',
+      //   statusMessage : 'Payment Failed'
+      // }
+      if(status === 'success') {
+       const result =  await executePayment(bkashConfig, paymentID)
+        if(result?.transactionStatus === 'Completed'&& result.statusCode === '0000'){
+          console.log("payment success")
+          const insertQuery = `
+          INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
+        console.log(datetime);
+      
+        const insertParams = [
+          result.paymentID,
+          result.trxID,
+          result.transactionStatus,
+          result.amount,
+          result.currency,
+          datetime,
+          result.merchantInvoiceNumber,
+          result.payerReference,
+          result.customerMsisdn,
+          result.statusCode,
+          result.statusMessage
+        ];
+  
+        console.log(insertParams)
+        // Execute the insertion query
+        await pool.query(insertQuery, insertParams);
         }
-      } else if (status === 'cancel') {
+        console.log(result)
+        // You may use here WebSocket, server-sent events, or other methods to notify your client
+        return res.redirect(`https://flyfarladies.com?message=${result.statusMessage}&status=${status}`);
+
+      } 
+
+      else if (status === 'cancel') {
         const message = 'Payment has been cancelled';
         return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
-      } else if (status === 'failure') {
+      }
+     else if (status === 'failure') {
         const message = 'Payment has been failure';
         return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
       }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      // Handle the error appropriately
-      return res.status(500).json({ error: 'An error occurred while processing the payment.' });
+      
+   
+    } catch (e) {
+      console.log(e)
     }
   }
 
 
+  const getTransaction = async(req,res)=>{
+    try {
+      const { trxID } = req.query
+      const result = await searchTransaction(bkashConfig, trxID)
+      res.send(result)
+    } catch (e) {
+      console.log(e)
+    }
+
+  }
 
 const QueryPayment  = async (req,res)=>{
-  const { paymentID } = req.params; // Extract paymentID from URL parameters
   try {
-    const token = await generateToken(); // Assuming you have the createtoken function defined somewhere
-
-    const endpoint = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/payment/status'; // Replace with your actual base URL
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token,
-      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
-    };
-    const body = {
-      paymentID
-    };
-
-    const response = await axios.post(endpoint, body, { headers });
-
-    if (response.status === 200) {
-      return res.json(response.data);
-    }
-  } catch (error) {
-    console.error('Error querying payment status:', error);
-    return res.status(500).json({ error: 'An error occurred while querying payment status.' });
+    const { paymentID } = req.query
+    const result = await queryPayment(bkashConfig, paymentID)
+    res.send(result)
+  } catch (e) {
+    console.log(e)
   }
+
 }
 
 const refundAmount = async(req,res) =>{
-
   try {
-    const url = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/payment/refund'; // Replace with your actual base URL
-
-    // Call the create token function for token
-    const token = await generateToken(); // Assuming you have the createtoken function defined somewhere
-
-    // Headers
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': token,
-      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
-    };
-
     // Extract required data from request body
     const { paymentID, amount, trxID, sku, reason } = req.body;
 
     // Request body
-    const body = {
+    const refundDetails = {
       paymentID,
       amount,
       trxID,
@@ -221,10 +182,20 @@ const refundAmount = async(req,res) =>{
     };
 
     // Make HTTP request
-    const response = await axios.post(url, body, { headers });
+    const result = await refundTransaction(bkashConfig, refundDetails)
+    if(result.statusMessage === "Successful"  && result.statusCode === "0000"){
+      const updatequery = `UPDATE bkaspayment SET refundTrxID =?, isRefundable =? WHERE trxID=?`
+      const isRefundable = true
+      const values =[
+        result.refundTrxID,
+        isRefundable,
+        trxID
+      ]
+      await pool.query(updatequery, values)
+    }
+   return res.send(result)
 
     // Send response data back to the client
-    res.json(response.data);
   } catch (error) {
     console.error('Error creating refund:', error);
     res.status(500).json({ error: 'An error occurred while processing the refund.' });
@@ -234,9 +205,9 @@ const refundAmount = async(req,res) =>{
 
 export const bkashService = {
   generateToken,
-  createPayment,
+  CreatePayment,
   callback,
-  executepayment,
+  getTransaction,
   QueryPayment,
   refundAmount
 }

@@ -9,42 +9,32 @@ import { bkashService } from "./bkash.service"
 }
 
 const createPayment = async (req,res) =>{
-   await bkashService.createPayment(req,res)
+   await bkashService.CreatePayment(req,res)
  }
-
 
  const QueryPayment = async (req,res) =>{
   await bkashService.QueryPayment(req,res)
 }
 
- 
+const bkasSearch = async (req,res) =>{
+  await bkashService.getTransaction(req,res)
+}
 
  const callback = async (req,res) =>{
   await bkashService.callback(req,res)
  }
 
- const executePayment = async (req,res) =>{
-  const paymentID =  req.params.paymentID
-  await bkashService.executepayment(paymentID,res)
-
-
- }
-
  const refundAmount = async (req,res) =>{
   await bkashService.refundAmount(req,res)
-
-
  }
  
  
-
-
 
  export const bkashController ={
    generateToken,
    createPayment,
    callback,
-   executePayment,
    QueryPayment,
+   bkasSearch,
    refundAmount
 }

@@ -19,6 +19,7 @@
     "@google-cloud/storage": "^7.8.0",
     "add": "^2.0.6",
     "axios": "^1.6.8",
+    "bkash-payment": "^3.0.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
