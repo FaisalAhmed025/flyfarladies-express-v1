@@ -1159,7 +1159,7 @@ const createExclusion = async (req, PKID) => {
         await connection.execute(updateQuery, [exclusionText, id]);
         updatedOrInsertedExclusions.push({
           id,
-          status: "success",
+          status: true,
           message: "Inclusion updated successfully"
         });
       } else {
@@ -1169,7 +1169,7 @@ const createExclusion = async (req, PKID) => {
         await connection.execute(insertQuery, [newId, tourPackageId, exclusionText]);
         updatedOrInsertedExclusions.push({
           id: newId,
-          status: "success",
+          status: true,
           message: "New exclusion inserted successfully"
         });
       }
@@ -1242,7 +1242,7 @@ const createBookingPolicy = async (req, PKID) => {
         await connection.execute(updateQuery, [booking_policy, id]);
         updatedOrInsertedPolicies.push({
           id,
-          status: "success",
+          status: true,
           message: "Booking policy updated successfully"
         });
       } else {
@@ -1252,7 +1252,7 @@ const createBookingPolicy = async (req, PKID) => {
         await connection.execute(insertQuery, [newId, tour_package_id, booking_policy]);
         updatedOrInsertedPolicies.push({
           id: newId,
-          status: "success",
+          status: true,
           message: "New booking policy inserted successfully"
         });
       }
@@ -1360,7 +1360,7 @@ const createHighlights = async (req, PKID) => {
         await connection.execute(updateQuery, [highlights, id]);
         updatedOrInsertedHighlights.push({
           id,
-          status: "success",
+          status: true,
           message: "Highlight updated successfully"
         });
       } else {
@@ -1370,7 +1370,7 @@ const createHighlights = async (req, PKID) => {
         await connection.execute(insertQuery, [newId, tour_package_id, highlights]);
         updatedOrInsertedHighlights.push({
           id: newId,
-          status: "success",
+          status: true,
           message: "New highlight inserted successfully"
         });
       }
@@ -1410,7 +1410,7 @@ const createAddOns = async (tour_package_id, req) => {
         await connection.execute(updateQuery, [service, description, title, id]);
         updatedOrInsertedAddOns.push({
           id,
-          status: "success",
+          status: true,
           message: "Add-on updated successfully"
         });
       } else {
@@ -1419,7 +1419,7 @@ const createAddOns = async (tour_package_id, req) => {
         const [result] = await connection.execute(insertQuery, [newId, service, description, tour_package_id, title]);
         updatedOrInsertedAddOns.push({
           id: newId,
-          status: "success",
+          status: true,
           message: "New add-on inserted successfully"
         });
       }
