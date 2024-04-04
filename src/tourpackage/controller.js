@@ -283,8 +283,13 @@ const createInclusion = async (req, res) => {
 };
 
 
+
 const deletetourinclusion = async (req,res)=>{
   await tourpackageService.deleteinclusion(req,res)
+}
+
+const deleteExclusion = async (req,res)=>{
+  await tourpackageService.deleteexclusion(req,res)
 }
 
 
@@ -546,6 +551,7 @@ export const tourpackageController = {
   getTourPlan,
   createInclusion,
   createExclusion,
+  deleteExclusion,
   createBookingPolicy,
   createCancelationPolicy,
   createHighlights,

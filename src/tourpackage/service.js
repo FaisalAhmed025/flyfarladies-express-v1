@@ -1090,7 +1090,7 @@ const createInclusion = async (req, PKID) => {
         await connection.execute(updateQuery, [inclusionText, id]);
         updatedOrInsertedInclusions.push({
           id,
-          status: "success",
+          status: true,
           message: "Inclusion updated successfully"
         });
       } else {
@@ -1184,6 +1184,18 @@ const createExclusion = async (req, PKID) => {
     }
   }
 };
+
+
+const deleteexclusion = async (req,res)=>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM exclusion WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'inclusion has removed'
+  })
+}
 
 const deleteinclusion = async (req,res)=>{
   const id = req.params.id
@@ -1470,6 +1482,7 @@ export const tourpackageService = {
   deleteTourPlanEvents,
   createInclusion,
   createExclusion,
+  deleteexclusion,
   createBookingPolicy,
   deletepolicy,
   createCancelationPolicy,

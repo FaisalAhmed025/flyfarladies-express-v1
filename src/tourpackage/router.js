@@ -18,11 +18,12 @@ router.post('/albumimage/:PKID', upload.array('images', 10),  handleMultipleImag
 
 router.post('/createTourPlan/:PKID', tourpackageController.createTourPlan)
 router.get('/gettourplan/:id', tourpackageController.gettouritenrary)
-router.delete('/delete/:id', tourpackageController.deleteTourItenerary)
+router.delete('/deletetourplan/:id', tourpackageController.deleteTourItenerary)
 
 router.post('/createinclusion/:PKID', tourpackageController.createInclusion)
-router.delete('/delete/:id', tourpackageController.deletetourinclusion)
+router.delete('/deleteinclusion/:id', tourpackageController.deletetourinclusion)
 router.post('/createexclusion/:PKID', tourpackageController.createExclusion)
+router.delete('/deleteexclusion/:id', tourpackageController.deleteExclusion)
 router.post('/createbookingpolicy/:PKID', tourpackageController.createBookingPolicy)
 router.delete('/deletepolicy/:id', tourpackageController.deletebookingpolicy)
 router.post('/createcancellationpolicy/:PKID', tourpackageController.createCancelationPolicy)
