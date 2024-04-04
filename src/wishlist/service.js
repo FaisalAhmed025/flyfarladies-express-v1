@@ -11,9 +11,9 @@ const generatewishId = () => {
 
 const addwishlist = async (req,res) =>{
  try {
-  const packageid  = req.body.PkID
+  const packageid  = req.body.PKID
   const userid = req.body.id
-  const packagequery = `SELECT * FROM tourpackage WHERE PkID=?`
+  const packagequery = `SELECT * FROM tourpackage WHERE PKID=?`
   const [tourpackage] = await pool.query(packagequery, [packageid])
   const  userquery =  `SELECT * FROM user WHERE id =?`
   const [user] = await pool.query(userquery, [userid])
@@ -108,8 +108,9 @@ const removeWishlist = async (req,res)=>{
     const deleteWishlistQuery = 'DELETE FROM wishlist WHERE wishid = ?';
     await pool.query(deleteWishlistQuery, [wishid])
     return res.json({ status:true, message:'wishlist has removed'})
-
 }
+
+
 
 export const wishlistService = {
   addwishlist,

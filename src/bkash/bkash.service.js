@@ -23,17 +23,17 @@ import { createHash } from "crypto";
 const generateToken = async(req, res) =>{
   try {
     const headers ={
-      username: "01755572096",
-      password: "(4G&85PThG!",
+      username: "sandboxTokenizedUser02",
+      password: "sandboxTokenizedUser02@12345",
       "Content-Type":"application/json",
       accept: 'application/json'
     };
 
-    const url =`https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout/token/grant`
+    const url =`https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/token/grant`
 
     const data = {
-      app_key:  'qsva78y6yL4wvTBKVkllhuditc',
-      app_secret: 'fzEl2yrbGpQOQ5UdS50hWADPUWgyccRdh24fJKuVaiuynJGBODpS',
+      app_key:  '4f6o0cjiki2rfm34kfdadl1eqq',
+      app_secret: '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b',
     }
     const response = await axios.post(url, data, {headers});
     if (response.data.status === 'fail') {
@@ -50,12 +50,12 @@ const generateToken = async(req, res) =>{
 const  createPayment  = async (req,res) =>{
   try {
     const token = await generateToken();
-    const endpoint = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout/create'; // Replace with your actual base URL
+    const endpoint = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/create'; // Replace with your actual base URL
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': token,
-      'X-APP-Key': 'qsva78y6yL4wvTBKVkllhuditc',
+      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
     };
 
     const { amount, currency } = req.body;
@@ -96,7 +96,7 @@ const  executepayment = async (paymentID, res)=>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': token,
-      'X-APP-Key': 'qsva78y6yL4wvTBKVkllhuditc',
+      'X-APP-Key': '4f6o0cjiki2rfm34kfdadl1eqq',
     };
     const body = {
       paymentID
