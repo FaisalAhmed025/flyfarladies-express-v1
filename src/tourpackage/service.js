@@ -550,7 +550,8 @@ const getalbumImage = async (PKID) => {
   albumimage.AlbumId,
   albumimage.tourpackageId,
   albumimage.albumtitle,
-  albumimage.albumcoverimageurl
+  albumimage.albumcoverimageurl,
+  albumimage.albumimageurl
   FROM albumimage
   JOIN tourpackage ON albumimage.tourpackageId = tourpackage.PKID
   WHERE albumimage.tourpackageId = ?;  
