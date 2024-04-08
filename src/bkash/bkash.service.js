@@ -15,6 +15,7 @@ import moment from "moment/moment";
   return shortenedHash;
 }
 
+
  const generateCustomorderId = async () =>  {
   const timestamp = Date.now().toString();
   const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
@@ -26,8 +27,6 @@ import moment from "moment/moment";
 export function getFormatDateTimeWithSpace(date) {
   return moment(date, 'YYYY-MM-DDTHH:mm:ss:SSS [GMT]Z').format('YYYY-MM-DD HH:mm:ss');
 }
-
-
 
 const bkashConfig = {
   base_url : 'https://tokenized.pay.bka.sh/v1.2.0-beta',
@@ -96,7 +95,7 @@ const CreatePayment = async(req,res) =>{
       // }
       if(status === 'success') {
        const result =  await executePayment(bkashConfig, paymentID)
-        if(result?.transactionStatus === 'Completed'&& result.statusCode === '0000'){
+        if(result?.transactionStatus === 'Completed' && result.statusCode === '0000'){
           console.log("payment success")
           const insertQuery = `
           INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage) 
@@ -128,15 +127,14 @@ const CreatePayment = async(req,res) =>{
         return res.redirect(`https://flyfarladies.com?message=${result.statusMessage}&status=${status}`);
 
       } 
-
       else if (status === 'cancel') {
         const message = 'Payment has been cancelled';
         return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
       }
-     else if (status === 'failure') {
-        const message = 'Payment has been failure';
-        return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
-      }
+    //  else if (status === 'failure') {
+    //     const message = 'Payment has been failure';
+    //     return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
+    //   }
       
    
     } catch (e) {

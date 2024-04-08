@@ -85,7 +85,6 @@ const sucesss  = async (req,res)=>{
     const tran_id = req.params.tran_id;
     // const uuid = req.params.id;
     const data = req.body;
-
     console.log(req.body)
 
 
