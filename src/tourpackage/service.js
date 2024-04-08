@@ -498,7 +498,6 @@ export const getExclusion = async (PKID) => {
   JOIN tourpackage ON exclusion.tour_package_id = tourpackage.PKID
   WHERE exclusion.tour_package_id = ?;  
 `;
-
     const [results] = await pool.execute(exclusionQuery, [PKID]);
     return results;
   } catch (error) {
@@ -861,7 +860,6 @@ const createPlaceVisit = async (req, PKID) => {
     const images = req.images;
     let placetovisit_names = req.body?.placetovisit_name;
     connection = await pool.getConnection();
-
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
@@ -1075,7 +1073,7 @@ const createInclusion = async (req, PKID) => {
       if (!inclusionText) {
         throw new Error("Inclusion text is required for each object.");
       }
-
+      
       const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
       const [packageResults] = await connection.execute(packageQuery, [PKID]);
 

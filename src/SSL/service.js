@@ -132,11 +132,43 @@ const sucesss  = async (req,res)=>{
   }
 
 
+  const refundQuery = async(req,res)=>{
+    const refund_ref_id = req.params.refund_ref_id
+    const data = {
+      refund_ref_id:refund_ref_id,
+  };
+
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  sslcz.refundQuery(data).then(data => {
+      //process the response that got from sslcommerz
+      //https://developer.sslcommerz.com/doc/v4/#initiate-the-refund
+      return res.send(data) ;
+  });
+  }
+
+  const transactionStatus = async(req,res) =>{
+    const tran_id= req.params.tran_id
+
+    const data = {
+      tran_id:tran_id,
+  };
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  sslcz.transactionQueryByTransactionId(data).then(data => {
+      //process the response that got from sslcommerz
+      //https://developer.sslcommerz.com/doc/v4/#by-session-id
+      return res.send(data)
+  });
+  }
+  
+
+
 
 
 export const sslpaymentService = {
   initpayment,
   sucesss,
   validatepayment,
-  refundInitiate
+  refundInitiate,
+  refundQuery,
+  transactionStatus
 }
