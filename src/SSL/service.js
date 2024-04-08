@@ -148,7 +148,6 @@ const sucesss  = async (req,res)=>{
 
   const transactionStatus = async(req,res) =>{
     const tran_id= req.params.tran_id
-
     const data = {
       tran_id:tran_id,
   };
