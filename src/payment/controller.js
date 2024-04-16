@@ -54,12 +54,24 @@ const payfirstAndsecondInstallment =  async (req,res)=>{
   });
 }
 
+const paySecondAndthirdInstallment =  async (req,res)=>{
+  const result = await payemntService.paySecondandthirdInstallment(req,res)
+  res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      'payment Successful',
+    data: result,
+  });
+}
+
+
 
 export const paymentController =  {
   paywithwallet,
   paybookingamount,
   paySecondInstallment,
   paythiredInstallment,
-  payfirstAndsecondInstallment
+  payfirstAndsecondInstallment,
+  paySecondAndthirdInstallment
 }
 

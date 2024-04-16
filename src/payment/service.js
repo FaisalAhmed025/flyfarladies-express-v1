@@ -208,7 +208,7 @@ const payFirstandSecondInstallment = async (req,res) =>{
   }
 
  
-   const updatedwalet =  user[0].wallet - bookingamount
+   const updatedwalet =  user[0].wallet - totalAmount
    console.log(updatedwalet);
 
    const value =[
@@ -237,7 +237,82 @@ const payFirstandSecondInstallment = async (req,res) =>{
     bookingid
   ]
 
+  console.log(lastbalance);
+
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ?, wallet = ? WHERE bookingid= ? `
+
+  const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
+  return updatebooking;
+
+
+}
+
+
+const paySecondandthirdInstallment = async (req,res) =>{
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
+  const [booking] = await pool.query(bookingquery, [bookingid])
+
+  if (!booking || booking.length === 0) {
+    throw new NotFoundException('Booking not found');
+  }
+
+  if (booking[0].bookingStatus !== 'hold') {
+    throw new NotFoundException('Booking request already approved or Rejected');
+  }
+  const userquery =  `SELECT * FROM user WHERE id = ?`
+  
+  const [user] = await pool.query(userquery, [userid]);
+
+  if (!user || user.length === 0) {
+    throw new NotFoundException('User not found');
+  }
+
+
+  const firstinstalmentAmount =  booking[0].first_installment
+  const secondinstalmentAmount =  booking[0].second_installment
+
+  const  totalAmount = secondinstalmentAmount + firstinstalmentAmount
+    if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
+    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+  }
+
+ 
+  console.log(totalAmount)
+   const updatedwalet =  parseInt(user[0].wallet) - parseInt(totalAmount)
+
+   const value =[
+    updatedwalet,
+    userid
+   ]
+
+   const  updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
+   await pool.query(updatequery, value)
+
+
+  const paymentstatus  = payementStatus.PAID
+  const firstInstallmentStatus = installmentStatus.COMPLETED
+  const firstinstallmentpaiddate = new Date()
+
+  const secondInstallmentStatus = installmentStatus.COMPLETED
+  const secondinstallmentpaiddate = new Date()
+  const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
+
+  const valuedata =  [
+    paymentstatus,
+    firstInstallmentStatus,
+    firstinstallmentpaiddate,
+    secondInstallmentStatus,
+    secondinstallmentpaiddate,
+    bookingstatus,
+    updatedwalet,
+    bookingid
+  ]
+  
+  console.log(valuedata)
+  const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
+  secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=?, wallet = ? WHERE bookingid= ? `
 
   const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
   return updatebooking;
@@ -402,5 +477,6 @@ export const payemntService = {
   paybookingamount,
   paySecondInstallment,
   paythiredInstallment,
-  payFirstandSecondInstallment
+  payFirstandSecondInstallment,
+  paySecondandthirdInstallment
 }
