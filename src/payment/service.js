@@ -179,11 +179,11 @@ const paybookingamount = async (req,res) =>{
 
 
 
-const paysecondandandthirdamount = async (req,res) =>{
+const payFirstandSecondInstallment = async (req,res) =>{
   const bookingid = req.body.bookingid
   const userid = req.body.id
-  const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
-  const [booking] = await pool.query(packagequery, [bookingid])
+  const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
+  const [booking] = await pool.query(bookingquery, [bookingid])
 
   if (!booking || booking.length === 0) {
     throw new NotFoundException('Booking not found');
@@ -201,17 +201,8 @@ const paysecondandandthirdamount = async (req,res) =>{
   }
 
   const bookingamount = booking[0].booking_money;
-
   const firstinstalmentAmount =  booking[0].firstinstalmentAmount
   const  totalAmount = bookingamount + firstinstalmentAmount
-  console.log(user[0].wallet);
-  console.log(bookingamount);
-
-  const currentDate = new Date(); // Use JavaScript Date objects
-
-    // Check wallet balance
-    console.log(parseInt(user[0].wallet))
-    console.log(parseInt(totalAmount))
     if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
     throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
   }
@@ -225,15 +216,14 @@ const paysecondandandthirdamount = async (req,res) =>{
     userid
    ]
 
-  const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
-  await pool.query(updatequery, value)
+   const  updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
+   await pool.query(updatequery, value)
 
-  const paymentstatus  = payementStatus.BOOKINGSTATUS
+
+  const paymentstatus  = payementStatus.UNPAID
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const bookingamountpaiddate = new Date()
-
-  const firstpaymentstatus  = payementStatus.FIRSTINSTALLMENT
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
 
@@ -241,15 +231,18 @@ const paysecondandandthirdamount = async (req,res) =>{
     paymentstatus,
     bookingamountstatus,
     bookingamountpaiddate,
-    firstpaymentstatus,
-    firstinstallmentpaiddate,
     firstInstallmentStatus,
+    firstinstallmentpaiddate,
     lastbalance,
     bookingid
   ]
-  const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ? ,firstinstallmentpaiddate =?, wallet = ? WHERE bookingid= ? `
-  const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
-  return updatebooing;
+
+  const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ?, wallet = ? WHERE bookingid= ? `
+
+  const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
+  return updatebooking;
+
+
 }
 
 
@@ -296,7 +289,6 @@ const paySecondInstallment = async (req,res) =>{
     throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
   }
 
- 
    const updatedwalet =  user[0].wallet - first_installment
    console.log(updatedwalet);
 
@@ -320,6 +312,7 @@ const paySecondInstallment = async (req,res) =>{
     lastbalance,
     bookingid
   ]
+  console.log(valuedata)
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
@@ -342,11 +335,6 @@ const paythiredInstallment = async (req,res) =>{
   if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
-
-  if(booking[0].firstInstallmentStatus !== 'completed') {
-    throw new NotFoundException('first installment is not paid yet');
-  }
-
 
   const userquery =  `SELECT * FROM user WHERE id = ?`
 
@@ -414,5 +402,5 @@ export const payemntService = {
   paybookingamount,
   paySecondInstallment,
   paythiredInstallment,
-  paysecondandandthirdamount
+  payFirstandSecondInstallment
 }

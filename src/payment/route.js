@@ -7,5 +7,6 @@ router.post('/wallet/fullpayment', paymentController.paywithwallet)
 router.post('/wallet/bookingamount', paymentController.paybookingamount)
 router.post('/wallet/secondinstallment', paymentController.paySecondInstallment)
 router.post('/wallet/thirdinstallment', paymentController.paythiredInstallment)
+router.post('/wallet/first/second', paymentController.payfirstAndsecondInstallment)
 
 export default router;
