@@ -316,8 +316,7 @@ const paySecondandthirdInstallment = async (req,res) =>{
 
   const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
   return updatebooking;
-
-
+  
 }
 
 

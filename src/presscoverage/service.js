@@ -39,7 +39,7 @@ try {
 } catch (error) {
   console.error("Error adding press coverage:", error);
     res.status(500).json({ error: "Error adding press coverag" });
-  
+
 }
 }
 

@@ -15,6 +15,7 @@ import paymentRoute from "./payment/route";
 import bkashRoute from  "./bkash/bkash.route"
 import sslpaymentRoute from './SSL/router'
 import wishlistRoute from "./wishlist/route";
+import packagesearchRoute  from './packagesearch/route'
 import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
 import { roundWayPostRoute } from "./air/sabre/sabreRoutes/roundWayRoute";
 import { multiCitySearch } from "./air/sabre/sabreRoutes/multiCityRoute";
@@ -92,6 +93,8 @@ app.use("/api/v1/payment", paymentRoute);
 app.use("/api/v1/bkash", bkashRoute);
 app.use("/api/v1/ssl", sslpaymentRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
+app.use("/api/v1/search", packagesearchRoute);
+
 app.post("/api/v1/air-search/oneway", onWayPostRoute);
 app.post("/api/v1/air-search/roundWay", roundWayPostRoute);
 app.post("/api/v1/air-search/multiCity", multiCitySearch);
