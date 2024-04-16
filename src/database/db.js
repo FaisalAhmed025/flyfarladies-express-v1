@@ -12,6 +12,7 @@ const db = {
     host: "35.229.222.197",
     database:"flyfarLadiesExpress",
     dateStrings: true,
+
 };
 export const pool = mysql.createPool(db);
 export default pool;

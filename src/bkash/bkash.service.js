@@ -5,6 +5,7 @@ import { createHash } from "crypto";
 import { createPayment, executePayment, queryPayment, searchTransaction, refundTransaction } from "bkash-payment";
 import pool from "../database/db";
 import moment from "moment/moment";
+import { NotFoundException } from "express-sharp";
 
 
  const generateCustomTransactionId =  async () =>  {
@@ -28,12 +29,20 @@ export function getFormatDateTimeWithSpace(date) {
   return moment(date, 'YYYY-MM-DDTHH:mm:ss:SSS [GMT]Z').format('YYYY-MM-DD HH:mm:ss');
 }
 
+
 const bkashConfig = {
   base_url : 'https://tokenized.pay.bka.sh/v1.2.0-beta',
   username: '01755572096',
   password: '(4G&85PThG!',
   app_key: 'qsva78y6yL4wvTBKVkllhuditc',
   app_secret: 'fzEl2yrbGpQOQ5UdS50hWADPUWgyccRdh24fJKuVaiuynJGBODpS'
+
+  // base_url : 'https://tokenized.sandbox.bka.sh/v1.2.0-beta',
+  // username: '01619777283',
+  // password: 'sandboxTokenizedUser02@12345',
+  // app_key: '4f6o0cjiki2rfm34kfdadl1eqq',
+  // app_secret: '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b'
+
  }
 
 const generateToken = async(req, res) =>{
@@ -65,12 +74,12 @@ const generateToken = async(req, res) =>{
 const CreatePayment = async(req,res) =>{
 
   try {
-
+    const userid =  req.params.id;
     const id = await generateCustomorderId()
     const { amount, callbackURL, reference } = req.body
-    const paymentDetails = {
-      amount: amount || 20,                                                 // your product price
-      callbackURL : callbackURL || 'http://localhost:4004/api/v1/bkash/callback',  // your callback route
+    const paymentDetails = { 
+      amount: amount || 1,                                                 // your product price
+      callbackURL : callbackURL || `http://localhost:4004/api/v1/bkash/callback/${userid}`,  // your callback route
       orderID : id || 'Order_101',                                     // your orderID
       reference : reference || '1'                                          // your reference
     }
@@ -87,23 +96,43 @@ const CreatePayment = async(req,res) =>{
   const callback  = async (req,res )=>{
     try {
       const { status, paymentID } = req.query
+      const userid = req.params.id
+      console.log(userid)
       console.log(paymentID)
+
       // let result
       // let response = {
       //   statusCode : '4000',
       //   statusMessage : 'Payment Failed'
       // }
+
+      const userquery = `SELECT * FROM user WHERE  id = ?`
+      const  [user] = await pool.query(userquery, [userid])
+
+      if(user.length === 0){
+        throw new NotFoundException("user not found")
+      }
+
       if(status === 'success') {
        const result =  await executePayment(bkashConfig, paymentID)
+
         if(result?.transactionStatus === 'Completed' && result.statusCode === '0000'){
-          console.log("payment success")
           const insertQuery = `
           INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
         console.log(datetime);
-      
+
+      const currentWallet = parseInt(user[0].wallet);
+      console.log(currentWallet);
+      const newValue = currentWallet + result.amount;
+
+      console.log(newValue)
+
+        const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
+        await pool.query(updateQuery, [newValue, userid]);
+        
         const insertParams = [
           result.paymentID,
           result.trxID,
