@@ -6,7 +6,7 @@ import { handleMultipleImage, imageHandler, imageHandlerUpdate } from './imageHa
 const router = express.Router();
 
 router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
-router.put('/update/:PKID', upload.single('coverimage'), imageHandlerUpdate, tourpackageController.updatePackage)
+router.patch('/update/:PKID', upload.single('coverimage'), imageHandlerUpdate, tourpackageController.updatePackage)
 
 router.post('/mainimage/:PKID', upload.array('images', 10),  handleMultipleImage, tourpackageController.mainimage)
 

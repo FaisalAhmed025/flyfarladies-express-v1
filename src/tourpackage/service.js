@@ -621,14 +621,14 @@ const getAllTourPackages = async () => {
 
 const updateTourPackage = async (req, res) => {
   try {
-    const packgeId = req.params.PKID; // Assuming packageId is passed in the request parameters
+    const packageId = req.params.PKID; // Assuming packageId is passed in the request parameters
     // Extract tour package details from request body
 
     const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
-    const [tourpackage] = await pool.query(packageQuery, [packgeId]);
+    const [tourpackage] = await pool.query(packageQuery, [packageId]);
     
-    if (tourpackage.length ===0) {
-       res.status(404).json({message:'tourpackage not found'})
+    if (tourpackage.length === 0) {
+       return res.status(404).json({message: 'Tour package not found'});
     }
     
     const {
@@ -671,13 +671,9 @@ const updateTourPackage = async (req, res) => {
       second_installment_due_date,
       booking_money,
       first_installment,
-      second_installment
-
+      second_installment,
+      coverImage // Assuming coverImage is coming from request body
     } = req.body;
-
-    // Assuming the file field name is 'coverImage'
-    // Extract cover image details from the uploaded file
-    const coverImage = req.publicImageLink;
 
     // Check if cover image is present
 
@@ -724,61 +720,62 @@ const updateTourPackage = async (req, res) => {
       booking_money,
       first_installment,
       second_installment,
-      packgeId // Add packageId for WHERE clause
+      packageId // Add packageId for WHERE clause
     ];
 
     const [result] = await pool.query(
       `UPDATE tourpackage SET 
-        MainTitle = ?, 
-        SubTitle = ?, 
-        Price = ?, 
-        PricePerAdult = ?, 
-        PricePerChild = ?, 
-        PricePerInfant = ?, 
-        City = ?, 
-        Discount = ?, 
-        Location = ?, 
-        Availability = ?, 
-        StartDate = ?, 
-        EndDate = ?, 
-        TripType = ?, 
-        TotalDuration = ?, 
-        AvailableSeats = ?, 
-        MinimumAge = ?, 
-        MaximumAge = ?, 
-        PackageOverview = ?, 
-        Showpackage = ?, 
-        Flight = ?, 
-        Transport = ?, 
-        Food = ?, 
-        Hotel = ?, 
-        Country = ?, 
-        GirlsTrip = ?, 
-        FamilyTrips = ?, 
-        Adventure = ?, 
-        FullyGuided = ?, 
-        SelfGuided = ?, 
-        Guide = ?, 
-        CancellationDate = ?, 
-        coverImage = ? ,
-        adult_base_price =?,
-        child_base_price=?,
-        infant_base_price =?,
-        booking_money_due_date =?,
-        first_installment_due_date =?,
-        second_installment_due_date =?,
-        booking_money =?,
-        first_installment=?,
-        second_installment =?
+        MainTitle = COALESCE(?, MainTitle), 
+        SubTitle = COALESCE(?, SubTitle), 
+        Price = COALESCE(?, Price), 
+        PricePerAdult = COALESCE(?, PricePerAdult), 
+        PricePerChild = COALESCE(?, PricePerChild), 
+        PricePerInfant = COALESCE(?, PricePerInfant), 
+        City = COALESCE(?, City), 
+        Discount = COALESCE(?, Discount), 
+        Location = COALESCE(?, Location), 
+        Availability = COALESCE(?, Availability), 
+        StartDate = COALESCE(?, StartDate), 
+        EndDate = COALESCE(?, EndDate), 
+        TripType = COALESCE(?, TripType), 
+        TotalDuration = COALESCE(?, TotalDuration), 
+        AvailableSeats = COALESCE(?, AvailableSeats), 
+        MinimumAge = COALESCE(?, MinimumAge), 
+        MaximumAge = COALESCE(?, MaximumAge), 
+        PackageOverview = COALESCE(?, PackageOverview), 
+        Showpackage = COALESCE(?, Showpackage), 
+        Flight = COALESCE(?, Flight), 
+        Transport = COALESCE(?, Transport), 
+        Food = COALESCE(?, Food), 
+        Hotel = COALESCE(?, Hotel), 
+        Country = COALESCE(?, Country), 
+        GirlsTrip = COALESCE(?, GirlsTrip), 
+        FamilyTrips = COALESCE(?, FamilyTrips), 
+        Adventure = COALESCE(?, Adventure), 
+        FullyGuided = COALESCE(?, FullyGuided), 
+        SelfGuided = COALESCE(?, SelfGuided), 
+        Guide = COALESCE(?, Guide), 
+        CancellationDate = COALESCE(?, CancellationDate), 
+        coverImage = COALESCE(?, coverImage),
+        adult_base_price = COALESCE(?, adult_base_price),
+        child_base_price = COALESCE(?, child_base_price),
+        infant_base_price = COALESCE(?, infant_base_price),
+        booking_money_due_date = COALESCE(?, booking_money_due_date),
+        first_installment_due_date = COALESCE(?, first_installment_due_date),
+        second_installment_due_date = COALESCE(?, second_installment_due_date),
+        booking_money = COALESCE(?, booking_money),
+        first_installment = COALESCE(?, first_installment),
+        second_installment = COALESCE(?, second_installment)
       WHERE PKID = ?`,
       values
     );
-    return result;
+    return res.status(200).json({message: 'Tour package updated successfully', result});
   } catch (error) {
     console.error("Error updating travel package:", error);
-
+    return res.status(500).json({message: 'Internal server error'});
   }
 };
+
 
 
 
