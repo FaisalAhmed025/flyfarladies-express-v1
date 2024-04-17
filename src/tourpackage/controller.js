@@ -82,8 +82,7 @@ const updatePackage = async (req,res)=>{
   //   });
   // }
  result && res.status(200).json({
-    success: true,
-    status: httpStatus.OK,
+    status: 'success',
     message: 'package updated successfully',
     data: result,
   });

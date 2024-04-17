@@ -766,7 +766,7 @@ const updateTourPackage = async (req, res) => {
       WHERE PKID = ?`,
       values
     );
-    return res.status(200).json({message: 'Tour package updated successfully', result});
+    return res.status(200).json({status: 'success', message: 'Tour package updated successfully', result});
   } catch (error) {
     console.error("Error updating travel package:", error);
     return res.status(500).json({message: 'Internal server error'});
