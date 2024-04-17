@@ -65,6 +65,30 @@ const paySecondAndthirdInstallment =  async (req,res)=>{
 }
 
 
+const initpaywithsslfullamount =  async (req,res)=>{
+  const result = await payemntService.initwithsslfullamount(req,res)
+  res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      'payment Successful',
+    data: result,
+  });
+}
+
+
+const succeesssslfullamount =  async (req,res)=>{
+  const result = await payemntService.sucesssslfullamount(req,res)
+  res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      'payment Successful',
+    data: result,
+  });
+}
+
+
+
+
 
 export const paymentController =  {
   paywithwallet,
@@ -72,6 +96,8 @@ export const paymentController =  {
   paySecondInstallment,
   paythiredInstallment,
   payfirstAndsecondInstallment,
-  paySecondAndthirdInstallment
+  paySecondAndthirdInstallment,
+  initpaywithsslfullamount,
+  succeesssslfullamount
 }
 

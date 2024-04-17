@@ -410,7 +410,7 @@ const paythiredInstallment = async (req,res) =>{
   }
 
   if( booking[0].firstInstallmentStatus !=='complete' || null){
-    res.send({ message:"please pay your early installment"})
+   return res.send({ message:"please pay your early installment"})
   }
 
   const userquery =  `SELECT * FROM user WHERE id = ?`
@@ -476,22 +476,26 @@ const paythiredInstallment = async (req,res) =>{
 
 
 
-const initpayment1stinstallemnt = async(req,res) =>{
+const initwithsslfullamount = async(req,res) =>{
   const transactionId = generateCustomTransactionId();
-  const userid  = req.params.bookingid
+  const bookingid  = req.body.bookingid
+  const userid  = req.body.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
-  const [user] = await pool.query(bookingquery, [userid]);
+  const [booking] = await pool.query(bookingquery, [bookingid]);
+  const amount = booking[0].totalAmount
 
-  console.log(user);
+  const userquery =  `SELECT * FROm user WHERE id=?`
+  const user =  await pool.query(userquery, [userid])
+
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
     store_passwd: process.env.SSL_STORE_PASSWORD,
-    total_amount: req.body.amount,
+    total_amount: amount,
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `http://localhost:4004/api/v1/ssl/success/${transactionId}/${userid}`,
+    success_url: `http://localhost:4004/api/v1/ssl/success/${transactionId}/${bookingid}`,
     fail_url: `http://localhost:4004/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `http://localhost:4004/api/v1/ssl/cancel/${transactionId}`,
     emi_option: 0,
@@ -505,7 +509,7 @@ const initpayment1stinstallemnt = async(req,res) =>{
     product_name: "Sample Product",
     product_category: "Sample Category",
     product_profile: "general",
-    value_a: "scfcc" || user.uuid,
+    value_a: "scfcc" || user[0].userid,
   }
 
 
@@ -542,8 +546,7 @@ const paymentstatus = "unpaid"
  
 }
 
-const sucess1stinstallemnt  = async (req,res)=>{
-
+const sucesssslfullamount = async (req,res)=>{
     const tran_id = req.params.tran_id;
     const bookingid = req.params.bookingid
     // const uuid = req.params.id;
@@ -559,14 +562,18 @@ const sucess1stinstallemnt  = async (req,res)=>{
 
     await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-    const bookingquery= `SELECT * FROM booking WHERE bookingid=?`
-    const booking  = await pool.query(bookingquery, [bookingid])
+    // const bookingquery= `SELECT * FROM booking WHERE bookingid = ?`
+    // const booking  = await pool.query(bookingquery, [bookingid])
 
     const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
 
-    const  value = [
-      booking[0].bookingStatus
+    const value = [
+      bookingstatus,
+      bookingid
     ]
+
+    const updatequery  = `UPDATE booking SET bookingStatus =? WHERE bookingid =?`
+    const updatebooking = await pool.query(updatequery, [value])
 
 
     return res.status(200).json({
@@ -592,6 +599,6 @@ export const payemntService = {
   paythiredInstallment,
   payFirstandSecondInstallment,
   paySecondandthirdInstallment,
-  initpayment1stinstallemnt,
-  sucess1stinstallemnt
+  initwithsslfullamount,
+  sucesssslfullamount
 }
