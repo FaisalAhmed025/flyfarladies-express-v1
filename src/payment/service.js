@@ -243,10 +243,7 @@ const payFirstandSecondInstallment = async (req,res) =>{
   const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
   return updatebooking;
 
-
 }
-
-
 const paySecondandthirdInstallment = async (req,res) =>{
   const bookingid = req.body.bookingid
   const userid = req.body.id
@@ -580,13 +577,6 @@ const sucesssslfullamount = async (req,res)=>{
       status: 'success',
       message: 'Payment success',
     });
-
-
-   
-
-
-
-
   } 
 
 
