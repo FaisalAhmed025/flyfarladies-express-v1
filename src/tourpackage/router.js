@@ -8,6 +8,8 @@ const router = express.Router();
 router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
 router.patch('/update/:PKID', upload.single('coverimage'), imageHandlerUpdate, tourpackageController.updatePackage)
 
+router.delete('/delete/:PKID', tourpackageController.deletePAckage)
+
 router.post('/mainimage/:PKID', upload.array('images', 10),  handleMultipleImage, tourpackageController.mainimage)
 
 router.put('/mainimage/:imageId', upload.single('images'),  imageHandlerUpdate, tourpackageController.updateMainImageController)

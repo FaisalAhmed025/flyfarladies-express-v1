@@ -69,6 +69,13 @@ const  gettouritenrary = async(req,res) =>{
 
 }
 
+const  deletePAckage = async(req,res) =>{
+  return await tourpackageService.deletePackage(req,res)
+
+}
+
+
+
 
 
 const updatePackage = async (req,res)=>{
@@ -553,6 +560,7 @@ export const tourpackageController = {
   deleteExclusion,
   createBookingPolicy,
   createCancelationPolicy,
+  deletePAckage,
   createHighlights,
   addAddOnsController,
   getSingleTourPackages,
