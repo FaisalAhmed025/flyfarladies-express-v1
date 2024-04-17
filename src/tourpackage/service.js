@@ -320,14 +320,11 @@ const getSingleTourPackages = async (PKID) => {
         tourPackageResults[0].infant_base_price +
         tourPackageResults[0].child_base_price
       ),
-      country:
-        tourPackageResults[0].country &&
-          tourPackageResults[0].country[0].country
-          ? tourPackageResults[0].country[0].country.map((entry) => ({
-            city: entry.city,
-            country: entry.country,
-          }))
-          : [],
+      Guide:tourPackageResults[0].Guide,
+      City:tourPackageResults[0].City,
+      Country:
+        tourPackageResults[0].Country, 
+        CancellationDate:tourPackageResults[0].CancellationDate,
       main_image: [],
       tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
@@ -800,6 +797,7 @@ const MainImage = async (req, PKID) => {
     // Insert each image URL into the cover_image table
     const insertQuery =
       "INSERT INTO  mainimage (imageId, imageurl, packageId) VALUES (?, ?, ?)";
+
     console.log(insertQuery);
 
     const insertResults = [];
