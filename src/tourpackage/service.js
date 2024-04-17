@@ -306,6 +306,7 @@ const getSingleTourPackages = async (PKID) => {
       day_trip: tourPackageResults[0].day_trip,
       night_out_trip: tourPackageResults[0].night_out_trip,
       FullyGuided: tourPackageResults[0].FullyGuided,
+      Showpackage: tourPackageResults[0].Showpackage,
       family: tourPackageResults[0].family,
       SelfGuided: tourPackageResults[0].SelfGuided,
       friendly: tourPackageResults[0].friendly,
