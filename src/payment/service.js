@@ -409,10 +409,12 @@ const paythiredInstallment = async (req,res) =>{
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
+  if( booking[0].firstInstallmentStatus !=='complete' || null){
+    res.send({ message:"please pay your early installment"})
+  }
+
   const userquery =  `SELECT * FROM user WHERE id = ?`
-
   const [user] = await pool.query(userquery, [userid]);
-
   if (!user || user.length === 0) {
     throw new NotFoundException('User not found');
   }
