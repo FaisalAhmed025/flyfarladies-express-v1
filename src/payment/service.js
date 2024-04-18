@@ -493,6 +493,7 @@ const initwithsslfullamount = async(req,res) =>{
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].totalAmount
+  console.log(amount);
 
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
@@ -500,7 +501,7 @@ const initwithsslfullamount = async(req,res) =>{
   const data = {
     store_id: process.env.SSL_STORE_ID,
     store_passwd: process.env.SSL_STORE_PASSWORD,
-    total_amount: amount,
+    total_amount: parseInt(amount),
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
@@ -702,8 +703,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     message: 'Payment success',
   });
 } 
-
-
 
 
 
