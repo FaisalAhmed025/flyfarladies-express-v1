@@ -62,31 +62,60 @@ const paySecondAndthirdInstallment =  async (req,res)=>{
       'payment Successful',
     data: result,
   });
+
+
 }
 
 
+
 const initpaywithsslfullamount =  async (req,res)=>{
-  const result = await payemntService.initwithsslfullamount(req,res)
-  res.status(httpStatus.OK).json({
-    success: true,
-    message:
-      'payment Successful',
-    data: result,
-  });
+  await payemntService.initwithsslfullamount(req,res)
+
 }
 
 
 const succeesssslfullamount =  async (req,res)=>{
-  const result = await payemntService.sucesssslfullamount(req,res)
-  res.status(httpStatus.OK).json({
-    success: true,
-    message:
-      'payment Successful',
-    data: result,
-  });
+   await payemntService.sucesssslfullamount(req,res)
+ 
 }
 
 
+const initpaywithsslbookingAmount=  async (req,res)=>{
+  await payemntService.initwithsslbookingmoney(req,res)
+
+}
+
+
+const succeesssslbookingAmount =  async (req,res)=>{
+   await payemntService.sucess_ssl_bookingAmount(req,res)
+ 
+}
+
+
+
+
+const initwithssl1stinstallemnt=  async (req,res)=>{
+  await payemntService.initwithssl1stinstallemnt(req,res)
+
+}
+
+
+const succeessssl1stinstallemnt =  async (req,res)=>{
+   await payemntService.success_ssl_1stinstallemnt(req,res)
+ 
+}
+
+
+const initwithssl2ndinstallemnt =  async (req,res)=>{
+  await payemntService.initwithssl2ndinstallemnt(req,res)
+
+}
+
+
+const succeessssl2ndinstallemnt =  async (req,res)=>{
+   await payemntService.success_ssl_2ndinstallemnt(req,res)
+ 
+}
 
 
 
@@ -98,6 +127,12 @@ export const paymentController =  {
   payfirstAndsecondInstallment,
   paySecondAndthirdInstallment,
   initpaywithsslfullamount,
-  succeesssslfullamount
+  succeesssslfullamount,
+  initpaywithsslbookingAmount,
+  succeesssslbookingAmount,
+  initwithssl1stinstallemnt,
+  succeessssl1stinstallemnt,
+  initwithssl2ndinstallemnt,
+  succeessssl2ndinstallemnt
 }
 
