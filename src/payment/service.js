@@ -488,8 +488,8 @@ const paythiredInstallment = async (req,res) =>{
 
 const initwithsslfullamount = async(req,res) =>{
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
+  const bookingid  = req.body?.bookingid
+  const userid  = req.body?.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].totalAmount
