@@ -13,14 +13,14 @@ router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallme
 router.post('/ssl/fullamount/payment', paymentController.initpaywithsslfullamount)
 router.post('/ssl/success/fullpayment/:tran_id/:bookingid', paymentController.succeesssslfullamount)
 
-router.get('/ssl/bookingamount', paymentController.initpaywithsslbookingAmount)
+router.post('/ssl/bookingamount', paymentController.initpaywithsslbookingAmount)
 router.post('/ssl/success/bookingamount/:tran_id/:bookingid', paymentController.succeesssslbookingAmount)
 
-router.get('/ssl/1stinstallment', paymentController.initwithssl1stinstallemnt)
+router.post('/ssl/1stinstallment', paymentController.initwithssl1stinstallemnt)
 router.post('/ssl/success/1stinstallment/:tran_id/:bookingid', paymentController.succeessssl1stinstallemnt)
 
 
-router.get('/ssl/2ndinstallment', paymentController.initwithssl2ndinstallemnt)
+router.post('/ssl/2ndinstallment', paymentController.initwithssl2ndinstallemnt)
 router.post('/ssl/success/2ndinstallment/:tran_id/:bookingid', paymentController.succeessssl2ndinstallemnt)
 
 export default router;
