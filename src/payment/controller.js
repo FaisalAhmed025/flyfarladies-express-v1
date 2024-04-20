@@ -118,6 +118,18 @@ const succeessssl2ndinstallemnt =  async (req,res)=>{
 }
 
 
+const initwithssl1stAnd2ndinstallemnt =  async (req,res)=>{
+  await payemntService.initwithssl1stAnd2ndinstallment(req,res)
+
+}
+
+
+const succeessssl1stAnd2ndinstallemnt =  async (req,res)=>{
+   await payemntService.sucess_ssl_1st_and_2nd_booking_Amount(req,res)
+ 
+}
+
+
 
 export const paymentController =  {
   paywithwallet,
@@ -133,6 +145,8 @@ export const paymentController =  {
   initwithssl1stinstallemnt,
   succeessssl1stinstallemnt,
   initwithssl2ndinstallemnt,
-  succeessssl2ndinstallemnt
+  succeessssl2ndinstallemnt,
+  initwithssl1stAnd2ndinstallemnt,
+  succeessssl1stAnd2ndinstallemnt
 }
 
