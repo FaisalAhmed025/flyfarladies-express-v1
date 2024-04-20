@@ -128,7 +128,6 @@ const succeessssl1stAnd2ndinstallemnt =  async (req,res)=>{
 }
 
 
-
 const initwithssl2ndANd3rdinstallemnt =  async (req,res)=>{
   await payemntService.initwithssl2ndand3rdinstallment(req,res)
 }
@@ -159,5 +158,7 @@ export const paymentController =  {
   succeessssl1stAnd2ndinstallemnt,
   initwithssl2ndANd3rdinstallemnt,
   succeessssl2ndANd3rdInstallemnt
+
+
 }
 
