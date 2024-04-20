@@ -1131,7 +1131,7 @@ const paymentstatus = "unpaid"
  
 }
 
-const sucess_ssl_2nd_3rd_booking_Amount = async (req,res)=>{
+const sucess_ssl_2nd_3rd_installemntAmount = async (req,res)=>{
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -1199,6 +1199,6 @@ export const payemntService = {
   sucess_ssl_1st_and_2nd_booking_Amount,
   initwithssl1stAnd2ndinstallment,
   initwithssl2ndand3rdinstallment,
-  sucess_ssl_2nd_3rd_booking_Amount
+  sucess_ssl_2nd_3rd_installemntAmount
 
 }

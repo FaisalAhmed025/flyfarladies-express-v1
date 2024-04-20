@@ -135,7 +135,7 @@ const initwithssl2ndANd3rdinstallemnt =  async (req,res)=>{
 
 
 const succeessssl2ndANd3rdInstallemnt =  async (req,res)=>{
-   await payemntService.succeessssl2ndANd3rdInstallemnt(req,res)
+   await payemntService.sucess_ssl_2nd_3rd_installemntAmount(req,res)
 }
 
 
