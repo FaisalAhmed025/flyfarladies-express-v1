@@ -330,7 +330,6 @@ const paySecondandthirdInstallment = async (req,res) =>{
 }
 
 
-
 const paySecondInstallment = async (req,res) =>{
   const bookingid = req.body.bookingid
   const userid = req.body.id
@@ -481,11 +480,6 @@ const paythiredInstallment = async (req,res) =>{
 }
 
 
-
-
-
-
-
 const initwithsslfullamount = async(req,res) =>{
   const transactionId = generateCustomTransactionId();
   const bookingid  = req.body?.bookingid
@@ -573,8 +567,6 @@ const sucesssslfullamount = async (req,res)=>{
 
   await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-
-
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
   const paymentstatus  = payementStatus.PAID
 
@@ -601,7 +593,6 @@ const initwithsslbookingmoney = async(req,res) =>{
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].booking_money
-
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
 
