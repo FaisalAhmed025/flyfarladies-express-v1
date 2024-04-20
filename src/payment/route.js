@@ -10,7 +10,7 @@ router.post('/wallet/thirdinstallment', paymentController.paythiredInstallment)
 router.post('/wallet/first/second', paymentController.payfirstAndsecondInstallment)
 router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallment)
 router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallment)
-router.get('/ssl/fullamount/payment', paymentController.initpaywithsslfullamount)
+router.post('/ssl/fullamount/payment', paymentController.initpaywithsslfullamount)
 router.post('/ssl/success/fullpayment/:tran_id/:bookingid', paymentController.succeesssslfullamount)
 
 router.get('/ssl/bookingamount', paymentController.initpaywithsslbookingAmount)
