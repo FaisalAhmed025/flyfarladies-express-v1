@@ -1,10 +1,8 @@
 import { BookingService } from "./bookingservice";
 
 const Book$Hold  = async (req, res) => {
-  const book = await BookingService.Book$Hold(req,res);
- return res.json({
-    data:book
-  })
+  await BookingService.Book$Hold(req,res);
+
 }
 
 
@@ -22,12 +20,10 @@ const getSingleBookings  = async (req, res) => {
   })
 }
 
+
 const getuserBookings  = async (req, res) => {
    await BookingService.getBookingsByUserId(req,res);
 }
-
-
-
 
 
 export const bookingController = {

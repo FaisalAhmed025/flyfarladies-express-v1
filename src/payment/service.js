@@ -576,10 +576,9 @@ const sucesssslfullamount = async (req,res)=>{
   ]
   const updatequery  = `UPDATE booking SET paymentStatus=?,  bookingStatus = ? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
-  return res.status(200).json({
-    status: 'success',
-    message: 'Payment success',
-  });
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+
+
 } 
 
 
@@ -674,8 +673,6 @@ const sucess_ssl_bookingAmount = async (req,res)=>{
 
 await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-
-
   const bookingamountstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
 
@@ -688,10 +685,9 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   const updatequery  = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
 
-  return res.status(200).json({
-    status: 'success',
-    message: 'Payment success',
-  });
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+
+
 } 
 
 
@@ -803,10 +799,9 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   const updatequery  = `UPDATE booking SET firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
 
-  return res.status(200).json({
-    status: 'success',
-    message: 'Payment success',
-  });
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+
+
 } 
 
 
@@ -917,10 +912,9 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   ]
   const updatequery  = `UPDATE booking SET paymentStatus=?,bookingStatus=?,  secondInstallmentStatus=?,  second_installment_due_date=? WHERE bookingid = ?`
   await pool.query(updatequery, value)
-  return res.status(200).json({
-    status: 'success',
-    message: 'Payment success',
-  });
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+
+
 } 
 
 const initwithssl1stAnd2ndinstallment = async(req,res) =>{
@@ -1036,15 +1030,9 @@ const valuedata =  [
 ]
 
 const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ? WHERE bookingid= ? `
-
- 
 await pool.query(updateBookingquery,valuedata)
+return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
-
-  return res.status(200).json({
-    status: 'success',
-    message: 'Payment success',
-  });
 } 
 
 
@@ -1170,17 +1158,11 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   console.log(valuedata)
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=? WHERE bookingid= ? `
-
    await pool.query(updateBookingquery,valuedata)
-
-   const message = 'Payment has succeess';
-   return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}`);
+   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 } 
 
 
-
-
-  
 export const payemntService = {
   paywithwallet,
   paybookingamount,

@@ -31,7 +31,6 @@ const Book$Hold = async (req, res) => {
     }
 
     const { email, wallet, name, phone } = user[0];
-
     const packgeId = req.params.PKID;
     const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
     const [tourpackage] = await pool.query(packgaeQuery, [packgeId]);
