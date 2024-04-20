@@ -1169,7 +1169,7 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   
   console.log(valuedata)
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
-  secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=?, WHERE bookingid= ? `
+  secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=? WHERE bookingid= ? `
 
    await pool.query(updateBookingquery,valuedata)
 
