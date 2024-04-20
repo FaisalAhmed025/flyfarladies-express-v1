@@ -810,7 +810,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
 } 
 
 
-
 const initwithssl2ndinstallemnt = async(req,res) =>{
   const transactionId = generateCustomTransactionId();
   const bookingid  = req.body.bookingid
@@ -1004,7 +1003,6 @@ const paymentstatus = "unpaid"
 }
 
 
-
 const sucess_ssl_1st_and_2nd_booking_Amount = async (req,res)=>{
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
@@ -1050,6 +1048,136 @@ await pool.query(updateBookingquery,valuedata)
 } 
 
 
+const initwithssl2ndand3rdinstallment = async(req,res) =>{
+  const transactionId = generateCustomTransactionId();
+  const bookingid  = req.body.bookingid
+  const userid  = req.body.id
+  const bookingquery =  `SELECT * FROM booking WHERE bookingid = ?`
+  const [booking] = await pool.query(bookingquery, [bookingid]);
+  const firstamount = booking[0].first_installment
+  const secondAmount   = booking[0].secondAmount
+
+  const totalAmount = firstamount+secondAmount
+
+  if(booking.length ===0){
+    return res.send({message:"booking not found"})
+  }
+
+  if (booking[0].bookingAmountStatus !== 'completed') {
+    return res.send({message:'please pay your previous installemnt first'});
+  }
+
+  const userquery =  `SELECT * FROM user WHERE id=?`
+  const [user] =  await pool.query(userquery, [userid])
+
+  console.log(user)
+
+
+  const data = {
+    store_id: process.env.SSL_STORE_ID,
+    store_passwd: process.env.SSL_STORE_PASSWORD,
+    total_amount: parseInt(totalAmount),
+    currency: "BDT",
+    tran_id: transactionId,
+    tran_date: Date(),
+    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/2ndAnd3rdinstallment/${transactionId}/${bookingid}`,
+    fail_url: `http://localhost:4004/api/v1/ssl/failure/${transactionId}`,
+    cancel_url: `http://localhost:4004/api/v1/ssl/cancel/${transactionId}`,
+    emi_option: 0,
+    cus_name: user[0].name,
+    cus_email:  user[0].email ,
+    cus_phone:  user[0].phone ,
+    cus_add1: "Dhaka",
+    cus_city: "Dhaka",
+    cus_country: "Bangladesh",
+    shipping_method: "NO",
+    product_name: "Sample Product",
+    product_category: "Sample Category",
+    product_profile: "general",
+    value_a: "scfcc" || user[0].userid,
+  }
+
+
+  const insertQuery = `INSERT INTO ssl_commerz_entity (
+    tran_id,
+    value_b,
+    cus_name, cus_email, cus_phone,
+    total_amount, currency, status
+) VALUES (
+    ?, ?, ?, ?, ?, ?,
+    ?, ?
+)
+`
+const paymentstatus = "unpaid"
+    // Execute the SQL query
+    await pool.query(insertQuery, [
+      transactionId,
+      userid,
+      data.cus_name,
+      data.cus_email,
+      data.cus_phone,
+      data.total_amount,
+      data.currency,
+      paymentstatus
+    
+    ]);
+
+ 
+  console.log(data)
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const apiResponse = await sslcz.init(data);
+    // await this.sslcommerzRepository.save(data)
+    res.send(apiResponse)
+ 
+}
+
+const sucess_ssl_2nd_3rd_booking_Amount = async (req,res)=>{
+  const tran_id = req.params.tran_id;
+  const bookingid = req.params.bookingid
+  // const uuid = req.params.id;
+  const data = req.body;
+  console.log(req.body)
+
+  // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
+  const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);
+  const transaction = transactionRows[0];
+  if (!transaction) {
+    return res.status(404).json({ message: 'Transaction ID not found', error: true });
+  }
+
+
+await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+
+
+  const paymentstatus  = payementStatus.PAID
+  const firstInstallmentStatus = installmentStatus.COMPLETED
+  const firstinstallmentpaiddate = new Date()
+
+  const secondInstallmentStatus = installmentStatus.COMPLETED
+  const secondinstallmentpaiddate = new Date()
+  const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
+
+  const valuedata =  [
+    paymentstatus,
+    firstInstallmentStatus,
+    firstinstallmentpaiddate,
+    secondInstallmentStatus,
+    secondinstallmentpaiddate,
+    bookingstatus,
+    bookingid
+  ]
+  
+  console.log(valuedata)
+  const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
+  secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=?, WHERE bookingid= ? `
+
+   await pool.query(updateBookingquery,valuedata)
+
+   const message = 'Payment has succeess';
+   return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}`);
+} 
+
+
 
 
   
@@ -1069,6 +1197,8 @@ export const payemntService = {
   initwithssl2ndinstallemnt,
   success_ssl_2ndinstallemnt,
   sucess_ssl_1st_and_2nd_booking_Amount,
-  initwithssl1stAnd2ndinstallment
+  initwithssl1stAnd2ndinstallment,
+  initwithssl2ndand3rdinstallment,
+  sucess_ssl_2nd_3rd_booking_Amount
 
 }

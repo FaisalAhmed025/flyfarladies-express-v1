@@ -26,4 +26,8 @@ router.post('/ssl/success/2ndinstallment/:tran_id/:bookingid', paymentController
 router.post('/ssl/1nstand2ndinstallment', paymentController.initwithssl1stAnd2ndinstallemnt)
 router.post('/ssl/success/1nstand2ndinstallment/:tran_id/:bookingid', paymentController.succeessssl1stAnd2ndinstallemnt)
 
+
+router.post('/ssl/2ndAnd3rdinstallment', paymentController.initwithssl2ndANd3rdinstallemnt)
+router.post('/ssl/success/2ndAnd3rdinstallment/:tran_id/:bookingid', paymentController.succeessssl2ndANd3rdInstallemnt)
+
 export default router;
