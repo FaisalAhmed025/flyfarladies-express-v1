@@ -115,11 +115,10 @@ const CreatePayment = async(req,res) =>{
 
       if(status === 'success') {
        const result =  await executePayment(bkashConfig, paymentID)
-
         if(result?.transactionStatus === 'Completed' && result.statusCode === '0000'){
           const insertQuery = `
-          INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage,payment_method, userid) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?)
         `;
         const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
         console.log(datetime);
@@ -133,6 +132,7 @@ const CreatePayment = async(req,res) =>{
         const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
         await pool.query(updateQuery, [newValue, userid]);
 
+        const paymentmethod= 'Bkash'
         const insertParams = [
           result.paymentID,
           result.trxID,
@@ -144,7 +144,9 @@ const CreatePayment = async(req,res) =>{
           result.payerReference,
           result.customerMsisdn,
           result.statusCode,
-          result.statusMessage
+          result.statusMessage,
+          paymentmethod,
+          userid
         ];
   
         console.log(insertParams)
@@ -154,16 +156,15 @@ const CreatePayment = async(req,res) =>{
         console.log(result)
         // You may use here WebSocket, server-sent events, or other methods to notify your client
         return res.redirect(`https://flyfarladies.com?message=${result.statusMessage}&status=${status}`);
-
       } 
       else if (status === 'cancel') {
         const message = 'Payment has been cancelled';
         return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
       }
-    //  else if (status === 'failure') {
-    //     const message = 'Payment has been failure';
-    //     return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
-    //   }
+     else if (status === 'failure') {
+        const message = 'Payment has been failure';
+        return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
+      }
       
    
     } catch (e) {

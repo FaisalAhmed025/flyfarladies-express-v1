@@ -354,9 +354,9 @@ const getuserdeposit = async (req, res) => {
 
     const mobileBankDepoQuery = `SELECT * FROM mobilebank WHERE requested_by = ?`;
     const [mobileDeposit] = await pool.query(mobileBankDepoQuery, [userid]);
-
-    const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit];
-
+    const bkashDeposit = `SELECT * FROM bkaspayment WHERE userid = ?`;
+    const [bkashdata] = await pool.query(bkashDeposit, [userid]);
+    const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit, ...bkashdata];
     return res.json({ alldeposit: combinedResult });
   } catch (error) {
     console.error("Error fetching user deposits:", error);
