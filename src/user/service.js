@@ -166,7 +166,7 @@ const userSchema = object({
   password: string(),
   phone: string(),
   userType: string(),
-  dob: date(),
+  dob: string(),
   gender: string(),
   isactive: boolean(),
   profession: string(),

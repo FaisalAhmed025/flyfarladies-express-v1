@@ -288,7 +288,7 @@ const paySecondandthirdInstallment = async (req,res) =>{
     throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
   }
 
- 
+  
   console.log(totalAmount)
    const updatedwalet =  parseInt(user[0].wallet) - parseInt(totalAmount)
 
