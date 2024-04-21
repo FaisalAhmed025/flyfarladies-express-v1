@@ -156,10 +156,6 @@ const CreatePayment = async(req,res) =>{
         console.log(result)
         // You may use here WebSocket, server-sent events, or other methods to notify your client
         return res.redirect(`https://flyfarladies.com?message=${result.statusMessage}&status=${status}`);
-      } 
-      else if (status === 'cancel') {
-        const message = 'Payment has been cancelled';
-        return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
       }
      else if (status === 'failure') {
         const message = 'Payment has been failure';

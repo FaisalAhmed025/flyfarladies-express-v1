@@ -196,6 +196,10 @@ const totalInfantprice  = tourpackage[0].infant_base_price * totalinfant;
 
 console.log(adultprice,childprice, infantprice)
 const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice;
+
+const  bookingamount = (totalpackageprice *tourpackage[0].booking_money)/100
+const firstinstallement = (totalpackageprice *tourpackage[0].first_installment)/100
+const secondinstalemnt = (totalpackageprice * tourpackage[0].second_installment)/100
 const paymentstatus = payementStatus.UNPAID
 console.log(totalpackageprice);
     const values = [
@@ -213,9 +217,9 @@ console.log(totalpackageprice);
       adultprice,
       childprice,
       infantprice,
-      tourpackage[0].booking_money,
-      tourpackage[0].first_installment,
-      tourpackage[0].second_installment,
+      bookingamount,
+      firstinstallement,
+      secondinstalemnt,
       tourpackage[0].booking_money_due_date,
       tourpackage[0].first_installment_due_date,
       tourpackage[0].second_installment_due_date,
