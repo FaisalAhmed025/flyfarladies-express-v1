@@ -1,3 +1,4 @@
+import { json } from "express";
 import pool from "../database/db";
 
 
@@ -13,7 +14,7 @@ const addBlog = async(req,res) =>{
       // Example: const imageUrl = await uploadImageToS3(req.files.blogimages[i]);
       const imageUrl =  req.imageLink
       const imageId = i+1// Assuming you have an id for each image
-      blogimages.push({ id: imageId, url: imageUrl });
+      blogimages.push({ urlid: imageId, url: imageUrl });
     }
   }
 
@@ -59,54 +60,73 @@ const  deleteBlog = async(req,res)=>{
   return res.send({status:'success', message:"blog has  deleted"})
 }
 
-const updateimage =  async (req,res) =>{
-  const id = req.params.id
-  const blogsquery  = `SELECT * FROM blogs WHERE id=?`
+const updateBlog =  async (req,res) =>{
+  const id = req.params.id;
+        const { Title, Description, Blogfor, WrittenBy, Type } = req.body;
+        
+        const updateBlockImage = {
+            Title, Description, Blogfor, WrittenBy, Type
+        };
+        
+        if (req.publicImageLink) {
+            updateBlockImage.secondimage = req.publicImageLink;
+        }
 
-  const [data] = await pool.query(blogsquery, id)
+        const updateQuery = `UPDATE blogs SET ? WHERE id=?`;
+        const [data] = await pool.query(updateQuery, [updateBlockImage, id]);
 
-  console.log(data)
+        // Check if any rows were affected
+        if (data.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Blog not found' });
+        }
+
+        return res.status(200).json({ success: true, message: 'Blog updated successfully' });
+
+
 }
 
-const updateBlogImage = async (req, res) => {
-  const id = req.params.id
 
+const updateBlogImage = async (req, res) => {
   try {
-    const [blog] = await pool.query('SELECT blogimages FROM blogs WHERE id = ?', [id]);
-    console.log(blog)
-  
+    const id = req.params.id;
+    const urlid = req.params.urlid;
+    const newImageUrl = req.publicImageLink;
+
+    const [blog] = await pool.query('SELECT * FROM blogs WHERE id = ?', [id])
+
     if (blog.length === 0) {
       return res.status(404).json({ message: 'Blog not found' });
     }
 
-    const blogimages = JSON.parse(blog[0].blogimages);
+    let blogData = blog[0];
+    const blogimages = blogData.blogimages;
 
-    const imageIndex = blogimages.findIndex(image => image.id === id);
+    for( let i=0; i<blogimages.length; i++){
+      const image = blogimages[i]
+      console.log(image)
+       if(image.urlid === Number(urlid)){
+        console.log('now')
+        blogimages[i].url = newImageUrl;
+       }
 
-    if (imageIndex === -1) {
-      return res.status(404).json({ message: 'Image not found in the blog' });
-    }
+      }
+      console.log({blogimages})
+    
+    const [data]  =await pool.query('UPDATE blogs SET blogimages = ? WHERE id = ?', [JSON.stringify(blogimages), id]);
 
-    blogimages[imageIndex].url = req.imageLink;
-
-    await pool.query('UPDATE blogs SET blogimages = ? WHERE id = ?', [JSON.stringify(blogimages), id]);
-
-   return res.status(200).json({ status: 'success', message: 'Image URL updated successfully' });
+    console.log(data)
+    return res.status(200).json({ status: 'success', message: 'Image URL updated successfully' });
   } catch (error) {
     console.error('Error updating image URL:', error);
-    res.status(500).json({ status: 'error', message: 'An error occurred while updating image URL' });
+    return res.status(500).json({ status: 'error', message: 'An error occurred while updating image URL' });
   }
 };
-
-
-
-
 
 
 export const blogService ={
   addBlog,
   getallblogs,
   deleteBlog,
-  updateimage,
+  updateBlog,
   updateBlogImage
 }

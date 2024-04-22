@@ -13,8 +13,8 @@ const deleteBlog = async(req,res)=>{
   await blogService.deleteBlog(req,res)
 }
 
-const updateBlog = async(req,res)=>{
-  await blogService.updateimage(req,res)
+const updateBlogcontroller = async(req,res)=>{
+  await blogService.updateBlog(req,res)
 }
 
 const updateimages = async(req,res)=>{
@@ -25,6 +25,6 @@ export const blogcontroller  = {
   addBlog,
   getallblogs,
   deleteBlog,
-  updateBlog,
+  updateBlogcontroller,
   updateimages
 }

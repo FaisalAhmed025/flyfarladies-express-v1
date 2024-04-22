@@ -63,6 +63,7 @@ export const imageHandler = async (req, res, next) => {
       return next(new ErrorResponse("Select file", httpStatus.BAD_REQUEST));
     // get the image file name
     // console.log(req.file);
+  
     req.publicImageLink = await saveOnGCP(req);
     if (!saveOnGCP)
       return next(
@@ -98,7 +99,7 @@ export const imageHandlerUpdate = async (req, res, next) => {
   }
   // Check if req.file is defined
   if (req.file) {
-    // File upload is available
+    // File upload is availabl`e
     // Get the image file name
     req.publicImageLink = await saveOnGCP(req);
     // Get base URL of the server
