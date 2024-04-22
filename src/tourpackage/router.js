@@ -2,7 +2,7 @@
 import express from 'express';
 import { tourpackageController } from './controller';
 import { upload } from './imageUpload.midleware';
-import { handleMultipleImage, imageHandler, imageHandlerUpdate } from './imageHandler';
+import { handleAlbumImage, handleMultipleImage, imageHandler, imageHandlerUpdate } from './imageHandler';
 const router = express.Router();
 
 router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
@@ -16,7 +16,7 @@ router.put('/mainimage/:imageId', upload.single('images'),  imageHandlerUpdate, 
 
 router.post('/placetovisit/:PKID', upload.array('images', 10),  handleMultipleImage, tourpackageController.createPlaceVisit)
 
-router.post('/albumimage/:PKID', upload.array('images', 10),  handleMultipleImage, tourpackageController.createAlbumimage)
+router.post('/albumimage/:PKID', upload.fields([{name:'albumimageurl', maxCount:10}, {name:'albumcoverimageurl', maxCount:10}]),  handleAlbumImage, tourpackageController.createAlbumimage)
 
 router.post('/createTourPlan/:PKID', tourpackageController.createTourPlan)
 router.get('/gettourplan/:id', tourpackageController.gettouritenrary)
@@ -34,10 +34,27 @@ router.post('/createaddons/:PKID', tourpackageController.addAddOnsController)
 router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackages)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
 
-router.put(
+
+
+router.patch(
+  '/updatevisited/:id',
+  upload.single('image'),imageHandler,
+  tourpackageController.updateviistedController
+);
+
+router.patch(
   '/updatealbum/:AlbumId',
-  upload.single('images'),imageHandler,
+  upload.single('image'),imageHandler,
   tourpackageController.updateAlbumController
 );
+
+
+router.patch(
+  '/albumimage/:AlbumId/inner/:id',
+  upload.single('image'),imageHandlerUpdate,
+  tourpackageController.updateinneralbumiamge
+);
+
+
 
 export default router;

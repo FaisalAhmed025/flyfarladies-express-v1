@@ -184,31 +184,17 @@ const createPlaceVisit = async (req, res) => {
 };
 
 
-const createAlbumimage = async (req, res) => {
-  try {
-    const PkID = req.params.PKID;
-    const result = await tourpackageService.createAlbumImage(req, PkID);
+const updateviistedController = async (req, res) => {
 
-    // Check if the result is an error
-    if (result instanceof Error) {
-      return res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-    return res.status(200).json({
-      success: true,
-      status: httpStatus.OK,
-      message: 'album image created successfully',
-      data: result,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
+    const AlbumId = req.params.id;
+    const result = await tourpackageService.UpdatevisitedImage(req, AlbumId);
+
+};
+
+
+const createAlbumimage = async (req, res) => {
+    const PkID = req.params.PKID;
+    const result = await tourpackageService.createAlbumImage(req,res, PkID)
 };
 
 const updateAlbumController = async (req, res) => {
@@ -541,6 +527,11 @@ const deleteTourItenerary = async (req,res)=>{
    await tourpackageService.deletTourItenerary(req,res)
 }
 
+
+const updateinneralbumiamge = async (req,res)=>{
+  await tourpackageService.updatealbumIinnermage(req,res)
+}
+
 export const tourpackageController = {
   deletetourinclusion,
   getSingleTourPackages,
@@ -565,8 +556,10 @@ export const tourpackageController = {
   addAddOnsController,
   getSingleTourPackages,
   createAlbumimage,
+  updateinneralbumiamge,
   updateAlbumController,
   updatePackage,
-  updateMainImageController
+  updateMainImageController,
+  updateviistedController
 
 }

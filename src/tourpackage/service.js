@@ -844,7 +844,6 @@ const UpdateMainImage = async (req, imageId) => {
   if (!imageUrl) {
     return 'No image URL provided';
   }
-
   // connection = await pool.getConnection();
   const packageQuery = "SELECT imageId FROM mainimage WHERE imageId = ?";
   const [packageResults] = await pool.query(packageQuery, [imageId]);
@@ -916,11 +915,58 @@ const createPlaceVisit = async (req, PKID) => {
   }
 };
 
-const createAlbumImage = async (req, PKID) => {
+
+const UpdatevisitedImage = async (req, id) => {
+  const  {placetovisit_name} = req.body;
+  const imageUrl = req.publicImageLink;
+
+  if (!imageUrl) {
+    return 'No image URL provided';
+  }
+
+  // connection = await pool.getConnection();
+  const packageQuery = "SELECT id FROM place_to_visit WHERE id = ?";
+  const [packageResults] = await pool.query(packageQuery, [id]);
+
+  if (packageResults.length === 0) {
+    throw new Error("Album not found.");
+  }
+
+  const Id = packageResults[0]?.id;
+  const updateQuery = `UPDATE place_to_visit SET place_image = ?,
+  placetovisit_name = ? 
+WHERE  id = ?`;
+console.log(updateQuery);
+const values  = [imageUrl, placetovisit_name, Id];
+const [result] = await pool.query(updateQuery, values);
+return result;
+
+};
+
+
+const createAlbumImage = async (req, res, PKID) => {
   let connection;
-  try {
-    const images = req.images;
     const { albumtitle } = req.body;
+
+    const albumimageurl = [];
+  if (req.files.albumimageurl) {
+    for (let i = 0; i < req.files.albumimageurl.length; i++) {
+      // Handle each image here, upload to S3 or save locally
+      // Example: const imageUrl = await uploadImageToS3(req.files.blogimages[i]);
+      const imageUrl =  req.imageLink
+      const imageId = i+1// Assuming you have an id for each image
+      albumimageurl.push({ id: imageId, url: imageUrl });
+    }
+  }
+
+
+  let albumcoverimageurl;
+  if (req.files.albumcoverimageurl) {
+    // Handle second image here
+    // Example: const secondImageUrl = await uploadImageToS3(req.files.secondimage[0]);
+    albumcoverimageurl =  req.imageLink
+  }
+
     connection = await pool.getConnection();
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
@@ -930,32 +976,17 @@ const createAlbumImage = async (req, PKID) => {
     }
 
     const tourPackageId = packageResults[0]?.PKID;
-    const insertResults = [];
-    const newalbumquery = `INSERT INTO albumimage (AlbumId, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
-    for (let i = 0; i < images.length; i++) {
-      const id = AlbumImageID();
-      const insertValues = [
-        id,
-        images[i],
-        albumtitle,
-        tourPackageId,
-        // Use the specific name at index i, or an empty string if not available
-      ];
-      console.log(insertValues);
+    const newalbumquery = `INSERT INTO albumimage (albumimageurl, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
 
-      const [result] = await connection.execute(newalbumquery, insertValues);
-      insertResults.push({
-        AlbumId: id,
-        tourpackageId: tourPackageId,
-        albumtitle: albumtitle || "", // Use the specific name at index i, or an empty string if not available
-        albumcoverimageurl: images[i],
-      });
-    }
-    connection.release(); // Release the connection back to the pool
-    return insertResults;
-  } catch (error) {
-    console.log(error);
-  }
+  const values = [ JSON.stringify(albumimageurl), albumcoverimageurl, albumtitle, tourPackageId];
+
+
+    await pool.query(newalbumquery, values);
+   return res.status(200).json({ status: 'success', message: 'album created successfully' });
+    
+
+    
+ 
 };
 
 const UpdateAlbumImage = async (req, AlbumId) => {
@@ -983,6 +1014,46 @@ const values  = [imageUrl, albumtitle, Id];
 const [result] = await pool.query(updateQuery, values);
 return result;
  
+};
+
+
+
+
+
+const updatealbumIinnermage= async (req, res) => {
+  try {
+    const id = req.params.AlbumId;
+    const urlid = req.params.id;
+    const newImageUrl = req.publicImageLink;
+
+    const [albumimage] = await pool.query('SELECT * FROM albumimage WHERE AlbumId = ?', [id])
+
+    if (albumimage.length === 0) {
+      return res.status(404).json({ message: 'image  not found' });
+    }
+
+    let albumimageData = albumimage[0];
+    const albumimageurls = albumimageData.albumimageurl;
+
+    for( let i=0; i<albumimageurls.length; i++){
+      const image = albumimageurls[i]
+      console.log(image)
+       if(image.id === Number(urlid)){
+        console.log('now')
+        albumimageurls[i].url = newImageUrl;
+       }
+
+      }
+      console.log({albumimageurls})
+    
+    const [data] = await pool.query('UPDATE albumimage SET albumimageurl = ? WHERE  AlbumId = ?', [JSON.stringify(albumimageurls), id]);
+
+    console.log(data)
+    return res.status(200).json({ status: 'success', message: 'Image URL updated successfully' });
+  } catch (error) {
+    console.error('Error updating image URL:', error);
+    return res.status(500).json({ status: 'error', message: 'An error occurred while updating image URL' });
+  }
 };
 
 //delete image
@@ -1501,6 +1572,7 @@ export const tourpackageService = {
   createAlbumImage,
   UpdateAlbumImage,
   updateTourPackage,
-  UpdateMainImage
-
+  UpdateMainImage,
+  updatealbumIinnermage,
+  UpdatevisitedImage
 };

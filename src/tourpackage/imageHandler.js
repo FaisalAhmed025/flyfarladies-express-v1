@@ -236,6 +236,43 @@ export const MultipleImageHandler = async (req, res, next, imageNumber) => {
 
 
 
+export const handleAlbumImage = async (req, res, next) => {
+  try {
+    //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
+    //console.log(req.files);
+    const { albumimageurl, albumcoverimageurl } = req.files;
+    if (!albumimageurl || !albumcoverimageurl)
+      return next(
+        new ErrorResponse(
+          "You must specify one photo",
+          httpStatus.FORBIDDEN
+        )
+      );
+
+    // if (blogimages.length !== 1 || secondimage.length !== 1) {
+    //   return next(
+    //     new ErrorResponse(
+    //       "You must specify at least one photo",
+    //       httpStatus.FORBIDDEN
+    //     )
+    //   );
+    // }
+
+    //console.log(profilePic[0], nidCopy[0])
+
+    // use in saveGCP file
+    req.file = albumimageurl[0];
+    req.albumimageurl = await saveOnGCP(req);
+    req.file = albumcoverimageurl[0];
+    req.albumcoverimageurl = await saveOnGCP(req);
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
 export const handleblogImage = async (req, res, next) => {
   try {
     //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
