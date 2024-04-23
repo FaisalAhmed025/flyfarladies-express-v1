@@ -35,45 +35,104 @@ const getTourPackageByLocation = async(req,res) => {
 
 
 
-
-const getTourPackagesByDifferentField = async (req,res)=> {
-
-  const { TripType, City, StartDate, Country } = req.query;
-
-  let packagequery = 'SELECT * FROM tourpackage WHERE 1=1';
-  const params = [];
-
-  if (TripType) {
-    packagequery += ' AND TripType = ?';
-    params.push(TripType);
-  }
-
-  if (City) {
-    packagequery += ' AND City = ?';
-    params.push(City);
-  }
-
-  if (StartDate) {
-    const [month, year] = StartDate.split(' ');
-    const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
-    const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-    packagequery += ' AND StartDate >= ? AND StartDate <= ?';
-    params.push(startOfMonth, endOfMonth);
-  }
-
-  if (Country) {
-    packagequery += ' AND Country = ?';
-    params.push(Country);
-  }
-
+const getTourPackagesByDifferentField = async (req, res) => {
+ 
   try {
-    const result = await pool.query(packagequery, params);
-    return result;
+    const { TripType, City, StartDate, Country } = req.query;
+
+    if (TripType && Country && StartDate) {
+      const [month, year] = StartDate.split(' ');
+      const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+      const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ?`;
+      console.log(packagequery);
+      try {
+        const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
+        if (data.length === 0) {
+          return res.send({ message: "Package not found" });
+        }
+        return res.send({ data: data });
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({ error: 'Internal server error' });
+      }
+    }
+
+   else if (TripType && StartDate) {
+      const [month, year] = StartDate.split(' ');
+      const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+      const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ?`;
+      console.log(packagequery);
+      try {
+        const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
+        if (data.length === 0) {
+          return res.send({ message: "Package not found" });
+        }
+        return res.send({ data: data });
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({ error: 'Internal server error' });
+      }
+    }
+  
+    else if(City && Country){
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND Country=?` ;
+      console.log(packagequery)
+      const [data] = await pool.query(packagequery, [`%${City}%`, Country])
+      if(data.length ===0){
+         return res.send({message:"package not found"})
+      }
+      return res.send({data:data})
+    }
+  
+   else if(TripType && Country){
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ?` ;
+      console.log(packagequery)
+      const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
+      if(data.length ===0){
+         return res.send({message:"package not found"})
+      }
+      return res.send({data:data})
+    }
+  
+    else if(City && TripType){
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND TripType=?` ;
+      console.log(packagequery)
+      const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
+      if(data.length ===0){
+         return res.send({message:"package not found"})
+      }
+      return res.send({data:data})
+    }
+  
+    else if(City){
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE?` ;
+      console.log(packagequery)
+      const [data] = await pool.query(packagequery, [`%${City}%`])
+      if(data.length ===0){
+         return res.send({message:"package not found"})
+      }
+      return res.send({data:data})
+    }
+  
+    
+    else if(TripType){
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType=?` ;
+      console.log(packagequery)
+      const [data] = await pool.query(packagequery, [TripType])
+      if(data.length ===0){
+         return res.send({message:"package not found"})
+      }
+      return res.send({data:data})
+    }
+ 
   } catch (error) {
     console.error('Error fetching tour packages:', error);
     throw error;
   }
 }
+
 
 export const packageSearch =  {
   getTourPackagesByDifferentField
