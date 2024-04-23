@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.post('/register', userController.RegisterUser)
 router.post('/login', userController.loginuser)
+router.post('/forgetpasss/request', userController.forgetpasswordResetRequest)
+router.post('/resetpass', userController.resetPassword)
 router.get('/mydashboard/:id', userController.userdashbaord)
 router.put('/update/:id', upload.single('images'), imageHandlerUpdate, userController.updateUser)
 router.post('/traveller/add/:id', userController.addtravlercontroller)

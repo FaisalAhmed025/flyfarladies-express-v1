@@ -85,6 +85,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       }
       return res.send({data:data})
     }
+
   
    else if(TripType && Country){
       const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ?` ;
@@ -135,6 +136,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
 
 
 export const packageSearch =  {
-  getTourPackagesByDifferentField
+  getTourPackagesByDifferentField,
+  getTourPackageByLocation
 }
 

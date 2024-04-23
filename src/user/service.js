@@ -3,6 +3,8 @@ import pool from "../database/db";
 import { object, string, date, boolean } from "zod";
 import { HttpException } from "express-sharp";
 import httpStatus from "http-status";
+import crypto from 'crypto'
+import nodemailer from 'nodemailer'
 
 const generateUserId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
@@ -12,6 +14,8 @@ const TravellerId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "T" + Math.floor(Math.random() * 10000);
 };
+
+
 const Register = async (req, res) => {
   try {
     // Extract the data from the request body
@@ -34,8 +38,11 @@ const Register = async (req, res) => {
     // Generate user ID
     const id = generateUserId();
 
+    // Hash the password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
     // Create a new user object with the provided data
-    const newUser = { id, name, phone, email, password, platform, joinAt };
+    const newUser = { id, name, phone, email, password: hashedPassword, platform };
 
     const joinAt = new Date();
     console.log(joinAt);
@@ -54,6 +61,455 @@ const Register = async (req, res) => {
     );
 
     console.log("User created successfully");
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'mailserver@flyfarladies.com', // Replace with your email address
+        pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
+      },
+    });
+
+    const date = new Date()
+
+
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const formattedDate = date.toLocaleString('en-BD', options);
+
+    const mailOptions = {
+      from: 'mailserver@flyfarladies.com', // Replace with your email address
+      to: email, // Recipient's email address
+      subject: 'Welcome To Fly Far Ladies',
+      text: 'Congrats! your Registration has been Completed ',
+      html: `<!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Deposit Request</title>
+          </head>
+          <body>
+            <div style="width: 700px; height: 100vh; margin: 0 auto">
+              <div style="width: 700px; height: 70px; background: #fe99a6">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="center"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding: 0;
+                    width: 700px;
+                  "
+                >
+                  <tr>
+                    <td
+                      align="center"
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #ffffff;
+                        font-family: sans-serif;
+                        font-size: 15px;
+                        line-height: 38px;
+                        padding: 20px 0 20px 0;
+                        text-transform: uppercase;
+                        letter-spacing: 5px;
+                      "
+                    >
+                      Welcome to Fly Far ladies
+                    </td>
+                  </tr>
+                </table>
+        
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="center"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding: 0;
+                    width: 700px;
+                  "
+                >
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        background-color: #efefef;
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #584660;
+                        font-family: sans-serif;
+                        font-size: 30px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 20px 40px 0px 55px;
+                      "
+                    >
+                      ${name}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        background-color: #efefef;
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #bc6277;
+                        font-family: sans-serif;
+                        font-size: 17px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 0px 40px 20px 55px;
+                      "
+                    >
+                    ${formattedDate}
+                    </td>
+                  </tr>
+                </table>
+        
+                <table
+                border="0"
+                cellpadding="0"
+                cellspacing="0"
+                align="center"
+                style="
+                  border-collapse: collapse;
+                  border-spacing: 0;
+                  padding: 0;
+                  width: 700px;
+                  background: #ffffff"
+                "
+              >
+                <tr>
+                  <td
+                    align="center"
+                    valign="top"
+                    style="
+                      border-collapse: collapse;
+                      border-spacing: 0;
+                      /* color: #BC6277; */
+                      color: #584660;
+        
+                      font-weight: 600;
+                      font-family: sans-serif;
+                      font-size: 15px;
+                      line-height: 38px;
+                      padding: 20px 0 20px 0;
+                    "
+                  >
+          
+                  </td>
+                </tr>
+              </table>
+        
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="center"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding: 0;
+                    width: 620px;
+                    background-color: #ffffff;
+                  "
+                >
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #bc6277;
+                        font-family: sans-serif;
+                        font-size: 15px;
+                        font-weight: 600;
+                        line-height: 38px;
+                        padding: 10px 20px 5px 20px;
+                      "
+                    >
+                      User Details
+                    </td>
+                  </tr>
+        
+                  <tr style="border-bottom: 1px solid #dfdfdf">
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 5px 20px;
+                        width: 180px;
+                      "
+                    >
+                      Username
+                    </td>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 5px 20px;
+                      "
+                    >
+                      ${name}
+                    </td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #dfdfdf">
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 5px 20px;
+                        width: 180px;
+                      "
+                    >
+                      Password
+                    </td>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        color: #767676;
+                        font-family: sans-serif;
+                        font-size: 14px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 5px 20px;
+                      "
+                    >
+                      ${password}
+                    </td>
+                  </tr>
+                </table>
+        
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="center"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding: 0;
+                    width: 670px;
+                    background-color: #702c8b;
+                    margin-top: 25px;
+                    text-align: center;
+                    color: #ffffff !important;
+                    text-decoration: none !important;
+                  "
+                >
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        font-family: sans-serif;
+                        font-size: 16px;
+                        font-weight: 500;
+                        padding: 20px 20px 0px 20px;
+                      "
+                    >
+                      Need more help?
+                    </td>
+                  </tr>
+        
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        font-family: sans-serif;
+                        font-size: 12px;
+                        font-weight: 500;
+                        line-height: 38px;
+                        padding: 0px 20px 10px 20px;
+                      "
+                    >
+                      Mail us at
+                      <span style="color: #ffffff !important; text-decoration: none"
+                        >support@flyfarladies.com</span
+                      >
+                      or Call us at +88 01755582111
+                    </td>
+                  </tr>
+                </table>
+        
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  align="left"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    padding: 0;
+                    width: 420px;
+                    color: #ffffff;
+                  "
+                >
+                  <tr>
+                    <td
+                      valign="top"
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        font-family: sans-serif;
+                        font-size: 13px;
+                        font-weight: 600;
+                        padding: 20px 0px 0px 45px;
+                        color: #767676;
+                      "
+                    >
+                      <a
+                        style="padding-right: 20px; color: #584660"
+                        href="https://www.flyfarladies.com/termsandcondition"
+                        >Terms & Conditions</a
+                      >
+        
+                      <a
+                        style="padding-right: 20px; color: #584660"
+                        href="https://www.flyfarladies.com/bookingpolicy"
+                        >Booking Policy</a
+                      >
+        
+                      <a
+                        style="padding-right: 20px; color: #584660"
+                        href="https://www.flyfarladies.com/privacypolicy"
+                        >Privacy Policy</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+        
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  style="
+                    border-collapse: collapse;
+                    border-spacing: 0;
+                    width: 700px;
+                    color: #702c8b;
+                    margin-top: 85px;
+                  "
+                >
+                  <tr>
+                    <td style="padding-left: 45px">
+                      <img
+                        style="padding-right: 5px"
+                        src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_facebook.png"
+                        href="https://www.facebook.com/flyfarladies/?ref=page_internal"
+                        alt=""
+                      />
+                      <img
+                        style="padding-right: 5px"
+                        src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_linkedIn.png"
+                        href="https://www.linkedin.com/company/fly-far-ladies/"
+                        alt=""
+                      />
+                      <img
+                        style="padding-right: 5px"
+                        src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_whatsapp.png"
+                        href="https://wa.me/+88 01755582111"
+                        alt=""
+                      />
+                    </td>
+                  </tr>
+        
+                  <tr>
+                    <td
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        font-family: sans-serif;
+                        font-size: 13px;
+                        font-weight: 500;
+                        padding: 5px 0px 0px 45px;
+                        color: #767676;
+                        padding-bottom: 2px;
+                      "
+                    >
+                      Ka 11/2A, Bashundhora R/A Road, Jagannathpur, Dhaka 1229.
+                    </td>
+        
+                    <td
+                      style="
+                        border-collapse: collapse;
+                        border-spacing: 0;
+                        font-family: sans-serif;
+                        font-weight: 500;
+                        color: #767676;
+                        padding-bottom: 20px;
+                      "
+                    >
+                      <img
+                        width="100px"
+                        src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_logo.png"
+                        href="https://www.flyfarladies.com/"
+                        alt=""
+                      />
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </body>
+        </html>
+        `
+
+    }
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    ;
+
     return (
       result &&
       res.status(200).send({
@@ -109,6 +565,8 @@ export function verifyToken(req, res, next) {
   }
 }
 export default verifyToken;
+
+
 const login = async (req, res) => {
   try {
     // Extract the data from the request body
@@ -118,15 +576,16 @@ const login = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Check if the user exists with the provided email and password
+    // Hash the password to compare with the stored hashed password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    // Check if the user exists with the provided email and hashed password
     const [user] = await pool.query(
       "SELECT * FROM user WHERE email = ? AND password = ?",
-      [email, password]
+      [email, hashedPassword]
     );
 
-    console.log(user);
-
-    if (user.length === null) {
+    if (user.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -136,8 +595,6 @@ const login = async (req, res) => {
       "helloladies",
       { expiresIn: "15d" }
     );
-
-    console.log(token);
 
     // Update the user table with the token
     await pool.query("UPDATE user SET token = ? WHERE id = ?", [
@@ -156,6 +613,65 @@ const login = async (req, res) => {
     res.status(500).json({ error: "Error during login" });
   }
 };
+
+
+const forgetpasswordResetRequest = async(req, res)=> {
+  try {
+    const { email } = req.body;
+
+    // Check if the user with the provided email exists
+    const [user] = await pool.query("SELECT * FROM user WHERE email = ?", [email]);
+    if (user.length === 0) {
+      throw new Error('User not found with this email');
+    }
+
+    // Generate a random token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Save the token in the database
+    await pool.query("INSERT INTO reset_password (email, token) VALUES (?, ?)", [email, token]);
+
+    // Construct the password reset link
+    const resetLink = `https://www.example.com/resetpassword?token=${token}`;
+
+    const mailOptions = {
+      from: 'mailserver@flyfarladies.com', // Replace with your email address
+      to: email, // Recipient's email address
+      subject: 'password reset',
+      text: 'please go through this link and update your password',
+      html: `Click <a href="${resetLink}">here</a> to reset your password`
+  
+    }
+
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'mailserver@flyfarladies.com', // Replace with your email address
+        pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
+      },
+    });
+
+   
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    ;
+    
+    return res.status(200).json({ message: 'Password reset link sent successfully' });
+  } catch (error) {
+    console.error('Error sending password reset link:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+
 // Define a schema for the request body
 const userSchema = object({
   nameTitle: string(),
@@ -348,9 +864,57 @@ const deleteTraveller = async (req, res) => {
   }
 };
 
+
+const resetPassword = async (req, res)=> {
+  try {
+    const { token, password, confirm_Password } = req.body;
+    if (password !== confirm_Password) {
+      throw new Error('Passwords do not match');
+    }
+
+    console.log(token)
+
+    // Find password reset request by token
+    const restequery = `SELECT * FROM reset_password WHERE token = ?`
+    const [passwordReset] = await pool.query(restequery, [token]);
+    if (!passwordReset) {
+      throw new Error('Invalid token');
+    }
+
+    // Find user by email
+    const emails = passwordReset[0].email
+    const userquery = `SELECT * FROM user WHERE email = ?`
+    const [user] = await pool.query(userquery,[emails] );
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const userid =user[0].id
+    console.log(userid)
+
+    // Hash the new password
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+    // Update user's password
+
+    const email = user[0].email
+
+    await pool.query("UPDATE user SET password = ? WHERE id= ?", [hashedPassword, userid]);
+
+    // Delete the password reset request from the database
+    await pool.query("DELETE FROM reset_password WHERE token = ?", [token]);
+
+    return res.status(200).json({ status: 'success', message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 export const UserService = {
   Register,
   login,
+  forgetpasswordResetRequest,
+  resetPassword,
   updateUser,
   userdashBoard,
   addtravler,

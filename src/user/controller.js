@@ -102,10 +102,23 @@ const updateUser = async (req, res) => {
   return result;
 };
 
+const forgetpasswordResetRequest = async (req, res) => {
+  const result = await UserService.forgetpasswordResetRequest(req,res)
+  return result;
+};
+
+
+const resetPassword = async (req, res) => {
+  const result = await UserService.resetPassword(req,res)
+  return result;
+};
+
 
 export const userController = {
   RegisterUser,
   loginuser,
+  forgetpasswordResetRequest,
+  resetPassword,
   updateUser,
   userdashbaord,
   addtravlercontroller,
