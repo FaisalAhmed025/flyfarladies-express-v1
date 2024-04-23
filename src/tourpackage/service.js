@@ -916,7 +916,7 @@ const createPlaceVisit = async (req, PKID) => {
 };
 
 
-const UpdatevisitedImage = async (req, id) => {
+const UpdatevisitedImage = async (req, res, id) => {
   const  {placetovisit_name} = req.body;
   const imageUrl = req.publicImageLink;
 
@@ -939,7 +939,7 @@ WHERE  id = ?`;
 console.log(updateQuery);
 const values  = [imageUrl, placetovisit_name, Id];
 const [result] = await pool.query(updateQuery, values);
-return result;
+return  res.send({status: 'success', message:" image has updated"});
 
 };
 

@@ -185,9 +185,8 @@ const createPlaceVisit = async (req, res) => {
 
 
 const updateviistedController = async (req, res) => {
-
-    const AlbumId = req.params.id;
-    const result = await tourpackageService.UpdatevisitedImage(req, AlbumId);
+    const id = req.params.id;
+    const result = await tourpackageService.UpdatevisitedImage(req, res, id);
 
 };
 
@@ -196,6 +195,7 @@ const createAlbumimage = async (req, res) => {
     const PkID = req.params.PKID;
     const result = await tourpackageService.createAlbumImage(req,res, PkID)
 };
+
 
 const updateAlbumController = async (req, res) => {
   try {
