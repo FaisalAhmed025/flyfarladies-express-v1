@@ -115,7 +115,6 @@ const CreatePayment = async(req,res) =>{
         throw new NotFoundException("user not found")
       }
 
-
       if(status === 'success') result =  await executePayment(bkashConfig, paymentID) 
         if(result?.transactionStatus === 'Completed'){
           const insertQuery = `
@@ -126,11 +125,9 @@ const CreatePayment = async(req,res) =>{
       const currentWallet = parseInt(user[0].wallet);
       console.log(currentWallet);
       const newValue = currentWallet + parseInt(result.amount);
-
-      console.log(newValue)
+        console.log(newValue)
         const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
         await pool.query(updateQuery, [newValue, userid]);
-
         const paymentmethod= 'Bkash'
         const insertParams = [
           result.paymentID,
@@ -147,35 +144,20 @@ const CreatePayment = async(req,res) =>{
           paymentmethod,
           userid
         ];
-  
         console.log(insertParams)
         // Execute the insertion query
         await pool.query(insertQuery, insertParams);
+        return res.redirect(`http://localhost:3001/dashboard/myWallet?message=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
         }
 
         if(result) response = {
           statusCode : result?.statusCode,
           statusMessage : result?.statusMessage
         }
-        res.send(response)
-    
+        return res.redirect(`https://test.flyfarladies.com/?message=${encodeURIComponent(response.statusMessage)}&status=${status}$ statusCode =${response.statusCode}`);
       
-      }
-
     
- 
-  
-
-    //  else if (status === 'failure') {
-
-      // let responsedata = {
-      //   statusCode : '4000',
-      //   statusMessage : 'Payment Failed'
-      // }
-      //   const message = 'Payment has been failure';
-      //   return res.send({responsedata})
-      //   // return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
-      // }
+      }
       
     catch (e) {
       console.log(e)
