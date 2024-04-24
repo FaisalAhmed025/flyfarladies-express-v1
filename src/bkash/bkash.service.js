@@ -154,7 +154,7 @@ const CreatePayment = async(req,res) =>{
           statusCode : result?.statusCode,
           statusMessage : result?.statusMessage
         }
-        return res.redirect(`https://test.flyfarladies.com/?statusMessage=${encodeURIComponent(response.statusMessage)}&status=${status}$ statusCode =${response.statusCode}`);
+        return res.redirect(`http://localhost:3001/dashboard/myWallet?statusMessage=${encodeURIComponent(response.statusMessage)}&status=${status}$ statusCode =${response.statusCode}`);
       
     
       }
