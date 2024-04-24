@@ -147,14 +147,14 @@ const CreatePayment = async(req,res) =>{
         console.log(insertParams)
         // Execute the insertion query
         await pool.query(insertQuery, insertParams);
-        return res.redirect(`http://localhost:3001/dashboard/myWallet?message=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
+        return res.redirect(`http://localhost:3001/dashboard/myWallet?statusMessage=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
         }
 
         if(result) response = {
           statusCode : result?.statusCode,
           statusMessage : result?.statusMessage
         }
-        return res.redirect(`https://test.flyfarladies.com/?message=${encodeURIComponent(response.statusMessage)}&status=${status}$ statusCode =${response.statusCode}`);
+        return res.redirect(`https://test.flyfarladies.com/?statusMessage=${encodeURIComponent(response.statusMessage)}&status=${status}$ statusCode =${response.statusCode}`);
       
     
       }
