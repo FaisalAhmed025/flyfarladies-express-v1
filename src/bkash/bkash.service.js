@@ -79,7 +79,7 @@ const CreatePayment = async(req,res) =>{
     const { amount, callbackURL, reference } = req.body
     const paymentDetails = { 
       amount: amount || 1,                                                 // your product price
-      callbackURL : callbackURL || `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/bkash/callback/${userid}`,  // your callback route
+      callbackURL : callbackURL || `http://localhost:4004/api/v1/bkash/callback/${userid}`,  // your callback route
       orderID : id || 'Order_101',                                     // your orderID
       reference : reference || '1'                                          // your reference
     }
@@ -100,35 +100,34 @@ const CreatePayment = async(req,res) =>{
       console.log(userid)
       console.log(paymentID)
 
-      // let result
-      // let response = {
-      //   statusCode : '4000',
-      //   statusMessage : 'Payment Failed'
-      // }
+
+      let result
+      let response = {
+        statusCode : '4000',
+        statusMessage : 'Payment Failed'
+      }
 
       const userquery = `SELECT * FROM user WHERE  id = ?`
       const  [user] = await pool.query(userquery, [userid])
+
 
       if(user.length === 0){
         throw new NotFoundException("user not found")
       }
 
-      if(status === 'success') {
-       const result =  await executePayment(bkashConfig, paymentID)
-        if(result?.transactionStatus === 'Completed' && result.statusCode === '0000'){
+      
+      if(status === 'success') result =  await executePayment(bkashConfig, paymentID) 
+        if(result?.transactionStatus === 'Completed'){
           const insertQuery = `
           INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage,payment_method, userid) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?)
         `;
-        const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
-        console.log(datetime);
-
+      const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
       const currentWallet = parseInt(user[0].wallet);
       console.log(currentWallet);
       const newValue = currentWallet + parseInt(result.amount);
 
       console.log(newValue)
-
         const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
         await pool.query(updateQuery, [newValue, userid]);
 
@@ -153,20 +152,37 @@ const CreatePayment = async(req,res) =>{
         // Execute the insertion query
         await pool.query(insertQuery, insertParams);
         }
-        console.log(result)
-        // You may use here WebSocket, server-sent events, or other methods to notify your client
-        return res.redirect(`https://flyfarladies.com?message=${result.statusMessage}&status=${status}`);
-      }
-     else if (status === 'failure') {
-        const message = 'Payment has been failure';
-        return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
-      }
+
+        if(result) response = {
+          statusCode : result?.statusCode,
+          statusMessage : result?.statusMessage
+        }
+        res.send(response)
+    
       
-   
-    } catch (e) {
+      }
+
+    
+ 
+  
+
+    //  else if (status === 'failure') {
+
+      // let responsedata = {
+      //   statusCode : '4000',
+      //   statusMessage : 'Payment Failed'
+      // }
+      //   const message = 'Payment has been failure';
+      //   return res.send({responsedata})
+      //   // return res.redirect(`https://flyfarladies.com?message=${encodeURIComponent(message)}&status=${status}`);
+      // }
+      
+    catch (e) {
       console.log(e)
     }
+
   }
+  
 
 
   const getTransaction = async(req,res)=>{
