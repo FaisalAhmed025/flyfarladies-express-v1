@@ -507,6 +507,9 @@ const Register = async (req, res) => {
       } else {
         console.log('Email sent successfully:', info.response);
       }
+
+
+      
     });
     ;
 

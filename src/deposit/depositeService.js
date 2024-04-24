@@ -36,7 +36,7 @@ const createBankDeposit = async (req) => {
     // Generate a UUID-like ID for the bank transfer
     const deposit_id = generateDepoId();
     const transactionDate = new Date(transaction_date);
-    const formattedDate = transactionDate.toDateString();
+    // const formattedDate = transactionDate.toDateString();
     const remarks = `Bank Deposit request from ${deposited_from} to ${deposited_to}, On ${formattedDate}.Your TRX ID is ${transaction_id} & amount ${amount} only`;
 
     console.log(image);
@@ -56,6 +56,53 @@ const createBankDeposit = async (req) => {
       `INSERT INTO ${tableName} ( deposit_id, deposited_from, deposited_to, transaction_date, status, transaction_id, amount, requested_by, attachment,remarks) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?,?)`,
       value
     );
+
+
+
+    
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'mailserver@flyfarladies.com', // Replace with your email address
+        pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
+      },
+    });
+
+    const date = new Date()
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const formattedDate = date.toLocaleString('en-BD', options);
+
+    const mailOptions = {
+      from: 'mailserver@flyfarladies.com', // Replace with your email address
+      to: email, // Recipient's email address
+      subject: 'Deposit Request',
+      text: 'Thanks for deposit',
+
+    }
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+
+
+      
+    });
+    ;
     console.log(value);
     await connection.commit(); // Commit the transaction when the query is successful
     connection.release();

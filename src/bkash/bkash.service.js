@@ -8,7 +8,7 @@ import moment from "moment/moment";
 import { NotFoundException } from "express-sharp";
 
 
- const generateCustomTransactionId =  async () =>  {
+const generateCustomTransactionId = async () => {
   const timestamp = Date.now().toString();
   const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
   const hash = createHash('sha256').update(`TX${timestamp}${randomString}`).digest('hex');
@@ -17,7 +17,7 @@ import { NotFoundException } from "express-sharp";
 }
 
 
- const generateCustomorderId = async () =>  {
+const generateCustomorderId = async () => {
   const timestamp = Date.now().toString();
   const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
   const hash = createHash('sha256').update(`OI${timestamp}${randomString}`).digest('hex');
@@ -31,7 +31,7 @@ export function getFormatDateTimeWithSpace(date) {
 
 
 const bkashConfig = {
-  base_url : 'https://tokenized.pay.bka.sh/v1.2.0-beta',
+  base_url: 'https://tokenized.pay.bka.sh/v1.2.0-beta',
   username: '01755572096',
   password: '(4G&85PThG!',
   app_key: 'qsva78y6yL4wvTBKVkllhuditc',
@@ -43,24 +43,24 @@ const bkashConfig = {
   // app_key: '4f6o0cjiki2rfm34kfdadl1eqq',
   // app_secret: '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b'
 
- }
+}
 
-const generateToken = async(req, res) =>{
+const generateToken = async (req, res) => {
   try {
-    const headers ={
+    const headers = {
       username: "sandboxTokenizedUser02",
       password: "sandboxTokenizedUser02@12345",
-      "Content-Type":"application/json",
+      "Content-Type": "application/json",
       accept: 'application/json'
     };
 
-    const url =`https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/token/grant`
+    const url = `https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout/token/grant`
 
     const data = {
-      app_key:  '4f6o0cjiki2rfm34kfdadl1eqq',
+      app_key: '4f6o0cjiki2rfm34kfdadl1eqq',
       app_secret: '2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b',
     }
-    const response = await axios.post(url, data, {headers});
+    const response = await axios.post(url, data, { headers });
     if (response.data.status === 'fail') {
       throw new Error('Invalid API Credentials Provided');
     }
@@ -71,20 +71,20 @@ const generateToken = async(req, res) =>{
   }
 }
 
-const CreatePayment = async(req,res) =>{
+const CreatePayment = async (req, res) => {
 
   try {
-    const userid =  req.params.id;
+    const userid = req.params.id;
     const id = await generateCustomorderId()
     const { amount, callbackURL, reference } = req.body
-    const paymentDetails = { 
+    const paymentDetails = {
       amount: amount || 1,                                                 // your product price
-      callbackURL : callbackURL || `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/bkash/callback/${userid}`,  // your callback route
-      orderID : id || 'Order_101',                                     // your orderID
-      reference : reference || '1'                                          // your reference
+      callbackURL: callbackURL || `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/bkash/callback/${userid}`,  // your callback route
+      orderID: id || 'Order_101',                                     // your orderID
+      reference: reference || '1'                                          // your reference
     }
     console.log(paymentDetails);
-    const result =  await createPayment(bkashConfig, paymentDetails)
+    const result = await createPayment(bkashConfig, paymentDetails)
     res.send(result)
   } catch (e) {
     console.log(e)
@@ -93,92 +93,107 @@ const CreatePayment = async(req,res) =>{
 }
 
 
-  const callback  = async (req,res )=>{
-    try {
-      const { status, paymentID } = req.query
-      const userid = req.params.id
-      console.log(userid)
-      console.log(paymentID)
+const callback = async (req, res) => {
+  try {
+    const { status, paymentID } = req.query
+    const userid = req.params.id
+    console.log(userid)
+    console.log(paymentID)
 
 
-      let result
-      let response = {
-        statusCode : '4000',
-        statusMessage : 'Payment Failed'
-      }
+    let result
+    let response = {
+      statusCode: '4000',
+      statusMessage: 'Payment Failed'
+    }
 
-      const userquery = `SELECT * FROM user WHERE  id = ?`
-      const  [user] = await pool.query(userquery, [userid])
+    const userquery = `SELECT * FROM user WHERE  id = ?`
+    const [user] = await pool.query(userquery, [userid])
 
 
-      if(user.length === 0){
-        throw new NotFoundException("user not found")
-      }
+    if (user.length === 0) {
+      throw new NotFoundException("user not found")
+    }
 
-      if(status === 'success') result =  await executePayment(bkashConfig, paymentID) 
-        if(result?.transactionStatus === 'Completed'){
-          const insertQuery = `
+    if (status === 'success') result = await executePayment(bkashConfig, paymentID)
+    if (result?.transactionStatus === 'Completed') {
+      const insertQuery = `
           INSERT INTO bkaspayment (paymentID, trxID, transactionStatus, amount, currency, paymentExecuteTime, merchantInvoiceNumber, payerReference, customerMsisdn, statusCode, statusMessage,payment_method, userid) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?)
         `;
-      const datetime =  getFormatDateTimeWithSpace(result.paymentExecuteTime)
+      const datetime = getFormatDateTimeWithSpace(result.paymentExecuteTime)
       const currentWallet = parseInt(user[0].wallet);
       console.log(currentWallet);
       const newValue = currentWallet + parseInt(result.amount);
-        console.log(newValue)
-        const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
-        await pool.query(updateQuery, [newValue, userid]);
-        const paymentmethod= 'Bkash'
-        const insertParams = [
-          result.paymentID,
-          result.trxID,
-          result.transactionStatus,
-          result.amount,
-          result.currency,
-          datetime,
-          result.merchantInvoiceNumber,
-          result.payerReference,
-          result.customerMsisdn,
-          result.statusCode,
-          result.statusMessage,
-          paymentmethod,
-          userid
-        ];
-        console.log(insertParams)
-        // Execute the insertion query
-        await pool.query(insertQuery, insertParams);
-        return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
-        }
-        
-        if(result) response = {
-          statusCode : result?.statusCode,
-          statusMessage : result?.statusMessage
-        }
-        return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(response.statusMessage)}$ statusCode =${response.statusCode}`);
-      
-    
-      }
-      
-    catch (e) {
-      console.log(e)
+      console.log(newValue)
+      const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
+      await pool.query(updateQuery, [newValue, userid]);
+      const paymentmethod = 'Bkash'
+      const insertParams = [
+        result.paymentID,
+        result.trxID,
+        result.transactionStatus,
+        result.amount,
+        result.currency,
+        datetime,
+        result.merchantInvoiceNumber,
+        result.payerReference,
+        result.customerMsisdn,
+        result.statusCode,
+        result.statusMessage,
+        paymentmethod,
+        userid
+      ];
+   
+      console.log(insertParams)
+      // Execute the insertion query
+      await pool.query(insertQuery, insertParams);
+      // push in ledger
+      const createdat = new Date()
+
+      const remarksMessage = `Amount ${result.amount} TK has Deposited by ${paymentmethod} where PaymentID ${result.paymentID} AND TRXID ${result.trxID}`;
+      const ledgerVAlue = [
+        userid,
+        createdat,
+        remarksMessage,
+        result.statusMessage,
+        paymentmethod
+      ]
+
+      const ledgerinsertquery = `INSERT INTO ledger_report(userID,createdAt,remarks, PaymentStatus, depositmethod) VALUES(?,?,?,?,?)` 
+      await pool.query(ledgerinsertquery, ledgerVAlue)
+
+      return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)} status=${status} statusCode =${result.statusCode}`);
     }
 
-  }
-  
-
-
-  const getTransaction = async(req,res)=>{
-    try {
-      const { trxID } = req.query
-      const result = await searchTransaction(bkashConfig, trxID)
-      res.send(result)
-    } catch (e) {
-      console.log(e)
+    if (result) response = {
+      statusCode: result?.statusCode,
+      statusMessage: result?.statusMessage
     }
+    return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(response.statusMessage)}$ statusCode =${response.statusCode}`);
 
   }
 
-const QueryPayment  = async (req,res)=>{
+  catch (e) {
+    console.log(e)
+  }
+
+}
+
+
+
+const getTransaction = async (req, res) => {
+  try {
+    const { trxID } = req.query
+    const result = await searchTransaction(bkashConfig, trxID)
+    res.send(result)
+  } catch (e) {
+    console.log(e)
+  }
+
+}
+
+const QueryPayment = async (req, res) => {
   try {
     const { paymentID } = req.query
     const result = await queryPayment(bkashConfig, paymentID)
@@ -189,7 +204,7 @@ const QueryPayment  = async (req,res)=>{
 
 }
 
-const refundAmount = async(req,res) =>{
+const refundAmount = async (req, res) => {
   try {
     // Extract required data from request body
     const { paymentID, amount, trxID, sku, reason } = req.body;
@@ -205,17 +220,17 @@ const refundAmount = async(req,res) =>{
 
     // Make HTTP request
     const result = await refundTransaction(bkashConfig, refundDetails)
-    if(result.statusMessage === "Successful"  && result.statusCode === "0000"){
+    if (result.statusMessage === "Successful" && result.statusCode === "0000") {
       const updatequery = `UPDATE bkaspayment SET refundTrxID =?, isRefundable =? WHERE trxID=?`
       const isRefundable = true
-      const values =[
+      const values = [
         result.refundTrxID,
         isRefundable,
         trxID
       ]
       await pool.query(updatequery, values)
     }
-   return res.send(result)
+    return res.send(result)
 
     // Send response data back to the client
   } catch (error) {
