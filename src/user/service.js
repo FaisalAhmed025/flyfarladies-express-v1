@@ -881,16 +881,19 @@ const resetPassword = async (req, res)=> {
       throw new Error('Invalid token');
     }
 
+    console.log(passwordReset)
+
     // Find user by email
-    const emails = passwordReset[0].email
+
     const userquery = `SELECT * FROM user WHERE email = ?`
-    const [user] = await pool.query(userquery,[emails] );
+    const [user] = await pool.query(userquery,[passwordReset[0].email] );
     if (!user) {
       throw new Error('User not found');
     }
 
+    console.log(user);
+
     const userid =user[0].id
-    console.log(userid)
 
     // Hash the new password
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
