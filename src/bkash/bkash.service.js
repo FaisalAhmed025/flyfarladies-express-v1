@@ -149,19 +149,19 @@ const callback = async (req, res) => {
       // Execute the insertion query
       await pool.query(insertQuery, insertParams);
       // push in ledger
-      const createdat = new Date()
+      // const createdat = new Date()
 
-      const remarksMessage = `Amount ${result.amount} TK has Deposited by ${paymentmethod} where PaymentID ${result.paymentID} AND TRXID ${result.trxID}`;
-      const ledgerVAlue = [
-        userid,
-        createdat,
-        remarksMessage,
-        result.statusMessage,
-        paymentmethod
-      ]
+      // const remarksMessage = `Amount ${result.amount} TK has Deposited by ${paymentmethod} where PaymentID ${result.paymentID} AND TRXID ${result.trxID}`;
+      // const ledgerVAlue = [
+      //   userid,
+      //   createdat,
+      //   remarksMessage,
+      //   result.statusMessage,
+      //   paymentmethod
+      // ]
 
-      const ledgerinsertquery = `INSERT INTO ledger_report(userID,createdAt,remarks, PaymentStatus, depositmethod) VALUES(?,?,?,?,?)` 
-      await pool.query(ledgerinsertquery, ledgerVAlue)
+      // const ledgerinsertquery = `INSERT INTO ledger_report(userID,createdAt,remarks, PaymentStatus, depositmethod) VALUES(?,?,?,?,?)` 
+      // await pool.query(ledgerinsertquery, ledgerVAlue)
 
       return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)} status=${status} statusCode =${result.statusCode}`);
     }
