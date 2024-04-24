@@ -79,7 +79,7 @@ const CreatePayment = async(req,res) =>{
     const { amount, callbackURL, reference } = req.body
     const paymentDetails = { 
       amount: amount || 1,                                                 // your product price
-      callbackURL : callbackURL || `http://localhost:4004/api/v1/bkash/callback/${userid}`,  // your callback route
+      callbackURL : callbackURL || `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/bkash/callback/${userid}`,  // your callback route
       orderID : id || 'Order_101',                                     // your orderID
       reference : reference || '1'                                          // your reference
     }
@@ -115,7 +115,7 @@ const CreatePayment = async(req,res) =>{
         throw new NotFoundException("user not found")
       }
 
-      
+
       if(status === 'success') result =  await executePayment(bkashConfig, paymentID) 
         if(result?.transactionStatus === 'Completed'){
           const insertQuery = `
