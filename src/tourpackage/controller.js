@@ -74,6 +74,11 @@ const  deletePAckage = async(req,res) =>{
 
 }
 
+const  deleteMainimage = async(req,res) =>{
+  return await tourpackageService.deletemainimage(req,res)
+
+}
+
 
 
 
@@ -560,6 +565,7 @@ export const tourpackageController = {
   updateAlbumController,
   updatePackage,
   updateMainImageController,
-  updateviistedController
+  updateviistedController,
+  deleteMainimage
 
 }

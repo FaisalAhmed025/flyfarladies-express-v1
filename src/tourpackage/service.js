@@ -862,6 +862,18 @@ return result;
 
 };
 
+const deletemainimage = async (req,res) =>{
+  const id = req.params.imageId
+  const deletequery = `DELETE FROM mainimage WHERE  imageId= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'image has deleted'
+  })
+}
+
+
 const createPlaceVisit = async (req, PKID) => {
   let connection;
   try {
@@ -914,6 +926,9 @@ const createPlaceVisit = async (req, PKID) => {
     throw new Error(error.message);
   }
 };
+
+
+
 
 
 const UpdatevisitedImage = async (req, res, id) => {
@@ -1553,6 +1568,7 @@ export const tourpackageService = {
   getAllTourPackages,
   updateTourPackage,
   MainImage,
+  deletemainimage,
   createPlaceVisit,
   createTourPlan,
   gettouritenerary,

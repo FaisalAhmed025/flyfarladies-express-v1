@@ -899,8 +899,6 @@ const resetPassword = async (req, res)=> {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     // Update user's password
 
-    const email = user[0].email
-
     await pool.query("UPDATE user SET password = ? WHERE id= ?", [hashedPassword, userid]);
 
     // Delete the password reset request from the database
