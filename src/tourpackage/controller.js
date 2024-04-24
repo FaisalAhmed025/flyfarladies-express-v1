@@ -84,28 +84,11 @@ const  deleteMainimage = async(req,res) =>{
 
 
 const updatePackage = async (req,res)=>{
-  try{
   // const PkID = req.params.PKID;
-  const result = await tourpackageService.updateTourPackage(req, res)
-  // Check if the result is an error
-  // if (result instanceof Error) {
-  //   return res.status(500).json({
-  //     error: 'An error occurred while creating Main Image',
-  //   });
-  // }
- result && res.status(200).json({
-    status: 'success',
-    message: 'package updated successfully',
-    data: result,
-  });
-} catch (error) {
-  console.error(error);
-   res.status(500).json({
-    success: false,
-    message: error.message,
-  });
-}
+ await tourpackageService.updateTourPackage(req, res)
 
+
+  
 }
 
 

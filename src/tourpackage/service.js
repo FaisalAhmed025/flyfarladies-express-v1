@@ -683,8 +683,12 @@ const updateTourPackage = async (req, res) => {
       booking_money,
       first_installment,
       second_installment,
-      coverImage // Assuming coverImage is coming from request body
+ // Assuming coverImage is coming from request body
     } = req.body;
+
+
+    const coverimage = req.publicImageLink
+
 
     // Check if cover image is present
 
@@ -721,7 +725,7 @@ const updateTourPackage = async (req, res) => {
       SelfGuided,
       Guide,
       CancellationDate,
-      coverImage,
+      coverimage,
       adult_base_price,
       child_base_price,
       infant_base_price,
@@ -928,9 +932,6 @@ const createPlaceVisit = async (req, PKID) => {
 };
 
 
-
-
-
 const UpdatevisitedImage = async (req, res, id) => {
   const  {placetovisit_name} = req.body;
   const imageUrl = req.publicImageLink;
@@ -1030,8 +1031,6 @@ const [result] = await pool.query(updateQuery, values);
 return result;
  
 };
-
-
 
 
 

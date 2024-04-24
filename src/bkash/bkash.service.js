@@ -149,7 +149,7 @@ const CreatePayment = async(req,res) =>{
         await pool.query(insertQuery, insertParams);
         return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
         }
-
+        
         if(result) response = {
           statusCode : result?.statusCode,
           statusMessage : result?.statusMessage
