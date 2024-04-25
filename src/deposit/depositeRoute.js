@@ -32,6 +32,11 @@ router.put(
 );
 
 router.put(
+  '/rejectdeposit/:deposit_id',
+  depositeControlller.rejectBankDeposit
+);
+
+router.put(
   '/approved/cash/:deposit_id',
   depositeControlller.approvedCashDEposit
 );

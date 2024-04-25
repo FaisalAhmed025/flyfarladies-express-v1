@@ -64,8 +64,6 @@ const getuserdeposit = async(req,res)=>{
 }
 
 
-
-
 const approvedBankDEposit = async (req, res) => {
   try {
     // Update the deposit request status and send email notifications
@@ -75,6 +73,24 @@ const approvedBankDEposit = async (req, res) => {
       res.status(200).json({
         success: true,
         message: `Deposit request approved successfully`,
+        data: result,
+      });
+    
+  } catch (error) {
+    console.error('Error updating deposit request status:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const rejectBankDeposit = async (req, res) => {
+  try {
+    // Update the deposit request status and send email notifications
+    const result = await depositeService.RejectBankDeposit(
+      req
+    );
+      res.status(200).json({
+        success: true,
+        message: `Deposit request reject successfully`,
         data: result,
       });
     
@@ -127,6 +143,7 @@ export const depositeControlller = {
   CheckDepositController,
   createMobilebankDeposit,
   approvedBankDEposit,
+  rejectBankDeposit,
   approvedCashDEposit,
   approvedCheckDeposit,
   getuserdeposit
