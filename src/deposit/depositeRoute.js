@@ -28,7 +28,7 @@ router.post(
 
 router.put(
   '/approved/:deposit_id',
-  depositeControlller.updateDepositStatus
+  depositeControlller.approvedBankDEposit
 );
 
 router.put(

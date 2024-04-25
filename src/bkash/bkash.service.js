@@ -100,7 +100,6 @@ const callback = async (req, res) => {
     console.log(userid)
     console.log(paymentID)
 
-
     let result
     let response = {
       statusCode: '4000',

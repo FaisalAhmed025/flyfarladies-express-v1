@@ -66,7 +66,7 @@ const getuserdeposit = async(req,res)=>{
 
 
 
-const updateDepositStatus = async (req, res) => {
+const approvedBankDEposit = async (req, res) => {
   try {
     // Update the deposit request status and send email notifications
     const result = await depositeService.ApprovedBankDeposit(
@@ -126,7 +126,7 @@ export const depositeControlller = {
   createBankDeposit,
   CheckDepositController,
   createMobilebankDeposit,
-  updateDepositStatus,
+  approvedBankDEposit,
   approvedCashDEposit,
   approvedCheckDeposit,
   getuserdeposit
