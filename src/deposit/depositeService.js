@@ -755,7 +755,7 @@ const ApprovedBankDeposit = async (req) => {
 
     // If the status is 'approved', update  the user wallet
 
-    const updateUserWalletQuery = `UPDATE user SET wallet = ? WHERE id = ?`;
+    const updateUserWalletQuery = `UPDATE user SET wallet = wallet+? WHERE id = ?`;
     const user_id = result[0].requested_by;
 
     const  userquery= `SELECT * FROM user WHERE id =?`
@@ -1392,15 +1392,9 @@ const RejectBankDeposit = async (req) => {
 
     const [data] = await pool.query(updateQuery, values)
     // If the status is 'approved', update  the user wallet
-    const updateUserWalletQuery = `UPDATE user SET wallet = ? WHERE id = ?`;
     const user_id = result[0].requested_by;
-
     const  userquery= `SELECT * FROM user WHERE id =?`
     const [user] = await pool.query(userquery, [user_id])
-    const [ksocjocj] = await pool.query(updateUserWalletQuery, [
-      amount,
-      user_id,
-    ]);
 
     const date = new Date()
 
@@ -2903,42 +2897,37 @@ const ApprovedCheckDeposit = async (req) => {
   const connection = await pool.getConnection();
   try {
     const deposit_id = req.params.deposit_id;
-    const currentStatusQuery =
-      "SELECT status, requested_by FROM cheque_deposit WHERE deposit_id = ?";
-
-    const {status, action_by } = req.body;
-    const [result] = await connection.query(currentStatusQuery, [deposit_id]);
-    if (result.length == 0) {
-      throw new Error("id not found");
-    }
-
+    const {action_by } = req.body;
     const updateQuery = `
     UPDATE cheque_deposit
     SET status = ?,
     action_by = ?
     WHERE deposit_id = ?
   `;
+
+  const status = "approved"
+
     const values = [
       status,
-      status === "approved",
-        action_by,
+      action_by,
       deposit_id,
     ];
-
+    
+    console.log(values)
     const getamount = "SELECT * FROM cheque_deposit WHERE deposit_id = ?";
     await connection.beginTransaction();
-    let [amountdata] = await connection.execute(getamount, [deposit_id]);
-    const amount = amountdata[0]?.amount;
-    const [results] = await connection.execute(updateQuery, values);
+    const [result] = await connection.execute(getamount, [deposit_id]);
+    const amount = result[0]?.amount;
     // If the status is 'approved', update  the user wallet
-    const updateUserWalletQuery = `UPDATE user SET wallet = ? WHERE id = ?`;
+    const updateUserWalletQuery = `UPDATE user SET wallet = wallet+ ? WHERE id = ?`;
     const user_id = result[0].requested_by;
-    console.log("Update Query:", updateUserWalletQuery);
-    console.log("Values:", [amount, user_id]);
     const [ksocjocj] = await connection.execute(updateUserWalletQuery, [
       amount,
       user_id,
     ]);
+
+    const userquery = `SELECT * FROM user WHERE id=?`
+    const [user] = await pool.query(userquery, user_id)
 
 
     const transporter = nodemailer.createTransport({
@@ -3289,7 +3278,7 @@ const ApprovedCheckDeposit = async (req) => {
                     padding: 5px 20px;
                   "
                 >
-                    CHRQUE
+                    CHEQUE
                 </td>
               </tr>
             </table>
@@ -3534,7 +3523,667 @@ const ApprovedCheckDeposit = async (req) => {
       }
     });
     await connection.commit();
-    return ksocjocj;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const RejectChequeDeposit = async (req) => {
+  const connection = await pool.getConnection();
+  try {
+    const deposit_id = req.params.deposit_id;
+    const {action_by, rejected_reason } = req.body;
+    const depositQuery = "SELECT * FROM cheque_deposit WHERE deposit_id = ?";
+    const [result] = await pool.query(depositQuery, [deposit_id]);
+    const updateQuery = `
+    UPDATE cheque_deposit
+    SET status = ?,
+    action_by = ?,
+    rejected_reason=?
+    WHERE deposit_id = ?
+  `;
+
+  const status = "rejected"
+    const values = [
+      status,
+      action_by,
+      rejected_reason,
+      deposit_id,
+    ];
+
+    console.log(values)
+
+    const [data] = await pool.query(updateQuery, values)
+
+    const user_id= result[0].requested_by
+    const  userquery = `SELECT * FROM user WHERE id =?`
+    const [user] = await pool.query(userquery, [user_id])
+
+    const date = new Date()
+
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const approvedAt = date.toLocaleString('en-BD', options);
+
+    const transporter = nodemailer.createTransport({
+      host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'flyfarladies@mailservice.center', // Replace with your email address
+        pass: 'YVWJCU.?UY^R', // Replace with your email password
+      },
+    });
+
+const htmltemplate = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deposit Request</title>
+  </head>
+  <body>
+    <div style="width: 700px; height: 110vh; margin: 0 auto">
+      <div style="width: 700px; height: 70px; background: #fe99a6">
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="center"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 700px;
+          "
+        >
+          <tr>
+            <td
+              align="center"
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #ffffff;
+                font-family: sans-serif;
+                font-size: 15px;
+                line-height: 38px;
+                padding: 20px 0 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 5px;
+              "
+            >
+              ${status}
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="center"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 700px;
+          "
+        >
+          <tr>
+            <td
+              valign="top"
+              style="
+                background-color: #efefef;
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #584660;
+                font-family: sans-serif;
+                font-size: 30px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 20px 40px 0px 55px;
+              "
+            >
+              ${result[0].amount}
+            </td>
+          </tr>
+          <tr>
+            <td
+              valign="top"
+              style="
+                background-color: #efefef;
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #bc6277;
+                font-family: sans-serif;
+                font-size: 17px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 0px 40px 20px 55px;
+              "
+            >
+              CHEQUE
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="center"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 620px;
+            background-color: #ffffff;
+          "
+        >
+          <tr>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #bc6277;
+                font-family: sans-serif;
+                font-size: 15px;
+                font-weight: 600;
+                line-height: 38px;
+                padding: 10px 20px 5px 20px;
+              "
+            >
+              Transaction Details
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+              width: 180px;
+            "
+          >
+            Rejection Reason
+          </td>
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+            "
+          >
+          ${rejected_reason}
+          </td>
+        </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              Trasaction ID
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${result[0].deposit_id}
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              Cheque Number
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+              ${result[0].cheque_number}
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+              width: 180px;
+            "
+          >
+            Approved At
+          </td>
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+            "
+          >
+            ${approvedAt}
+          </td>
+        </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+              width: 180px;
+            "
+          >
+            Bank Name
+          </td>
+          <td
+            valign="top"
+            style="
+              border-collapse: collapse;
+              border-spacing: 0;
+              color: #767676;
+              font-family: sans-serif;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 38px;
+              padding: 5px 20px;
+            "
+          >
+            ${result[0].bank_name}
+          </td>
+        </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              Cheque Date 
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+              ${result[0].cheque_date}
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              DepositType
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+              CHEQUE
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="center"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 670px;
+            margin-top: 15px;
+            color: #ffffff !important;
+            text-decoration: none !important;
+          "
+        >
+          <tr>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 600;
+                font-style: italic;
+              "
+            >
+              Please Wait a little while. Your money will be added to your
+              wallet after verification is complete.
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="center"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 670px;
+            background-color: #702c8b;
+            margin-top: 25px;
+            text-align: center;
+            color: #ffffff !important;
+            text-decoration: none !important;
+          "
+        >
+          <tr>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-family: sans-serif;
+                font-size: 16px;
+                font-weight: 500;
+                padding: 20px 20px 0px 20px;
+              "
+            >
+              Need more help?
+            </td>
+          </tr>
+
+          <tr>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-family: sans-serif;
+                font-size: 12px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 0px 20px 10px 20px;
+              "
+            >
+              Mail us at
+              <span style="color: #ffffff !important; text-decoration: none"
+                >support@flyfarladies.com</span
+              >
+              or Call us at +88 01755582111
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          align="left"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            padding: 0;
+            width: 420px;
+            color: #ffffff;
+          "
+        >
+          <tr>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-family: sans-serif;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 20px 0px 0px 45px;
+                color: #767676;
+              "
+            >
+              <a style="padding-right: 20px; color: #584660" href="http://"
+                >Terms & Conditions</a
+              >
+
+              <a style="padding-right: 20px; color: #584660" href="http://"
+                >Booking Policy</a
+              >
+
+              <a style="padding-right: 20px; color: #584660" href="http://"
+                >Privacy Policy</a
+              >
+            </td>
+          </tr>
+        </table>
+
+        <table
+          border="0"
+          cellpadding="0"
+          cellspacing="0"
+          style="
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 700px;
+            color: #ffffff;
+            margin-top: 85px;
+          "
+        >
+          <tr>
+            <td style="padding-left: 45px">
+              <img
+                style="padding-right: 5px"
+                src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_facebook.png"
+                href="https://www.facebook.com/flyfarladies/?ref=page_internal"
+                alt=""
+              />
+              <img
+                style="padding-right: 5px"
+                src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_linkedIn.png"
+                href="https://www.linkedin.com/company/fly-far-ladies/"
+                alt=""
+              />
+              <img
+                style="padding-right: 5px"
+                src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_whatsapp.png"
+                href="https://wa.me/+88 01755582111"
+                alt=""
+              />
+            </td>
+          </tr>
+
+          <tr>
+            <td
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-family: sans-serif;
+                font-size: 13px;
+                font-weight: 500;
+                padding: 5px 0px 0px 45px;
+                color: #767676;
+                padding-bottom: 2px;
+              "
+            >
+              Ka 11/2A, Bashundhora R/A Road, Jagannathpur, Dhaka 1229.
+            </td>
+
+            <td
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                font-family: sans-serif;
+                font-weight: 500;
+                color: #767676;
+                padding-bottom: 20px;
+              "
+            >
+              <img
+                width="100px"
+                src="https://ladiescdn.sgp1.cdn.digitaloceanspaces.com/ffl_logo.png"
+                href="https://www.flyfarladies.com/"
+                alt=""
+              />
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
+`
+
+    const usermail = {
+      from: 'flyfarladies@mailservice.center', // Replace with your email address
+      to: user[0].email, // Recipient's email address
+      subject: 'Deposit Details',
+      text: 'Please find the attached file.',
+      html:htmltemplate
+
+    };
+
+    const supportmail = {
+      from: 'flyfarladies@mailservice.center', // Replace with your email address
+      to: 'support@flyfarladies.com', // Recipient's email address
+      subject: 'Deposit request reject',
+      text: 'Please find the attached file.',
+      html:htmltemplate
+
+    };
+    await transporter.sendMail(usermail, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    await transporter.sendMail(supportmail, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    await connection.commit();
   } catch (error) {
     console.log(error);
   }
@@ -3566,9 +4215,10 @@ export const depositeService = {
   createBankDeposit,
   ApprovedBankDeposit,
   RejectBankDeposit,
+  ApprovedCheckDeposit,
   createCheckDeposit,
+  RejectChequeDeposit,
   createMobilebank,
   ApprovedCashDeposit,
-  ApprovedCheckDeposit,
   getuserdeposit,
 };
