@@ -102,7 +102,7 @@ const updatePackage = async (req,res)=>{
 const mainimage = async (req, res) => {
   try {
     const PkID = req.params.PKID;
-    const result = await tourpackageService.MainImage(req, PKID)
+    const result = await tourpackageService.MainImage(req, PkID)
     // Check if the result is an error
     if (result instanceof Error) {
       return res.status(500).json({
