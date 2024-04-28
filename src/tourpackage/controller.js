@@ -3,8 +3,13 @@ import { tourpackageService } from "./service";
 
 
 const addpackage = async (req, res)=>{
-  const data = await  tourpackageService.addtourpackage(req,res)
-  return res.status(200).json({status:"success", messsage:"package added successfully", data:data})
+   await  tourpackageService.addtourpackage(req,res)
+  
+}
+
+const addFAQs = async (req, res)=>{
+  const data = await  tourpackageService.AddFAQs(req,res)
+  return res.status(200).json({status:"success", messsage:"FAQ added successfully", data:data})
 }
 
 
@@ -549,6 +554,7 @@ export const tourpackageController = {
   updatePackage,
   updateMainImageController,
   updateviistedController,
-  deleteMainimage
+  deleteMainimage,
+  addFAQs,
 
 }

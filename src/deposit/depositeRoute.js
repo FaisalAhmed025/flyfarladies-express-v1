@@ -26,6 +26,24 @@ router.post(
   depositeControlller.createMobilebankDeposit
 );
 
+router.post(
+  '/create-cash-deposit/:id',
+  upload.single('attachment'),
+  imageHandler,
+  depositeControlller.createCashDeposit
+);
+
+router.patch(
+  '/approved/cash/:deposit_id',
+  depositeControlller.approvedCashDEposit
+);
+
+router.patch(
+  '/reject/cash/:deposit_id',
+  depositeControlller.rejectCashDeposit
+);
+
+
 router.put(
   '/approved/:deposit_id',
   depositeControlller.approvedBankDEposit
@@ -35,6 +53,7 @@ router.put(
   '/rejectdeposit/:deposit_id',
   depositeControlller.rejectBankDeposit
 );
+
 
 router.put(
   '/rejectcheque/:deposit_id',

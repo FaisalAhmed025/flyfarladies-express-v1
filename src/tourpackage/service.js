@@ -116,9 +116,6 @@ const addtourpackage = async (req, res) => {
       AvailableSeats,
       MinimumAge,
       MaximumAge,
-      PricePerAdult,
-      PricePerChild,
-      PricePerInfant,
       GirlsTrip,
       FamilyTrips,
       Adventure,
@@ -154,9 +151,6 @@ const addtourpackage = async (req, res) => {
       MainTitle,
       SubTitle,
       Price,
-      PricePerAdult,
-      PricePerChild,
-      PricePerInfant,
       City,
       Discount,
       Location,
@@ -195,7 +189,7 @@ const addtourpackage = async (req, res) => {
     ];
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
-        MainTitle, SubTitle, Price, PricePerAdult, PricePerChild, PricePerInfant,
+        MainTitle, SubTitle, Price,
         City, Discount, Location, Availability, StartDate, EndDate, TripType,
         TotalDuration, AvailableSeats, MinimumAge, MaximumAge, PackageOverview,
         Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
@@ -209,7 +203,7 @@ const addtourpackage = async (req, res) => {
         first_installment, 
         second_installment
       ) 
-      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
       values
     );
     console.log(values);
@@ -335,6 +329,7 @@ const getSingleTourPackages = async (PKID) => {
       highlights: [],
       cancellation_policy: [],
       albumImage: [],
+      FAQs:[]
     };
     const [
       getmainimg,
@@ -346,6 +341,8 @@ const getSingleTourPackages = async (PKID) => {
       bookingPolicy,
       cancellationPolicy,
       albumImage,
+      FAQS
+      
       // addOns,
     ] = await Promise.all([
       getmainimage(tourPackageData.PKID),
@@ -357,6 +354,7 @@ const getSingleTourPackages = async (PKID) => {
       getBookingPolicy(tourPackageData.PKID),
       getCancellationPolicy(tourPackageData.PKID),
       getalbumImage(tourPackageData.PKID),
+      getFAQs(tourPackageData.PKID)
 
       // getAddOns(tourPackageData.id),
     ]);
@@ -370,6 +368,7 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.booking_policy = bookingPolicy;
     tourPackageData.cancellation_policy = cancellationPolicy;
     tourPackageData.albumImage = albumImage;
+    tourPackageData.FAQs = FAQS
     // tourPackageData.add_ons = addOns;
     tourPackagesData.push(tourPackageData);
     return tourPackageData;
@@ -510,6 +509,24 @@ export const getExclusion = async (PKID) => {
   WHERE exclusion.tour_package_id = ?;  
 `;
     const [results] = await pool.execute(exclusionQuery, [PKID]);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getFAQs = async (PKID) => {
+  try {
+    const faqsquery = `
+    SELECT 
+    FAQs.id,
+    FAQs.question,
+    FAQs.answer
+  FROM FAQs
+  JOIN tourpackage ON FAQs.tour_package_id = tourpackage.PKID
+  WHERE FAQs.tour_package_id = ?;  
+`;
+    const [results] = await pool.execute(faqsquery, [PKID]);
     return results;
   } catch (error) {
     throw error;
@@ -1558,12 +1575,29 @@ const deleteTourPlanEvents = async (req, id) => {
   }
 };
 
+const AddFAQs = async (req,res)=>{
+const pkid= req.params.PKID
+const packagequery =`SELECT * FROM tourpackage WHERE PKID=?`
+const [tourpackage] = await pool.query(packagequery, [pkid])
+const {question , answer} =req.body
+
+const values =[
+  pkid,
+  question,
+  answer
+]
+const insertQuery =`INSERT INTO FAQs(tour_package_id,question, answer)VALUES(?,?,?)`
+const [faqs] = await pool.query(insertQuery, values)
+ return faqs;
+
+}
 
 export const tourpackageService = {
   deleteinclusion,
   getSingleTourPackages,
   deletePackage,
   addtourpackage,
+  AddFAQs,
   getAllTourPackages,
   updateTourPackage,
   MainImage,
