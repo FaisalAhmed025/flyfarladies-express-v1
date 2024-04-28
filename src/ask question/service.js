@@ -1,3 +1,4 @@
+import pool from "../database/db";
 
 const AskQuestion = async (req, res) => {
   try {
@@ -5,7 +6,6 @@ const AskQuestion = async (req, res) => {
     
     // Execute raw SQL INSERT query to insert question details into database
     const query = `INSERT INTO askQuestion ( fullName, email, phone, tourType, traveller, date, description) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    
     const values = [fullName, email, phone, tourType, traveller, date, description];
     
     await pool.query(query, values);
