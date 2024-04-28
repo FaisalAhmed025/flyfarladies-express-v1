@@ -1121,7 +1121,7 @@ const createTourPlan = async (req) => {
         // Check if ID is provided
         // Update the tour plan in the database
         await pool.query(
-          `UPDATE tour_itinerary SET day_title = ?, day_plan = ? day_plan =?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
+          `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, day_plan =?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
           [day_title, day_plan, stayingPlace, breakFast, meal, dinner,  id]
         );
         updatedOrInsertedTourPlans.push({
@@ -1132,7 +1132,6 @@ const createTourPlan = async (req) => {
       } else {
         // Generate a unique ID for the tour plan
         const generatedId = generatePackageId();
-
         // Prepare values for the INSERT query
         const values = [generatedId, tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner ];
 
@@ -1515,6 +1514,7 @@ const createAddOns = async (tour_package_id, req) => {
       throw new Error("Add-ons are required as an array of objects.");
     }
 
+    
     const connection = await pool.getConnection();
     const updatedOrInsertedAddOns = [];
 
