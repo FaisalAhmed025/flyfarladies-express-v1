@@ -39,7 +39,6 @@ router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackage
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
 
 router.delete('/cancellationpolicy/:id', tourpackageController.cancellationpolicy)
-cancellationpolicy
 
 router.patch(
   '/updatevisited/:id',
