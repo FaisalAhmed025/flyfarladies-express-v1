@@ -273,6 +273,12 @@ const deletetourinclusion = async (req,res)=>{
   await tourpackageService.deleteinclusion(req,res)
 }
 
+
+const deletetHighlight = async (req,res)=>{
+  await tourpackageService.deleteHighlight(req,res)
+}
+
+
 const deleteExclusion = async (req,res)=>{
   await tourpackageService.deleteexclusion(req,res)
 }
@@ -449,6 +455,12 @@ const deletebookingpolicy = async (req, res) => {
 };
 
 
+const cancellationpolicy = async (req, res) => {
+  return await tourpackageService.cancellationPolicy(req,res)
+};
+
+
+
 
 const createHighlights = async (req, res) => {
   try {
@@ -534,7 +546,9 @@ export const tourpackageController = {
   createPlaceVisit,
   createTourPlan,
   gettouritenrary,
+  deletetHighlight,
   deleteTourItenerary,
+  cancellationpolicy,
   updateTourPlanEvents,
   deletebookingpolicy,
   deleteTourPlanEvents,

@@ -29,15 +29,17 @@ router.delete('/deleteinclusion/:id', tourpackageController.deletetourinclusion)
 router.post('/createexclusion/:PKID', tourpackageController.createExclusion)
 router.delete('/deleteexclusion/:id', tourpackageController.deleteExclusion)
 router.post('/createbookingpolicy/:PKID', tourpackageController.createBookingPolicy)
-router.delete('/deletepolicy/:id', tourpackageController.deletebookingpolicy)
+router.delete('/deletebookingpolicy/:id', tourpackageController.deletebookingpolicy)
 router.post('/createcancellationpolicy/:PKID', tourpackageController.createCancelationPolicy)
 router.post('/createhighlight/:PKID', tourpackageController.createHighlights)
+router.delete('/deletetHighlight/:id', tourpackageController.deletetHighlight)
 router.post('/createaddons/:PKID', tourpackageController.addAddOnsController)
 router.post('/addfaqs/:PKID', tourpackageController.addFAQs)
 router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackages)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
 
-
+router.delete('/cancellationpolicy/:id', tourpackageController.cancellationpolicy)
+cancellationpolicy
 
 router.patch(
   '/updatevisited/:id',
@@ -57,7 +59,6 @@ router.patch(
   upload.single('image'),imageHandlerUpdate,
   tourpackageController.updateinneralbumiamge
 );
-
 
 
 export default router;

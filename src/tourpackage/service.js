@@ -1424,6 +1424,19 @@ const createCancelationPolicy = async (req, PKID) => {
   }
 };
 
+
+const cancellationPolicy = async (req,res) =>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM cancellation_policy WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'cancellationPolicy has deleted'
+  })
+}
+
+
 const createHighlights = async (req, PKID) => {
   try {
     const highlights = req.body;
@@ -1480,6 +1493,19 @@ const createHighlights = async (req, PKID) => {
     throw new Error(error.message);
   }
 };
+
+
+const deleteHighlight = async (req,res) =>{
+  const id = req.params.id
+  const deletequery = `DELETE FROM highlights WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message:'Highlight has deleted'
+  })
+}
+
 
 
 const createAddOns = async (tour_package_id, req) => {
@@ -1595,6 +1621,7 @@ export const tourpackageService = {
   createTourPlan,
   gettouritenerary,
   deletTourItenerary,
+  deleteHighlight,
   getTourPlan,
   deleteTourPlanEvents,
   createInclusion,
@@ -1610,6 +1637,7 @@ export const tourpackageService = {
   createAlbumImage,
   UpdateAlbumImage,
   updateTourPackage,
+  cancellationPolicy,
   UpdateMainImage,
   updatealbumIinnermage,
   UpdatevisitedImage
