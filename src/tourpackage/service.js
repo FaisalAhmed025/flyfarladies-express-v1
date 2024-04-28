@@ -1103,7 +1103,6 @@ const createTourPlan = async (req) => {
   let connection;
   try {
     connection = await pool.getConnection();
-    const updatedOrInsertedTourPlans = [];
     // Iterate over the array of tour plan data
     for (const tourPlanData of req.body.tourplanData) {
       const { day_title, day_plan, stayingPlace, breakFast, meal,  dinner, id } = tourPlanData; // Extract ID from tourPlanData
@@ -1121,14 +1120,9 @@ const createTourPlan = async (req) => {
         // Check if ID is provided
         // Update the tour plan in the database
         await pool.query(
-          `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, day_plan =?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
+          `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
           [day_title, day_plan, stayingPlace, breakFast, meal, dinner,  id]
         );
-        updatedOrInsertedTourPlans.push({
-          id,
-          status: "sucesss",
-          message: "tourplan updated successfully",
-        }); // Push info about the update
       } else {
         // Generate a unique ID for the tour plan
         const generatedId = generatePackageId();
