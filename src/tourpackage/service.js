@@ -36,7 +36,7 @@ export const upload = multer({
 
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
-  return "FFLPK" + Math.floor(Math.random() * 10000);
+  return "" + Math.floor(Math.random() * 10000);
 };
 
 const visitedimageid = () => {
@@ -123,15 +123,15 @@ const addtourpackage = async (req, res) => {
       SelfGuided,
       Guide,
       CancellationDate,
-      adult_base_price, 
-      child_base_price, 
-      infant_base_price, 
-      booking_money_due_date, 
-      first_installment_due_date, 
+      adult_base_price,
+      child_base_price,
+      infant_base_price,
+      booking_money_due_date,
+      first_installment_due_date,
       second_installment_due_date,
-      booking_money, 
-      first_installment, 
-      second_installment, 
+      booking_money,
+      first_installment,
+      second_installment,
     } = req.body;
 
     // Assuming the file field name is 'coverImage'
@@ -177,15 +177,15 @@ const addtourpackage = async (req, res) => {
       Guide,
       CancellationDate,
       coverImage,
-      adult_base_price, 
-      child_base_price, 
-      infant_base_price, 
-      booking_money_due_date, 
-      first_installment_due_date, 
+      adult_base_price,
+      child_base_price,
+      infant_base_price,
+      booking_money_due_date,
+      first_installment_due_date,
       second_installment_due_date,
-      booking_money, 
-      first_installment, 
-      second_installment, 
+      booking_money,
+      first_installment,
+      second_installment,
     ];
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
@@ -210,7 +210,7 @@ const addtourpackage = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Travel package added successfully",
-      Id:packgeId
+      Id: packgeId
     });
   } catch (error) {
     console.error("Error adding travel package:", error);
@@ -227,7 +227,7 @@ const getSingleTourPackages = async (PKID) => {
     WHERE
       tourpackage.PKID = ?;
   `;
-  
+
     const [tourPackageResults] = await pool.execute(tourPackageQuery, [PKID]);
     console.log(tourPackageResults);
     if (tourPackageResults.length === 0) {
@@ -249,7 +249,7 @@ const getSingleTourPackages = async (PKID) => {
       AvailableSeats: tourPackageResults[0].AvailableSeats,
       MinimumAge: tourPackageResults[0].MinimumAge,
       MaximumAge: tourPackageResults[0].MaximumAge,
-      TotalDuration:tourPackageResults[0]. TotalDuration,
+      TotalDuration: tourPackageResults[0].TotalDuration,
       adult_base_price: tourPackageResults[0].adult_base_price,
       child_base_price: tourPackageResults[0].child_base_price,
       infant_base_price: tourPackageResults[0].infant_base_price,
@@ -315,21 +315,22 @@ const getSingleTourPackages = async (PKID) => {
         tourPackageResults[0].infant_base_price +
         tourPackageResults[0].child_base_price
       ),
-      Guide:tourPackageResults[0].Guide,
-      City:tourPackageResults[0].City,
+      Guide: tourPackageResults[0].Guide,
+      City: tourPackageResults[0].City,
       Country:
-        tourPackageResults[0].Country, 
-        CancellationDate:tourPackageResults[0].CancellationDate,
+        tourPackageResults[0].Country,
+      CancellationDate: tourPackageResults[0].CancellationDate,
       main_image: [],
       tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
+      installment:[],
       place_to_visit: [],
       inclusion: [],
       exclusion: [],
       highlights: [],
       cancellation_policy: [],
       albumImage: [],
-      FAQs:[]
+      FAQs: []
     };
     const [
       getmainimg,
@@ -339,10 +340,11 @@ const getSingleTourPackages = async (PKID) => {
       exclusion,
       highlights,
       bookingPolicy,
+      installment,
       cancellationPolicy,
       albumImage,
       FAQS
-      
+
       // addOns,
     ] = await Promise.all([
       getmainimage(tourPackageData.PKID),
@@ -352,6 +354,7 @@ const getSingleTourPackages = async (PKID) => {
       getExclusion(tourPackageData.PKID),
       getHighlights(tourPackageData.PKID),
       getBookingPolicy(tourPackageData.PKID),
+      getinstallment(tourPackageData.PKID),
       getCancellationPolicy(tourPackageData.PKID),
       getalbumImage(tourPackageData.PKID),
       getFAQs(tourPackageData.PKID)
@@ -366,6 +369,7 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.exclusion = exclusion;
     tourPackageData.highlights = highlights;
     tourPackageData.booking_policy = bookingPolicy;
+    tourPackageData.installment = installment;
     tourPackageData.cancellation_policy = cancellationPolicy;
     tourPackageData.albumImage = albumImage;
     tourPackageData.FAQs = FAQS
@@ -377,6 +381,36 @@ const getSingleTourPackages = async (PKID) => {
   }
 };
 
+
+const getinstallment = async (PKID) => {
+  try {
+    console.log("id", PKID);
+    const installment = `
+    SELECT
+    installment.InstallmentId,
+    installment.tourpackageId,
+    installment.FirstInstallmentdueDate,
+    installment.SecondInstallmentdueDate,
+    installment.ABookingAmount,
+    installment.AFirstInstallmentAmount,
+    installment.ASecondInstallmentAmount,
+    installment.CBookingAmount,
+    installment.CFirstInstallmentAmount,
+    installment.CSecondInstallmentAmount,
+    installment.ISecondInstallmentAmount,
+    installment.IBookingAmount,
+    installment.IFirstInstallmentAmount,
+    installment.ThirdInstallmentdueDate
+  FROM installment
+  JOIN tourpackage ON installment.tourpackageId = tourpackage.PKID
+  WHERE  installment.tourpackageId  = ?;  
+    `;
+    const [results] = await pool.execute(installment, [PKID]);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 const getmainimage = async (PKID) => {
@@ -400,10 +434,10 @@ const getmainimage = async (PKID) => {
 
 
 
-const gettouritenerary  = async (req,res) =>{
-  const  id = req.params.id
-  const  tourplanquery = `SELECT * FROM tourplan WHERE id= ?`
-  const  [data] = await pool.query(tourplanquery, [id])
+const gettouritenerary = async (req, res) => {
+  const id = req.params.id
+  const tourplanquery = `SELECT * FROM tourplan WHERE id= ?`
+  const [data] = await pool.query(tourplanquery, [id])
   return res.status(200).json({
     status: true,
     data: data
@@ -411,36 +445,36 @@ const gettouritenerary  = async (req,res) =>{
 }
 
 
-const deletePackage = async (req,res)=>{
+const deletePackage = async (req, res) => {
   const id = req.params.PKID
   const deletequery = `DELETE FROM tourpackage WHERE PKID= ? `
   await pool.query(deletequery, [id])
   return res.status(200).json({
     status: 'success',
-    message:'package has removed'
+    message: 'package has removed'
   })
 }
 
 
 
-const deleteTourPlanEventsouritenerary  = async (req,res) =>{
-  const  id = req.params.id
-  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
-  const  [data] = await pool.query(tourplanquery, [id])
+const deleteTourPlanEventsouritenerary = async (req, res) => {
+  const id = req.params.id
+  const tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  const [data] = await pool.query(tourplanquery, [id])
   return res.status(200).json({
     status: true,
-    message:'Tourplan has removed'
+    message: 'Tourplan has removed'
   })
 }
 
 
-const deletTourItenerary  = async (req,res) =>{
-  const  id = req.params.id
-  const  tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+const deletTourItenerary = async (req, res) => {
+  const id = req.params.id
+  const tourplanquery = `DELETE FROM tourplan WHERE id= ?`
   await pool.query(tourplanquery, [id])
   return res.status(200).json({
     status: true,
-    message:'tour plan has deleted.'
+    message: 'tour plan has deleted.'
   })
 }
 
@@ -637,7 +671,7 @@ const getAllTourPackages = async () => {
     const [tourPackageResults] = await pool.execute(tourPackageQuery);
     console.log(tourPackageResults);
     return tourPackageResults;
-   
+
   } catch (error) {
     throw error;
   }
@@ -652,11 +686,11 @@ const updateTourPackage = async (req, res) => {
 
     const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
     const [tourpackage] = await pool.query(packageQuery, [packageId]);
-    
+
     if (tourpackage.length === 0) {
-       return res.status(404).json({message: 'Tour package not found'});
+      return res.status(404).json({ message: 'Tour package not found' });
     }
-    
+
     const {
       MainTitle,
       SubTitle,
@@ -695,7 +729,7 @@ const updateTourPackage = async (req, res) => {
       booking_money,
       first_installment,
       second_installment,
- // Assuming coverImage is coming from request body
+      // Assuming coverImage is coming from request body
     } = req.body;
 
 
@@ -790,10 +824,10 @@ const updateTourPackage = async (req, res) => {
       WHERE PKID = ?`,
       values
     );
-    return res.status(200).json({status: 'success', message: 'Tour package updated successfully', Id:packageId});
+    return res.status(200).json({ status: 'success', message: 'Tour package updated successfully', Id: packageId });
   } catch (error) {
     console.error("Error updating travel package:", error);
-    return res.status(500).json({message: 'Internal server error'});
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -865,21 +899,21 @@ const UpdateMainImage = async (req, imageId) => {
   const Id = packageResults[0]?.imageId;
   const updateQuery = `UPDATE mainimage  SET imageurl = ?
 WHERE imageId = ?`;
-console.log(updateQuery);
-const values  = [imageUrl, Id];
-const [result] = await pool.query(updateQuery, values);
-return result;
+  console.log(updateQuery);
+  const values = [imageUrl, Id];
+  const [result] = await pool.query(updateQuery, values);
+  return result;
 
 };
 
-const deletemainimage = async (req,res) =>{
+const deletemainimage = async (req, res) => {
   const id = req.params.imageId
   const deletequery = `DELETE FROM mainimage WHERE  imageId= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'image has deleted'
+    message: 'image has deleted'
   })
 }
 
@@ -939,7 +973,7 @@ const createPlaceVisit = async (req, PKID) => {
 
 
 const UpdatevisitedImage = async (req, res, id) => {
-  const  {placetovisit_name} = req.body;
+  const { placetovisit_name } = req.body;
   const imageUrl = req.publicImageLink;
 
   if (!imageUrl) {
@@ -958,25 +992,121 @@ const UpdatevisitedImage = async (req, res, id) => {
   const updateQuery = `UPDATE place_to_visit SET place_image = ?,
   placetovisit_name = ? 
 WHERE  id = ?`;
-console.log(updateQuery);
-const values  = [imageUrl, placetovisit_name, Id];
-const [result] = await pool.query(updateQuery, values);
-return  res.send({status: 'success', message:" image has updated"});
+  console.log(updateQuery);
+  const values = [imageUrl, placetovisit_name, Id];
+  const [result] = await pool.query(updateQuery, values);
+  return res.send({ status: 'success', message: " image has updated" });
 
 };
 
 
+const addInstallment = async (req, PKID) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const updatedOrInsertedInstallments = [];
+
+    const installment = req.body;
+
+    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
+
+    if (packageResults.length === 0) {
+      throw new Error("Tour package not found.");
+    }
+
+    const tour_package_id = packageResults[0].PKID;
+
+    const {
+      InstallmentId,
+      FirstInstallmentdueDate,
+      SecondInstallmentdueDate,
+      ThirdInstallmentdueDate,
+      ABookingAmount,
+      AFirstInstallmentAmount,
+      ASecondInstallmentAmount,
+      CBookingAmount,
+      CFirstInstallmentAmount,
+      CSecondInstallmentAmount,
+      IBookingAmount,
+      IFirstInstallmentAmount,
+      ISecondInstallmentAmount
+    } = installment;
+
+    if (!FirstInstallmentdueDate || !SecondInstallmentdueDate || !ABookingAmount || !AFirstInstallmentAmount || !ASecondInstallmentAmount ||
+      !CBookingAmount || !CFirstInstallmentAmount || !CSecondInstallmentAmount || !IBookingAmount || !IFirstInstallmentAmount || !ISecondInstallmentAmount) {
+      throw new Error("Please provide all installment details.");
+    }
+
+    if (InstallmentId) {
+      const updateQuery = `UPDATE installment SET 
+                            FirstInstallmentdueDate = ?,
+                            SecondInstallmentdueDate = ?,
+                            ThirdInstallmentdueDate = ?,
+                            ABookingAmount = ?,
+                            AFirstInstallmentAmount = ?,
+                            ASecondInstallmentAmount = ?,
+                            CBookingAmount = ?,
+                            CFirstInstallmentAmount = ?,
+                            CSecondInstallmentAmount = ?,
+                            IBookingAmount = ?,
+                            IFirstInstallmentAmount = ?,
+                            ISecondInstallmentAmount = ?
+                            WHERE InstallmentId = ?`;
+
+      await connection.execute(updateQuery, [FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
+        ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount, CBookingAmount, CFirstInstallmentAmount,
+        CSecondInstallmentAmount, IBookingAmount, IFirstInstallmentAmount, ISecondInstallmentAmount, InstallmentId]);
+
+      updatedOrInsertedInstallments.push({
+        InstallmentId,
+        status: true,
+        message: "Installment updated successfully"
+      });
+    } else {
+     // Define your function to generate a unique ID for installment
+      const insertQuery = `INSERT INTO installment (FirstInstallmentdueDate, SecondInstallmentdueDate, 
+                          ThirdInstallmentdueDate, ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount,
+                          CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, IBookingAmount,
+                          IFirstInstallmentAmount, ISecondInstallmentAmount, tourpackageId) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      await connection.execute(insertQuery, [FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
+        ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount, CBookingAmount, CFirstInstallmentAmount,
+        CSecondInstallmentAmount, IBookingAmount, IFirstInstallmentAmount, ISecondInstallmentAmount, tour_package_id]);
+
+      updatedOrInsertedInstallments.push({
+        status: true,
+        message: "New installment inserted successfully"
+      });
+    }
+
+    return updatedOrInsertedInstallments;
+  } catch (error) {
+    console.error(error);
+    throw new Error(error.message);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+
+
+
+
 const createAlbumImage = async (req, res, PKID) => {
   let connection;
-    const { albumtitle } = req.body;
+  const { albumtitle } = req.body;
 
-    const albumimageurl = [];
+  const albumimageurl = [];
   if (req.files.albumimageurl) {
     for (let i = 0; i < req.files.albumimageurl.length; i++) {
       // Handle each image here, upload to S3 or save locally
       // Example: const imageUrl = await uploadImageToS3(req.files.blogimages[i]);
-      const imageUrl =  req.imageLink
-      const imageId = i+1// Assuming you have an id for each image
+      const imageUrl = req.imageLink
+      const imageId = i + 1// Assuming you have an id for each image
       albumimageurl.push({ id: imageId, url: imageUrl });
     }
   }
@@ -986,61 +1116,61 @@ const createAlbumImage = async (req, res, PKID) => {
   if (req.files.albumcoverimageurl) {
     // Handle second image here
     // Example: const secondImageUrl = await uploadImageToS3(req.files.secondimage[0]);
-    albumcoverimageurl =  req.imageLink
+    albumcoverimageurl = req.imageLink
   }
 
-    connection = await pool.getConnection();
-    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
-    const [packageResults] = await connection.execute(packageQuery, [PKID]);
+  connection = await pool.getConnection();
+  const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+  const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
-    if (packageResults.length === 0) {
-      throw new Error("Tour package not found.");
-    }
+  if (packageResults.length === 0) {
+    throw new Error("Tour package not found.");
+  }
 
-    const tourPackageId = packageResults[0]?.PKID;
-    const newalbumquery = `INSERT INTO albumimage (albumimageurl, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
+  const tourPackageId = packageResults[0]?.PKID;
+  const newalbumquery = `INSERT INTO albumimage (albumimageurl, albumcoverimageurl, albumtitle , tourpackageId) values(?,?,?,?)`;
 
-  const values = [ JSON.stringify(albumimageurl), albumcoverimageurl, albumtitle, tourPackageId];
+  const values = [JSON.stringify(albumimageurl), albumcoverimageurl, albumtitle, tourPackageId];
 
 
-    await pool.query(newalbumquery, values);
-   return res.status(200).json({ status: 'success', message: 'album created successfully' });
-    
+  await pool.query(newalbumquery, values);
+  return res.status(200).json({ status: 'success', message: 'album created successfully' });
 
-    
- 
+
+
+
 };
 
 const UpdateAlbumImage = async (req, AlbumId) => {
-    const  {albumtitle} = req.body;
-    const imageUrl = req.publicImageLink;
+  const { albumtitle } = req.body;
+  const imageUrl = req.publicImageLink;
 
-    if (!imageUrl) {
-      return 'No image URL provided';
-    }
+  if (!imageUrl) {
+    return 'No image URL provided';
+  }
 
-    // connection = await pool.getConnection();
-    const packageQuery = "SELECT AlbumId FROM albumimage WHERE AlbumId = ?";
-    const [packageResults] = await pool.query(packageQuery, [AlbumId]);
+  // connection = await pool.getConnection();
+  const packageQuery = "SELECT AlbumId FROM albumimage WHERE AlbumId = ?";
+  const [packageResults] = await pool.query(packageQuery, [AlbumId]);
 
-    if (packageResults.length === 0) {
-      throw new Error("Album not found.");
-    }
+  if (packageResults.length === 0) {
+    throw new Error("Album not found.");
+  }
 
-    const Id = packageResults[0]?.AlbumId;
-    const updateQuery = `UPDATE albumimage  SET albumcoverimageurl = ?,
+  const Id = packageResults[0]?.AlbumId;
+  const updateQuery = `UPDATE albumimage  SET albumcoverimageurl = ?,
     albumtitle = ? 
 WHERE AlbumId = ?`;
-console.log(updateQuery);
-const values  = [imageUrl, albumtitle, Id];
-const [result] = await pool.query(updateQuery, values);
-return result;
- 
+  console.log(updateQuery);
+  const values = [imageUrl, albumtitle, Id];
+  const [result] = await pool.query(updateQuery, values);
+  return result;
+
 };
 
 
 
-const updatealbumIinnermage= async (req, res) => {
+const updatealbumIinnermage = async (req, res) => {
   try {
     const id = req.params.AlbumId;
     const urlid = req.params.id;
@@ -1055,17 +1185,17 @@ const updatealbumIinnermage= async (req, res) => {
     let albumimageData = albumimage[0];
     const albumimageurls = albumimageData.albumimageurl;
 
-    for( let i=0; i<albumimageurls.length; i++){
+    for (let i = 0; i < albumimageurls.length; i++) {
       const image = albumimageurls[i]
       console.log(image)
-       if(image.id === Number(urlid)){
+      if (image.id === Number(urlid)) {
         console.log('now')
         albumimageurls[i].url = newImageUrl;
-       }
-
       }
-      console.log({albumimageurls})
-    
+
+    }
+    console.log({ albumimageurls })
+
     const [data] = await pool.query('UPDATE albumimage SET albumimageurl = ? WHERE  AlbumId = ?', [JSON.stringify(albumimageurls), id]);
 
     console.log(data)
@@ -1105,7 +1235,7 @@ const createTourPlan = async (req) => {
     connection = await pool.getConnection();
     // Iterate over the array of tour plan data
     for (const tourPlanData of req.body.tourplanData) {
-      const { day_title, day_plan, stayingPlace, breakFast, meal,  dinner, id } = tourPlanData; // Extract ID from tourPlanData
+      const { day_title, day_plan, stayingPlace, breakFast, meal, dinner, id } = tourPlanData; // Extract ID from tourPlanData
       // Retrieve tour package ID from the database
       const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
       const [packageResults] = await connection.execute(packageQuery, [
@@ -1121,13 +1251,13 @@ const createTourPlan = async (req) => {
         // Update the tour plan in the database
         await pool.query(
           `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
-          [day_title, day_plan, stayingPlace, breakFast, meal, dinner,  id]
+          [day_title, day_plan, stayingPlace, breakFast, meal, dinner, id]
         );
       } else {
         // Generate a unique ID for the tour plan
         const generatedId = generatePackageId();
         // Prepare values for the INSERT query
-        const values = [generatedId, tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner ];
+        const values = [generatedId, tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner];
 
         // Execute the INSERT query to add the tour plan to the database
         const [result] = await pool.query(
@@ -1157,7 +1287,7 @@ const createInclusion = async (req, PKID) => {
     // }
 
     const connection = await pool.getConnection();
-    
+
     const updatedOrInsertedInclusions = [];
 
     for (const inclusion of inclusions) {
@@ -1166,7 +1296,7 @@ const createInclusion = async (req, PKID) => {
       if (!inclusionText) {
         throw new Error("Inclusion text is required for each object.");
       }
-      
+
       const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
       const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
@@ -1220,7 +1350,7 @@ const createExclusion = async (req, PKID) => {
 
     console.log(exclusions);
 
-    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?` ;
+    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
@@ -1266,7 +1396,7 @@ const createExclusion = async (req, PKID) => {
         });
       }
     }
-   
+
   } catch (error) {
     console.error(error);
     throw new Error(error.message);
@@ -1278,25 +1408,25 @@ const createExclusion = async (req, PKID) => {
 };
 
 
-const deleteexclusion = async (req,res)=>{
+const deleteexclusion = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM exclusion WHERE id= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'inclusion has removed'
+    message: 'inclusion has removed'
   })
 }
 
-const deleteinclusion = async (req,res)=>{
+const deleteinclusion = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM inclusion WHERE id= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'inclusion has removed'
+    message: 'inclusion has removed'
   })
 }
 
@@ -1357,14 +1487,14 @@ const createBookingPolicy = async (req, PKID) => {
   }
 };
 
-const deletepolicy = async (req,res) =>{
+const deletepolicy = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM booking_policy WHERE id= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'booking policy has deleted'
+    message: 'booking policy has deleted'
   })
 }
 
@@ -1418,14 +1548,14 @@ const createCancelationPolicy = async (req, PKID) => {
 };
 
 
-const cancellationPolicy = async (req,res) =>{
+const cancellationPolicy = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM cancellation_policy WHERE id= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'cancellationPolicy has deleted'
+    message: 'cancellationPolicy has deleted'
   })
 }
 
@@ -1488,14 +1618,14 @@ const createHighlights = async (req, PKID) => {
 };
 
 
-const deleteHighlight = async (req,res) =>{
+const deleteHighlight = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM highlights WHERE id= ? `
   await pool.query(deletequery, [id])
 
   return res.status(200).json({
     status: true,
-    message:'Highlight has deleted'
+    message: 'Highlight has deleted'
   })
 }
 
@@ -1508,7 +1638,7 @@ const createAddOns = async (tour_package_id, req) => {
       throw new Error("Add-ons are required as an array of objects.");
     }
 
-    
+
     const connection = await pool.getConnection();
     const updatedOrInsertedAddOns = [];
 
@@ -1584,20 +1714,20 @@ const deleteTourPlanEvents = async (req, id) => {
   }
 };
 
-const AddFAQs = async (req,res)=>{
-const pkid= req.params.PKID
-const packagequery =`SELECT * FROM tourpackage WHERE PKID=?`
-const [tourpackage] = await pool.query(packagequery, [pkid])
-const {question , answer} =req.body
+const AddFAQs = async (req, res) => {
+  const pkid = req.params.PKID
+  const packagequery = `SELECT * FROM tourpackage WHERE PKID=?`
+  const [tourpackage] = await pool.query(packagequery, [pkid])
+  const { question, answer } = req.body
 
-const values =[
-  pkid,
-  question,
-  answer
-]
-const insertQuery =`INSERT INTO FAQs(tour_package_id,question, answer)VALUES(?,?,?)`
-const [faqs] = await pool.query(insertQuery, values)
- return faqs;
+  const values = [
+    pkid,
+    question,
+    answer
+  ]
+  const insertQuery = `INSERT INTO FAQs(tour_package_id,question, answer)VALUES(?,?,?)`
+  const [faqs] = await pool.query(insertQuery, values)
+  return faqs;
 
 }
 
@@ -1606,6 +1736,7 @@ export const tourpackageService = {
   getSingleTourPackages,
   deletePackage,
   addtourpackage,
+  addInstallment,
   AddFAQs,
   getAllTourPackages,
   updateTourPackage,

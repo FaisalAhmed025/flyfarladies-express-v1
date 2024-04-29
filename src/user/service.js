@@ -21,6 +21,7 @@ const Register = async (req, res) => {
     // Extract the data from the request body
     const { name, phone, email, password, platform } = req.body;
     // Do some validation on the data
+
     if (!name || !email || !password || !phone || !platform) {
       return res.status(400).json({ error: "Missing required fields" });
     }

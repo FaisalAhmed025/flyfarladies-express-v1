@@ -127,7 +127,6 @@ const Book$Hold = async (req, res) => {
       // Execute the SQL query to insert all adult travelers
       const newTravelerResult = await pool.query(addChildPassengerQuery , [childTravelersValues]);
 
-
       console.log(newTravelerResult)
 
       // Assuming you need to process the result or do something with it
@@ -188,6 +187,23 @@ const bookingstatus  =  bookingStatus.HOLD
 const adultprice =  tourpackage[0].adult_base_price 
 const childprice=  tourpackage[0].child_base_price
 const infantprice  = tourpackage[0].infant_base_price
+
+const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? `
+const [installmentdata] = await pool.query(installmentQuery, [packgeId])
+
+console.log(installmentdata[0].FirstInstallmentdueDate)
+console.log(installmentdata[0].SecondInstallmentdueDate)
+console.log(installmentdata[0].ABookingAmount)
+console.log(installmentdata[0].AFirstInstallmentAmount)
+console.log(installmentdata[0].AFirstInstallmentAmount)
+console.log(installmentdata[0].ASecondInstallmentAmount)
+console.log(installmentdata[0].CBookingAmount)
+console.log(installmentdata[0].CFirstInstallmentAmount)
+console.log(installmentdata[0].CSecondInstallmentAmount)
+console.log(installmentdata[0].ISecondInstallmentAmount)
+console.log(installmentdata[0].IBookingAmount)
+console.log(installmentdata[0].IFirstInstallmentAmount)
+console.log(installmentdata[0].ThirdInstallmentdueDate)
 
 const totalAdultprice =  tourpackage[0].adult_base_price *totaladult;
 const totalChildprice=  tourpackage[0].child_base_price * totalchild;

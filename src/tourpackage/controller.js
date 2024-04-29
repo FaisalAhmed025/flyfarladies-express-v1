@@ -491,6 +491,36 @@ const createHighlights = async (req, res) => {
 };
 
 
+const Addinstallemnt = async (req, res) => {
+  try {
+    const PKID = req.params.PKID;
+    const result = await tourpackageService.addInstallment(req, PKID);
+    console.log(PKID)
+
+    // Check if the result is an error
+    if (result instanceof Error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      message: 'Installment Added successfully'
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
 
 const getTourPlan = async (req, res) => {
   try {
@@ -541,6 +571,7 @@ export const tourpackageController = {
   deletetourinclusion,
   getSingleTourPackages,
   getAllTourPackages,
+  Addinstallemnt,
   addpackage,
   mainimage,
   createPlaceVisit,

@@ -6,6 +6,7 @@ import { handleAlbumImage, handleMultipleImage, imageHandler, imageHandlerUpdate
 const router = express.Router();
 
 router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
+router.post('/addinstallment/:PKID', tourpackageController.Addinstallemnt)
 router.patch('/update/:PKID', upload.single('coverImage'), imageHandlerUpdate, tourpackageController.updatePackage)
 router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackages)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
