@@ -413,6 +413,15 @@ const getinstallment = async (PKID) => {
 };
 
 
+const getAllfaq = async(req,res)=>{
+  const getquery = `SELECT * FROM FAQs`
+  const [data] =  await pool.query(getquery)
+  return res.status(200).json({
+    status: true,
+    data: data
+  })
+}
+
 const getmainimage = async (PKID) => {
   try {
     console.log("id", PKID);
@@ -1629,6 +1638,17 @@ const deleteHighlight = async (req, res) => {
   })
 }
 
+const deleteFAQ = async (req, res) => {
+  const id = req.params.id
+  const deletequery = `DELETE FROM FAQs WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message: 'FAQs has deleted'
+  })
+}
+
 
 
 const createAddOns = async (tour_package_id, req) => {
@@ -1735,6 +1755,7 @@ export const tourpackageService = {
   deleteinclusion,
   getSingleTourPackages,
   deletePackage,
+  getAllfaq,
   addtourpackage,
   addInstallment,
   AddFAQs,
@@ -1751,6 +1772,7 @@ export const tourpackageService = {
   deleteTourPlanEvents,
   createInclusion,
   createExclusion,
+  deleteFAQ,
   deleteexclusion,
   createBookingPolicy,
   deletepolicy,

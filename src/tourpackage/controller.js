@@ -525,7 +525,6 @@ const Addinstallemnt = async (req, res) => {
 const getTourPlan = async (req, res) => {
   try {
     const tourPlanId = req.params.id; // Assuming the tourPlanId is provided as a URL parameter
-
     // Call the getTourPlan function to retrieve the tour plan details
     const tourPlanDetails = await tourpackageService.getTourPlan(tourPlanId);
 
@@ -562,6 +561,15 @@ const deleteTourItenerary = async (req,res)=>{
    await tourpackageService.deletTourItenerary(req,res)
 }
 
+const deleteFAQ = async (req,res)=>{
+  await tourpackageService.deleteFAQ(req,res)
+}
+
+const getAllFAQS = async (req,res)=>{
+  await tourpackageService.getAllfaq(req,res)
+}
+
+
 
 const updateinneralbumiamge = async (req,res)=>{
   await tourpackageService.updatealbumIinnermage(req,res)
@@ -571,6 +579,8 @@ export const tourpackageController = {
   deletetourinclusion,
   getSingleTourPackages,
   getAllTourPackages,
+  getAllFAQS,
+  deleteFAQ,
   Addinstallemnt,
   addpackage,
   mainimage,
