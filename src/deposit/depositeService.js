@@ -6760,6 +6760,27 @@ const getuserdeposit = async (req, res) => {
   }
 };
 
+const getAlldeposit = async (req, res) => {
+  try {
+ 
+    const bankDepoQuery = `SELECT * FROM bank_transfer`;
+    const [bankDeposit] = await pool.query(bankDepoQuery);
+
+    const cheqDepoQuery = `SELECT * FROM cheque_deposit`;
+    const [chequeDeposit] = await pool.query(cheqDepoQuery);
+
+    const mobileBankDepoQuery = `SELECT * FROM mobilebank`;
+    const [mobileDeposit] = await pool.query(mobileBankDepoQuery);
+    const bkashDeposit = `SELECT * FROM bkaspayment`;
+    const [bkashdata] = await pool.query(bkashDeposit);
+    const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit, ...bkashdata];
+    return res.json({ alldeposit: combinedResult });
+  } catch (error) {
+    console.error("Error fetching user deposits:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const depositeService = {
   createBankDeposit,
   ApprovedBankDeposit,
@@ -6771,5 +6792,6 @@ export const depositeService = {
   createMobilebank,
   ApprovedCashDeposit,
   RejectCashDeposit,
+  getAlldeposit,
   getuserdeposit,
 };

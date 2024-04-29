@@ -82,6 +82,10 @@ const createMobilebankDeposit = async (req, res) => {
 const getuserdeposit = async(req,res)=>{
   return await depositeService.getuserdeposit(req,res)
 }
+const getAlldeposit = async(req,res)=>{
+  return await depositeService.getAlldeposit(req,res)
+}
+
 
 
 const approvedBankDEposit = async (req, res) => {
@@ -205,5 +209,6 @@ export const depositeControlller = {
   approvedCheckDeposit,
   rejectChequeDeposit,
   rejectCashDeposit,
+  getAlldeposit,
   getuserdeposit
 };

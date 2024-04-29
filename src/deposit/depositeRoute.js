@@ -76,4 +76,9 @@ router.get(
   depositeControlller.getuserdeposit
 );
 
+router.get(
+  '/alldeposit',
+  depositeControlller.getAlldeposit
+);
+
 export default router;
