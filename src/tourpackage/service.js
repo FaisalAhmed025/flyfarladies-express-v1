@@ -126,12 +126,6 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      booking_money_due_date,
-      first_installment_due_date,
-      second_installment_due_date,
-      booking_money,
-      first_installment,
-      second_installment,
     } = req.body;
 
     // Assuming the file field name is 'coverImage'
@@ -180,12 +174,6 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      booking_money_due_date,
-      first_installment_due_date,
-      second_installment_due_date,
-      booking_money,
-      first_installment,
-      second_installment,
     ];
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
@@ -195,15 +183,9 @@ const addtourpackage = async (req, res) => {
         Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
         Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage,   adult_base_price, 
         child_base_price, 
-        infant_base_price, 
-        booking_money_due_date, 
-        first_installment_due_date, 
-        second_installment_due_date,
-        booking_money, 
-        first_installment, 
-        second_installment
+        infant_base_price
       ) 
-      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
       values
     );
     console.log(values);
@@ -731,13 +713,7 @@ const updateTourPackage = async (req, res) => {
       CancellationDate,
       adult_base_price,
       child_base_price,
-      infant_base_price,
-      booking_money_due_date,
-      first_installment_due_date,
-      second_installment_due_date,
-      booking_money,
-      first_installment,
-      second_installment,
+      infant_base_price
       // Assuming coverImage is coming from request body
     } = req.body;
 
@@ -781,12 +757,6 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      booking_money_due_date,
-      first_installment_due_date,
-      second_installment_due_date,
-      booking_money,
-      first_installment,
-      second_installment,
       packageId // Add packageId for WHERE clause
     ];
 
@@ -823,13 +793,8 @@ const updateTourPackage = async (req, res) => {
         coverImage = COALESCE(?, coverImage),
         adult_base_price = COALESCE(?, adult_base_price),
         child_base_price = COALESCE(?, child_base_price),
-        infant_base_price = COALESCE(?, infant_base_price),
-        booking_money_due_date = COALESCE(?, booking_money_due_date),
-        first_installment_due_date = COALESCE(?, first_installment_due_date),
-        second_installment_due_date = COALESCE(?, second_installment_due_date),
-        booking_money = COALESCE(?, booking_money),
-        first_installment = COALESCE(?, first_installment),
-        second_installment = COALESCE(?, second_installment)
+        infant_base_price = COALESCE(?, infant_base_price)
+
       WHERE PKID = ?`,
       values
     );
