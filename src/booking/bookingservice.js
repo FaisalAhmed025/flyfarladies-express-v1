@@ -191,31 +191,44 @@ const infantprice  = tourpackage[0].infant_base_price
 const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? `
 const [installmentdata] = await pool.query(installmentQuery, [packgeId])
 
-console.log(installmentdata[0].FirstInstallmentdueDate)
-console.log(installmentdata[0].SecondInstallmentdueDate)
-console.log(installmentdata[0].ABookingAmount)
-console.log(installmentdata[0].AFirstInstallmentAmount)
-console.log(installmentdata[0].AFirstInstallmentAmount)
-console.log(installmentdata[0].ASecondInstallmentAmount)
-console.log(installmentdata[0].CBookingAmount)
-console.log(installmentdata[0].CFirstInstallmentAmount)
-console.log(installmentdata[0].CSecondInstallmentAmount)
-console.log(installmentdata[0].ISecondInstallmentAmount)
-console.log(installmentdata[0].IBookingAmount)
-console.log(installmentdata[0].IFirstInstallmentAmount)
-console.log(installmentdata[0].ThirdInstallmentdueDate)
+console.log(installmentdata)
 
-const totalAdultprice =  tourpackage[0].adult_base_price *totaladult;
-const totalChildprice=  tourpackage[0].child_base_price * totalchild;
-const totalInfantprice  = tourpackage[0].infant_base_price * totalinfant;
+let totalAdultprice = (installmentdata[0].ABookingAmount +
+  installmentdata[0].AFirstInstallmentAmount +
+  installmentdata[0].ASecondInstallmentAmount) * totaladult;
+
+let totalChildprice = (installmentdata[0].CBookingAmount +
+  installmentdata[0].CFirstInstallmentAmount +
+  installmentdata[0].CSecondInstallmentAmount) * totalchild;
+
+let totalInfantprice = (installmentdata[0].IBookingAmount +
+  installmentdata[0].IFirstInstallmentAmount +
+  installmentdata[0].ISecondInstallmentAmount) * totalinfant;
+
+console.log("Total Adult Price: ", totalAdultprice);
+console.log("Total Child Price: ", totalChildprice);
+console.log("Total Infant Price: ", totalInfantprice);
 
 
 console.log(adultprice,childprice, infantprice)
 const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice;
 
-const  bookingamount = (totalpackageprice *tourpackage[0].booking_money)/100
-const firstinstallement = (totalpackageprice *tourpackage[0].first_installment)/100
-const secondinstalemnt = (totalpackageprice * tourpackage[0].second_installment)/100
+let totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
+let totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
+let totalInfantBookingAmount = installmentdata[0].IBookingAmount * totalinfant;
+let totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
+let totalChildFirstInstallmentAmount = installmentdata[0].CFirstInstallmentAmount * totalchild;
+let totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
+
+// Total second installment amount calculation
+let totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
+let totalChildSecondInstallmentAmount = installmentdata[0].CSecondInstallmentAmount * totalchild;
+let totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
+
+const bookingamount =totalAdultBookingAmount + totalChildBookingAmount+ totalInfantBookingAmount
+const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstallmentAmount+totalInfantFirstInstallmentAmount
+const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
+
 const paymentstatus = payementStatus.UNPAID
 console.log(totalpackageprice);
     const values = [
@@ -236,9 +249,9 @@ console.log(totalpackageprice);
       bookingamount,
       firstinstallement,
       secondinstalemnt,
-      tourpackage[0].booking_money_due_date,
-      tourpackage[0].first_installment_due_date,
-      tourpackage[0].second_installment_due_date,
+      installmentdata[0].FirstInstallmentdueDate,
+      installmentdata[0].SecondInstallmentdueDate,
+      installmentdata[0].ThirdInstallmentdueDate,
       totaladult,
       totalchild,
       totalinfant,
