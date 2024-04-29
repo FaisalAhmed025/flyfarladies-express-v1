@@ -13,6 +13,13 @@ const loginuser = async (req, res) => {
 };
 
 
+const loginwithGoogle = async (req, res) => {
+  await UserService.loginwithGoogle(req,res)
+
+};
+
+
+
 
 const addtravlercontroller = async (req, res) => {
   try {
@@ -124,7 +131,8 @@ export const userController = {
   addtravlercontroller,
   updateTravlercontroller,
   myTravelerList,
-  deleteTraveller
+  deleteTraveller,
+  loginwithGoogle
 
 }
 
