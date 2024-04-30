@@ -78,6 +78,11 @@ const  deletePAckage = async(req,res) =>{
 
 }
 
+const  deleteaddons = async(req,res) =>{
+  return await tourpackageService.deleteAddons(req,res)
+
+}
+
 const  deleteMainimage = async(req,res) =>{
   return await tourpackageService.deletemainimage(req,res)
 
@@ -236,6 +241,13 @@ const createTourPlan = async (req, res) => {
      message: error.message,
     });
   }
+};
+
+const getalladdons = async (req,res) => {
+    const result = await tourpackageService.getAAlladdOns(req, res);
+
+    // Check if the result is an error
+   
 };
 
 
@@ -578,6 +590,7 @@ export const tourpackageController = {
   deletetourinclusion,
   getSingleTourPackages,
   getAllTourPackages,
+  getalladdons,
   getAllFAQS,
   deleteFAQ,
   Addinstallemnt,
@@ -610,5 +623,6 @@ export const tourpackageController = {
   updateviistedController,
   deleteMainimage,
   addFAQs,
+  deleteaddons,
 
 }

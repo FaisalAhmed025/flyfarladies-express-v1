@@ -554,6 +554,20 @@ export const getExclusion = async (PKID) => {
   }
 };
 
+const getAAlladdOns = async (req,res) => {
+  try {
+    const getAddOns = `
+    SELECT *
+  FROM add_ons
+`;
+    const [results] = await pool.execute(getAddOns);
+    return res.send({data:results});
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 export const getFAQs = async (PKID) => {
   try {
     const faqsquery = `
@@ -1487,6 +1501,17 @@ const deletepolicy = async (req, res) => {
   })
 }
 
+const deleteAddons = async (req, res) => {
+  const id = req.params.id
+  const deletequery = `DELETE FROM add_ons WHERE id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message: 'Addons has deleted'
+  })
+}
+
 const createCancelationPolicy = async (req, PKID) => {
   try {
     const cancellationPolicies = req.body;
@@ -1770,11 +1795,13 @@ export const tourpackageService = {
   getTourPlan,
   deleteTourPlanEvents,
   createInclusion,
+  getAAlladdOns,
   createExclusion,
   deleteFAQ,
   deleteexclusion,
   createBookingPolicy,
   deletepolicy,
+  deleteAddons,
   createCancelationPolicy,
   createHighlights,
   createAddOns,

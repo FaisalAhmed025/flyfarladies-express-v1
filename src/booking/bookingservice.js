@@ -208,29 +208,28 @@ console.log("Total Adult Price: ", totalAdultprice);
 console.log("Total Child Price: ", totalChildprice);
 console.log("Total Infant Price: ", totalInfantprice);
 
-// const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId])
+const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId])
 
-// const selectedAddonsFromRequest = req.body.selectedAddons || [];
+const selectedAddonsFromRequest = req.body.selectedAddons || [];
+    let addonTotal = 0;
+    if (addonServices && addonServices.length > 0) {
+      for (const selectaddn of selectedAddonsFromRequest) {
+        const { service, description, cost } = selectaddn;
+        // Save addon booking
+        const insertAddonQuery = `
+          INSERT INTO addon_booking (service, description, cost, packageId, userid, bookingId) 
+          VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await pool.query(insertAddonQuery, [service, description, cost, packgeId, userid, bookingid]);
+        addonTotal += cost;
+      }
+    }
 
-// let addonTotal = 0;
+    console.log("addonprice", addonTotal)
 
-//     if (addonServices && addonServices.length > 0) {
-//       for (const selectaddn of selectedAddonsFromRequest) {
-//         const { service, description, cost } = selectaddn;
-
-//         // Save addon booking
-//         const insertAddonQuery = `
-//           INSERT INTO AddonBooking (service, description, cost, packageId, userid, bookingId) 
-//           VALUES (?, ?, ?, ?, ?, ?)
-//         `;
-//         await connection.query(insertAddonQuery, [service, description, cost, Id, user.uuid, newbooking.Bookingid]);
-        
-//         addonTotal += cost;
-//       }
-//     }
-
+  
 console.log(adultprice,childprice, infantprice)
-const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice;
+const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice +addonTotal;
 
 let totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
 let totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
@@ -244,7 +243,7 @@ let totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmo
 let totalChildSecondInstallmentAmount = installmentdata[0].CSecondInstallmentAmount * totalchild;
 let totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
 
-const bookingamount =totalAdultBookingAmount + totalChildBookingAmount+ totalInfantBookingAmount
+const bookingamount =totalAdultBookingAmount + totalChildBookingAmount+ totalInfantBookingAmount +addonTotal
 const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstallmentAmount+totalInfantFirstInstallmentAmount
 const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
 
