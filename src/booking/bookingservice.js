@@ -152,7 +152,6 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
-
        const passportDateValue =ipassDate? ipassDate:null
        const passportNumber = ipassportNumber ? ipassportNumber:null
 
@@ -209,6 +208,26 @@ console.log("Total Adult Price: ", totalAdultprice);
 console.log("Total Child Price: ", totalChildprice);
 console.log("Total Infant Price: ", totalInfantprice);
 
+// const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId])
+
+// const selectedAddonsFromRequest = req.body.selectedAddons || [];
+
+// let addonTotal = 0;
+
+//     if (addonServices && addonServices.length > 0) {
+//       for (const selectaddn of selectedAddonsFromRequest) {
+//         const { service, description, cost } = selectaddn;
+
+//         // Save addon booking
+//         const insertAddonQuery = `
+//           INSERT INTO AddonBooking (service, description, cost, packageId, userid, bookingId) 
+//           VALUES (?, ?, ?, ?, ?, ?)
+//         `;
+//         await connection.query(insertAddonQuery, [service, description, cost, Id, user.uuid, newbooking.Bookingid]);
+        
+//         addonTotal += cost;
+//       }
+//     }
 
 console.log(adultprice,childprice, infantprice)
 const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice;

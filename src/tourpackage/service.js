@@ -1742,8 +1742,7 @@ const AddFAQs = async (req, res) => {
         await pool.query(insertQuery, [pkid, question, answer]);
       }
     }
-
-    return res.status(200).json({ message: "FAQs added successfully to tour packages." });
+    return res.status(200).json({status:true, message: "FAQs added successfully to tour packages." });
   } catch (error) {
     console.error("Error adding FAQs:", error);
     return res.status(500).json({ message: "Internal server error." });
