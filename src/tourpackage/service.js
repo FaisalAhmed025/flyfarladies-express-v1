@@ -312,7 +312,8 @@ const getSingleTourPackages = async (PKID) => {
       highlights: [],
       cancellation_policy: [],
       albumImage: [],
-      FAQs: []
+      FAQs: [],
+      add_ons:[]
     };
     const [
       getmainimg,
@@ -325,7 +326,8 @@ const getSingleTourPackages = async (PKID) => {
       installment,
       cancellationPolicy,
       albumImage,
-      FAQS
+      FAQS,
+    add_ons
 
       // addOns,
     ] = await Promise.all([
@@ -339,9 +341,8 @@ const getSingleTourPackages = async (PKID) => {
       getinstallment(tourPackageData.PKID),
       getCancellationPolicy(tourPackageData.PKID),
       getalbumImage(tourPackageData.PKID),
-      getFAQs(tourPackageData.PKID)
-
-      // getAddOns(tourPackageData.id),
+      getFAQs(tourPackageData.PKID),
+      getAddOns(tourPackageData.PKID),
     ]);
 
     tourPackageData.main_image = getmainimg;
@@ -355,7 +356,7 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.cancellation_policy = cancellationPolicy;
     tourPackageData.albumImage = albumImage;
     tourPackageData.FAQs = FAQS
-    // tourPackageData.add_ons = addOns;
+    tourPackageData.add_ons = add_ons;
     tourPackagesData.push(tourPackageData);
     return tourPackageData;
   } catch (error) {
@@ -532,6 +533,26 @@ export const getExclusion = async (PKID) => {
   WHERE exclusion.tour_package_id = ?;  
 `;
     const [results] = await pool.execute(exclusionQuery, [PKID]);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
+
+ const getAddOns = async (PKID) => {
+  try {
+    const getAddOns = `
+    SELECT
+    add_ons.id,
+    add_ons.tour_package_id,
+    add_ons.services,
+    add_ons.cost,
+    add_ons.description
+  FROM add_ons
+  JOIN tourpackage ON add_ons.tour_package_id = tourpackage.PKID
+  WHERE add_ons.tour_package_id = ?;  
+`;
+    const [results] = await pool.execute(getAddOns, [PKID]);
     return results;
   } catch (error) {
     throw error;
@@ -1622,24 +1643,23 @@ const createAddOns = async (tour_package_id, req) => {
       throw new Error("Add-ons are required as an array of objects.");
     }
 
-
     const connection = await pool.getConnection();
     const updatedOrInsertedAddOns = [];
 
     for (const addOn of addOns) {
-      const { id, service, description, title,  } = addOn;
+      const { id, service, description, cost} = addOn;
 
       if (!service || !description || !title) {
         throw new Error("Service, description, and title are required for each add-on object.");
       }
 
       const insertQuery =
-        "INSERT INTO add_ons (id, services, description, tour_package_id, title) VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO add_ons (id, services, description, tour_package_id, cost) VALUES (?, ?, ?, ?, ?)";
 
       if (id) {
         // If ID is provided, update the existing add-on
         const updateQuery = "UPDATE add_ons SET services = ?, description = ?, title = ? WHERE id = ?";
-        await connection.execute(updateQuery, [service, description, title, id]);
+        await connection.execute(updateQuery, [service, description, cost, id]);
         updatedOrInsertedAddOns.push({
           id,
           status: true,
@@ -1648,7 +1668,7 @@ const createAddOns = async (tour_package_id, req) => {
       } else {
         // If ID is not provided, it's a new add-on to be inserted
         const newId = Addonservice(); // Assuming Addonservice generates a new ID
-        const [result] = await connection.execute(insertQuery, [newId, service, description, tour_package_id, title]);
+        const [result] = await connection.execute(insertQuery, [newId, service, description, tour_package_id, cost]);
         updatedOrInsertedAddOns.push({
           id: newId,
           status: true,

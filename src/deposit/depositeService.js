@@ -4027,9 +4027,6 @@ const htmltemplate = `<!DOCTYPE html>
 };
 
 
-
-
-
 const createMobilebank = async (req) => {
   const connection = await pool.getConnection();
   try {
