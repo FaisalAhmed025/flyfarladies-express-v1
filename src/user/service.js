@@ -781,6 +781,16 @@ const userdashBoard = async (req, res) => {
   }
 };
 
+const allUser = async (req, res) => {
+  try {
+    const userQuery = `SELECT * FROM user`;
+    const [result] = await pool.query(userQuery,);
+    return res.send({data:result});
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const addtravler = async (req) => {
   try {
     const userid = req.params.id;
@@ -965,6 +975,7 @@ export const UserService = {
   loginwithGoogle,
   forgetpasswordResetRequest,
   resetPassword,
+  allUser,
   updateUser,
   userdashBoard,
   addtravler,

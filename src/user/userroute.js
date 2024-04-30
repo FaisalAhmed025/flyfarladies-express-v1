@@ -13,6 +13,7 @@ router.post('/loginwithgoogle', userController.loginwithGoogle)
 router.post('/forgetpasss/request', userController.forgetpasswordResetRequest)
 router.post('/resetpass', userController.resetPassword)
 router.get('/mydashboard/:id', userController.userdashbaord)
+router.get('/alluser', userController.alluserdata)
 router.put('/update/:id', upload.single('images'), imageHandlerUpdate, userController.updateUser)
 router.post('/traveller/add/:id', userController.addtravlercontroller)
 

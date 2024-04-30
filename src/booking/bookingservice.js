@@ -346,8 +346,11 @@ const getSingleBooking = async (req,res) =>{
 
   const passengerquery =`SELECT * FROM passenger  WHERE bookingid =?`
   const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
+
+  const addonsquery =`SELECT * FROM addon_booking  WHERE bookingid =?`
+  const [addonsrresults] = await pool.execute(addonsquery, [bookingid]);
   console.log(bookingresults);
-  return {bookingresults,passengerresults};
+  return {bookingresults,passengerresults,addonsrresults};
 }
 
 

@@ -109,6 +109,11 @@ const updateUser = async (req, res) => {
   return result;
 };
 
+const alluserdata = async (req, res) => {
+  const result = await UserService.allUser(req,res)
+  return result;
+};
+
 const forgetpasswordResetRequest = async (req, res) => {
   const result = await UserService.forgetpasswordResetRequest(req,res)
   return result;
@@ -132,7 +137,8 @@ export const userController = {
   updateTravlercontroller,
   myTravelerList,
   deleteTraveller,
-  loginwithGoogle
+  loginwithGoogle,
+  alluserdata
 
 }
 
