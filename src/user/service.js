@@ -588,6 +588,11 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
+    // if (user.isactive == 0) {
+    //   return res.status(401).json({ error: " your id has been deactivated" });
+    // }
+
+
     // Generate JWT token
     const token = jwt.sign(
       { id: user[0].id, email: user[0].email },

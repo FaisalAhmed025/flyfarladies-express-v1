@@ -21,6 +21,18 @@ const getSingleBookings  = async (req, res) => {
 }
 
 
+const approvedBooking = async (req, res) => {
+   await BookingService.ApprovedBooking(req,res);
+
+
+}
+
+const CancelledBooking = async (req, res) => {
+  await BookingService.CancelledBooking(req,res);
+
+}
+
+
 const getuserBookings  = async (req, res) => {
    await BookingService.getBookingsByUserId(req,res);
 }
@@ -30,5 +42,7 @@ export const bookingController = {
   Book$Hold,
   getAllBookings,
   getSingleBookings,
-  getuserBookings
+  getuserBookings,
+  approvedBooking,
+  CancelledBooking
 }

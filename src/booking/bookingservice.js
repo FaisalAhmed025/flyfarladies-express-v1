@@ -378,10 +378,54 @@ const getBookingsByUserId = async (req, res) => {
 };
 
 
+const ApprovedBooking = async (req, res) => {
+  try {
+    const { bookingid } = req.params;
+    const { action_by} = req.body;
+
+    const connection = await pool.getConnection();
+
+    // Update booking status
+    const status =  bookingStatus.CONFIRMED
+    const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, action_by =? WHERE Bookingid = ?`;
+    await connection.execute(updateBookingQuery, [status, action_by, bookingid]);
+    connection.release();
+
+    res.status(200).json({ success: true, message: 'Booking  has  confirmed.' });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
+
+
+const CancelledBooking = async (req, res) => {
+  try {
+    const { bookingid } = req.params;
+    const { action_by} = req.body;
+
+    const connection = await pool.getConnection();
+
+    // Update booking status
+    const status =  bookingStatus.CANCELLED
+    const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, action_by =? WHERE Bookingid = ?`;
+    await connection.execute(updateBookingQuery, [status, action_by, bookingid]);
+    connection.release();
+
+    res.status(200).json({ success: true, message: 'Booking  has  Cancelled.' });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
 
 export const BookingService = {
   Book$Hold,
   getAllBooking,
   getSingleBooking,
-  getBookingsByUserId
+  getBookingsByUserId,
+  ApprovedBooking,
+  CancelledBooking
 }
