@@ -377,7 +377,6 @@ const getBookingsByUserId = async (req, res) => {
   }
 };
 
-
 const ApprovedBooking = async (req, res) => {
   try {
     const { bookingid } = req.params;
@@ -406,13 +405,11 @@ const CancelledBooking = async (req, res) => {
     const { action_by} = req.body;
 
     const connection = await pool.getConnection();
-
     // Update booking status
     const status =  bookingStatus.CANCELLED
     const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, action_by =? WHERE Bookingid = ?`;
     await connection.execute(updateBookingQuery, [status, action_by, bookingid]);
     connection.release();
-
     res.status(200).json({ success: true, message: 'Booking  has  Cancelled.' });
   } catch (error) {
     console.error('Error updating booking status:', error);
