@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import {HttpException} from "express-sharp";
 import pool from "../database/db";
 import { payementStatus } from "../payment/service";
+import nodemailer from 'nodemailer'
 
 
 export const bookingStatus = {
@@ -178,6 +179,24 @@ const Book$Hold = async (req, res) => {
     await pool.query(addInfantPassengerQuery , [infantTravelersValues]);
   }
 
+
+
+  const date = new Date()
+
+  const options = { 
+    weekday: 'long',
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka' 
+  };
+
+  const bookingAt = date.toLocaleString('en-BD', options);
+
 const totaladult = adult.length
 const totalchild = child.length
 const totalinfant = infant.length
@@ -264,6 +283,11 @@ console.log(totalpackageprice);
       adultprice,
       childprice,
       infantprice,
+      tourpackage[0].City,
+      tourpackage[0].Flight,
+      tourpackage[0].Food,
+      tourpackage[0].Transport,
+      tourpackage[0].Hotel,
       bookingamount,
       firstinstallement,
       secondinstalemnt,
@@ -279,7 +303,8 @@ console.log(totalpackageprice);
       phone,
       totalpackageprice,
       paymentstatus,
-      bookingstatus
+      bookingstatus,
+      bookingAt
       
     ];
 
@@ -301,6 +326,11 @@ console.log(totalpackageprice);
         adult_price,
         child_price,
         infant_price,
+        city,
+        flight,
+        food,
+        transport,
+        hotel,
         booking_money,
         first_installment,
         second_installment,
@@ -316,12 +346,241 @@ console.log(totalpackageprice);
         phone,
         totalAmount,
         paymentStatus,
-        bookingStatus
-      ) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+        bookingStatus,
+        bookingDate
+      ) VALUES (?, ?, ?,?, ?,?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
     console.log(result)
+
+
+    const totalseat = totaladult+totalchild+totalinfant
+
+    const transporter = nodemailer.createTransport({
+      host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'flyfarladies@mailservice.center', // Replace with your email address
+        pass: 'YVWJCU.?UY^R', // Replace with your email password
+      },
+    });
+
+
+    const htmlContent = `<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+      </head>
+      <style>
+        body {
+          padding: 0px 25px;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+        th {
+          background-color: #ffe3ea;
+          color: #bc6277;
+          font-weight: 500;
+        }
+    
+        th,
+        td {
+          padding: 8px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+          font-size: 10px;
+        }
+        p {
+          font-size: 10px;
+        }
+    
+        .title {
+          color: #9c9797;
+          font-style: italic;
+          width: 30%;
+        }
+        h4 {
+          font-size: 12px;
+        }
+      </style>
+      <body>
+        <div class="header" style="margin-bottom: 5px;margin-top: 30px">
+          <div class="logo">
+            <img  style="width: 130px" src="https://storage.googleapis.com/cdnflyfarladiesv2/logo%20ladies.png" alt="" />
+    
+          </div>
+        </div>
+    
+        <div class="bookingItenaryDetails">
+          <h4 style="background-color: #bc6277; padding: 5px 10px; color: #ffffff">
+            BOOKING & TOUR ITENARY DETAILS
+          </h4>
+    
+            
+          <table>
+          <tr>
+            <td class="title">Booking ID</td>
+            <td>${bookingid}</td>
+          </tr>
+          <tr>
+            <td class="title">Booking Date</td>
+            <td>${bookingAt}</td>
+          </tr>
+          <tr>
+            <td class="title">Package Type</td>
+            <td>${tourpackage[0].TripType}</td>
+          </tr>
+          <tr>
+            <td class="title">Package Name</td>
+            <td>${tourpackage[0].MainTitle}</td>
+          </tr>
+          <tr>
+            <td class="title">Journey Start & End Date</td>
+            <td>${tourpackage[0].StartDate},${tourpackage[0].EndDate}</td>
+          </tr>
+          <tr>
+            <td class="title">Duration</td>
+            <td>${tourpackage[0].TotalDuration}</td>
+          </tr>
+          <tr>
+            <td class="title">Total Passenger</td>
+            <td>${tourpackage[0].totalseat}</td>
+          </tr>
+          <tr>
+            <td class="title">Total Cost</td>
+            <td>${totalpackageprice}</td>
+          </tr>
+        </table>
+    
+        <div class="bookingItenaryDetails" style="margin-top: 50px">
+        <h4 style="background-color: #bc6277; padding: 5px 10px; color: #ffffff">
+          TRAVELLER DETAILS
+        </h4>
+      
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Gender</th>
+            <th>Date of Birth</th>
+            <th>Nationality</th>
+            <th>NID/ Passport No</th>
+          </tr>
+      
+              <tr>
+              ${adult
+                .map(
+                  (traveler) => `
+                <td>${traveler.afName} ${traveler.alName}</td>
+                <td>${traveler.aPaxType}</td>
+                <td>${traveler.agender}</td>
+                <td>${traveler.adob}</td>
+                <td>${traveler.Nationality}</td>
+                <td>${traveler.PassportNumber}</td>
+              </tr>
+            `
+            ).join('')}
+      
+          ${child
+            .map(
+              (traveler) => `
+              <tr>
+                <td>${traveler.cfName} ${traveler.clName}</td>
+                <td>${traveler.cpaxType}</td>
+                <td>${traveler.cgender}</td>
+                <td>${traveler.cdob}</td>
+                <td>${traveler.cnationality}</td>
+                <td>${traveler.cpassportNumber}</td>
+              </tr>
+            `,
+            )
+            .join('')}
+            
+          ${infant
+            .map(
+              (traveler) => `
+              <tr>
+                <td>${traveler.ifName} ${traveler.ilName}</td>
+                <td>${traveler.ipaxType}</td>
+                <td>${traveler.igender}</td>
+                <td>${traveler.idob}</td>
+                <td>${traveler.inationality}</td>
+                <td>${traveler.ipassportNumber}</td>
+              </tr>
+            `,
+            )
+            .join('')}
+        </table>
+      </div>
+      
+          <div class="payemnt" style="margin-top: 50px">
+            <h4
+              style="
+                background-color: #bc6277;
+                padding: 5px 10px;
+                color: #ffffff;
+                letter-spacing: 2px;
+              "
+            >
+              PAYMENT STATUS
+            </h4>
+    
+            <h1
+              style="text-transform: uppercase; font-size: 30px; font-weight: 600"
+            >
+              ${paymentstatus}
+            </h1>
+          </div>
+        </div>
+        <div class="notice" style="border: 1px solid #bc6277">
+          <p style="padding-left: 20px; color: #bc6277">
+            Kindly remember to bring this document with you on your travel date.
+          </p>
+          <p style="padding-left: 20px; color: #bc6277">
+            Need more help? Mail us at support@flyfarladies.com or Call us at +88
+            01755582111
+          </p>
+        </div>
+      </body>
+  </html>`;
+    
+    const usermail = {
+      from: 'flyfarladies@mailservice.center', // Replace with your email address
+      to: 'faisal@flyfar.tech', // Recipient's email address
+      subject: 'Booking Details',
+      text: 'Please find the attached file.',
+      html:htmlContent
+
+    };
+
+    const supportmail = {
+      from: 'flyfarladies@mailservice.center', // Replace with your email address
+      to: 'support@flyfarladies.com', // Recipient's email address
+      subject: 'Booking Details',
+      text: 'Please find the attached file.',
+      html:htmlContent
+
+    };
+    await transporter.sendMail(usermail, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    await transporter.sendMail(supportmail, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
 
     return res.status(200).json({
       status: "success",
@@ -402,13 +661,13 @@ const ApprovedBooking = async (req, res) => {
 const CancelledBooking = async (req, res) => {
   try {
     const { bookingid } = req.params;
-    const { action_by} = req.body;
+    const { action_by,rejected_reason } = req.body;
 
     const connection = await pool.getConnection();
     // Update booking status
     const status =  bookingStatus.CANCELLED
-    const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, action_by =? WHERE Bookingid = ?`;
-    await connection.execute(updateBookingQuery, [status, action_by, bookingid]);
+    const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, rejected_reason=?, action_by =? WHERE Bookingid = ?`;
+    await connection.execute(updateBookingQuery, [status,rejected_reason, action_by, bookingid]);
     connection.release();
     res.status(200).json({ success: true, message: 'Booking  has  Cancelled.' });
   } catch (error) {
@@ -416,7 +675,6 @@ const CancelledBooking = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
-
 
 export const BookingService = {
   Book$Hold,
