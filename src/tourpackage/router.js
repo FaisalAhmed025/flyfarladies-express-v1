@@ -35,7 +35,7 @@ router.post('/createcancellationpolicy/:PKID', tourpackageController.createCance
 router.post('/createhighlight/:PKID', tourpackageController.createHighlights)
 router.delete('/deletetHighlight/:id', tourpackageController.deletetHighlight)
 router.post('/createaddons/:PKID', tourpackageController.addAddOnsController)
-router.post('/addfaqs/:PKID', tourpackageController.addFAQs)
+router.post('/addfaqs', tourpackageController.addFAQs)
 router.get('/getallfaqs', tourpackageController.getAllFAQS)
 router.delete('/deletefaqs/:id', tourpackageController.deleteFAQ)
 router.delete('/cancellationpolicy/:id', tourpackageController.cancellationpolicy)

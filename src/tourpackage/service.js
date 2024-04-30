@@ -794,7 +794,6 @@ const updateTourPackage = async (req, res) => {
         adult_base_price = COALESCE(?, adult_base_price),
         child_base_price = COALESCE(?, child_base_price),
         infant_base_price = COALESCE(?, infant_base_price)
-
       WHERE PKID = ?`,
       values
     );
@@ -1628,7 +1627,7 @@ const createAddOns = async (tour_package_id, req) => {
     const updatedOrInsertedAddOns = [];
 
     for (const addOn of addOns) {
-      const { id, service, description, title } = addOn;
+      const { id, service, description, title,  } = addOn;
 
       if (!service || !description || !title) {
         throw new Error("Service, description, and title are required for each add-on object.");
@@ -1700,21 +1699,47 @@ const deleteTourPlanEvents = async (req, id) => {
 };
 
 const AddFAQs = async (req, res) => {
-  const pkid = req.params.PKID
-  const packagequery = `SELECT * FROM tourpackage WHERE PKID=?`
-  const [tourpackage] = await pool.query(packagequery, [pkid])
-  const { question, answer } = req.body
+  try {
+    const faqsData = req.body.faqsData; // Array of objects containing tour package ID and FAQs
+    // Validate if faqsData is provided
+    if (!faqsData || !Array.isArray(faqsData) || faqsData.length === 0) {
+      return res.status(400).json({ message: "Please provide an array of FAQs data." });
+    }
 
-  const values = [
-    pkid,
-    question,
-    answer
-  ]
-  const insertQuery = `INSERT INTO FAQs(tour_package_id,question, answer)VALUES(?,?,?)`
-  const [faqs] = await pool.query(insertQuery, values)
-  return faqs;
+    // Insert FAQs for each tour package
+    for (const faqData of faqsData) {
+      const { pkid, faqs } = faqData;
 
-}
+      // Check if the tour package exists
+      const packagequery = `SELECT * FROM tourpackage WHERE PKID=?`;
+      const [tourPackage] = await pool.query(packagequery, [pkid]);
+
+      if (!tourPackage.length) {
+        return res.status(404).json({ message: `Tour package with ID ${pkid} not found.` });
+      }
+
+      if (Array.isArray(faqs) && faqs.length > 0) {
+        // Insert multiple FAQs for the current tour package
+        for (const faq of faqs) {
+          const { question, answer } = faq;
+          const insertQuery = `INSERT INTO FAQs(tour_package_id, question, answer) VALUES(?,?,?)`;
+          await pool.query(insertQuery, [pkid, question, answer]);
+        }
+      } else if (faqs && typeof faqs === "object") {
+        // Insert single FAQ for the current tour package
+        const { question, answer } = faqs;
+        const insertQuery = `INSERT INTO FAQs(tour_package_id, question, answer) VALUES(?,?,?)`;
+        await pool.query(insertQuery, [pkid, question, answer]);
+      }
+    }
+
+    return res.status(200).json({ message: "FAQs added successfully to tour packages." });
+  } catch (error) {
+    console.error("Error adding FAQs:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 
 export const tourpackageService = {
   deleteinclusion,

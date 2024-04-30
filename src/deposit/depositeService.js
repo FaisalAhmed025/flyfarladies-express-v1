@@ -4052,7 +4052,8 @@ const createMobilebank = async (req) => {
     }
     // Generate a UUID-like ID for the bank transfer
     const deposit_id = generateDepoId();
-    const fee = (amount * 1.5) / 100;
+    const gatewayFeePercentage = 1.5; // 1.5%
+    const gatewayFee = (amount * gatewayFeePercentage) / 100;
     // const transactionDate = new Date(cheque_date);
     const requestDate = new Date();
     const remarks = `mobilebank request from ${accountNumber} by ${payment_method} ${reference} ${amount} at ${requestDate}`;
@@ -4063,7 +4064,7 @@ const createMobilebank = async (req) => {
         payment_method,
         accountNumber,
         requestDate,
-        fee,
+        gatewayFee,
         transactionID,
         requested_by,
         amount,

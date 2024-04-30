@@ -507,9 +507,6 @@ const Register = async (req, res) => {
       } else {
         console.log('Email sent successfully:', info.response);
       }
-
-
-      
     });
     ;
 
@@ -587,7 +584,6 @@ const login = async (req, res) => {
       "SELECT * FROM user WHERE email = ? AND password = ?",
       [email, hashedPassword]
     );
-
     if (user.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
