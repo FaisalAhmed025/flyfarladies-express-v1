@@ -85,11 +85,6 @@ const customHighlight = () => {
   return "H" + Math.floor(Math.random() * 10000);
 };
 
-const Addonservice = () => {
-  // This is just a simple example; you may want to use a more robust method in a production environment
-  return "A" + Math.floor(Math.random() * 10000);
-};
-
 
 const addtourpackage = async (req, res) => {
   try {
@@ -1634,11 +1629,9 @@ const deleteFAQ = async (req, res) => {
   })
 }
 
-
-
 const createAddOns = async (tour_package_id, req) => {
   try {
-    const addOns = req.body;
+    const addOns = req.body.add_ons; // Corrected key to match the Postman request
     if (!addOns || !Array.isArray(addOns) || addOns.length === 0) {
       throw new Error("Add-ons are required as an array of objects.");
     }
@@ -1649,16 +1642,16 @@ const createAddOns = async (tour_package_id, req) => {
     for (const addOn of addOns) {
       const { id, service, description, cost} = addOn;
 
-      if (!service || !description || !title) {
-        throw new Error("Service, description, and title are required for each add-on object.");
+      if (!service || !description || !cost) { // Corrected !title to !cost
+        throw new Error("Service, description, and cost are required for each add-on object.");
       }
 
       const insertQuery =
-        "INSERT INTO add_ons (id, services, description, tour_package_id, cost) VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO add_ons (services, description, tour_package_id, cost) VALUES (?, ?, ?, ?)";
 
       if (id) {
         // If ID is provided, update the existing add-on
-        const updateQuery = "UPDATE add_ons SET services = ?, description = ?, title = ? WHERE id = ?";
+        const updateQuery = "UPDATE add_ons SET services = ?, description = ?, cost = ? WHERE id = ?";
         await connection.execute(updateQuery, [service, description, cost, id]);
         updatedOrInsertedAddOns.push({
           id,
@@ -1666,11 +1659,9 @@ const createAddOns = async (tour_package_id, req) => {
           message: "Add-on updated successfully"
         });
       } else {
-        // If ID is not provided, it's a new add-on to be inserted
-        const newId = Addonservice(); // Assuming Addonservice generates a new ID
-        const [result] = await connection.execute(insertQuery, [newId, service, description, tour_package_id, cost]);
+        // If ID is not provided, it's a new add-on to be inserted// Assuming Addonservice generates a new ID
+        const [result] = await connection.execute(insertQuery, [ service, description, tour_package_id, cost]);
         updatedOrInsertedAddOns.push({
-          id: newId,
           status: true,
           message: "New add-on inserted successfully"
         });
@@ -1683,7 +1674,6 @@ const createAddOns = async (tour_package_id, req) => {
     throw error;
   }
 };
-
 
 const deleteTourPlanEvents = async (req, id) => {
   const connection = await pool.getConnection();
