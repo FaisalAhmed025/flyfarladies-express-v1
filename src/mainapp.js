@@ -28,6 +28,7 @@ import { hotelRoute } from "./hotel/hotelRoute/allHotelRoute";
 import { visaRoutes } from "./visa/visaRoute";
 import askquestionRoute from  './ask question/router'
 import partnerRoute from  './partner/route'
+import popUpRoute from './popup/route'
 const app = express();
 
 const options = {
@@ -92,6 +93,7 @@ app.use("/api/v1/deposit", depositRoute);
 app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/press", presscoverageRoute);
 app.use("/api/v1/payment", paymentRoute);
+app.use("/api/v1/popup", popUpRoute);
 
 
 app.use("/api/v1/blog", blogRoute);
