@@ -50,30 +50,16 @@ const updatepressCoverage = async (req, res) => {
   try {
     const id = req.params.id;
     const { Description, date, link } = req.body;
-    // Retrieve the existing press coverage data from the database
-    const existingDataQuery = `SELECT * FROM press_coverages WHERE id = ?`;
-    const [existingData] = await pool.query(existingDataQuery, [id]);
-
-    // If no existing data is found, return a 404 error
-    if (existingData.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        message: "No press coverage found with the specified ID.",
-      });
-    }
-
+    const updateBlockImage = {
+      Description, date, link
+  };
+  
+  if (req.publicImageLink)  updateBlockImage.Image =   req.publicImageLink
     // Extract the existing values
-    const { image: existingImage } = existingData[0];
 
-    // If a new image is not provided, keep the existing one
-    const coverimage = req.publicImageLink || existingImage;
+    const updatequery = `UPDATE press_coverages SET ? WHERE id=?`;
 
-    const values = [coverimage, Description, date, link, pressid];
-
-    const updatequery = `UPDATE press_coverages SET image=?, Description=?, date=?, link=? WHERE id=?`;
-
-    const [result] = await pool.query(updatequery, values);
-
+    const [result] = await pool.query(updatequery, [updateBlockImage, id]);
     return result;
   } catch (error) {
     console.error("Error updating press coverage:", error);
