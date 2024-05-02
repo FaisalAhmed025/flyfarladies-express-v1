@@ -8,6 +8,7 @@ const addBlog = async(req,res) =>{
 
   const { Title, Description, Blogfor, WrittenBy, Type } = req.body;
   let imageUrl;
+
   if (req.files.coverimage) {
       // Handle each image here, upload to S3 or save locally
       // Example: const imageUrl = await uploadImageToS3(req.files.blogimages[i]);
@@ -62,9 +63,13 @@ const updateBlog =  async (req,res) =>{
             Title, Description, Blogfor, WrittenBy, Type
         };
         
-        if (req.publicImageLink) {
-            updateBlockImage.secondimage = req.publicImageLink;
-        }
+  if (req.coverimage)  updateBlockImage.blogimages =   req.coverimage
+
+
+  if (req.secondimage) updateBlockImage.secondimage =  req.secondimage
+
+
+
         const updateQuery = `UPDATE blogs SET ? WHERE id=?`;
         const [data] = await pool.query(updateQuery, [updateBlockImage, id]);
 

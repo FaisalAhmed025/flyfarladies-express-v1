@@ -308,6 +308,37 @@ export const handleblogImage = async (req, res, next) => {
   }
 };
 
+export const updatehandleblogImage = async (req, res, next) => {
+  try {
+    if(!req.files)  next()
+    //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
+    //console.log(req.files);
+    const { coverimage, secondimage } = req.files;
+    // if (blogimages.length !== 1 || secondimage.length !== 1) {
+    //   return next(
+    //     new ErrorResponse(
+    //       "You must specify at least one photo",
+    //       httpStatus.FORBIDDEN
+    //     )
+    //   );
+    // }
+
+    //console.log(profilePic[0], nidCopy[0])
+
+    // use in saveGCP file
+    //console.log(secondimage[0], secondimage[0])
+
+    coverimage && (req.file = coverimage[0]) ;
+    coverimage && (req.coverimage = await saveOnGCP(req));
+    secondimage && (req.file = secondimage[0]);
+    secondimage && (req.secondimage = await saveOnGCP(req));
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 
 export const handleSpecificImage = async (req, res, next) => {
   try {
