@@ -6,7 +6,7 @@ import { blogcontroller } from './controller'
 import { blogService } from './service'
 const router  = express.Router()
 
-router.post('/addblog',  upload.fields([{name:'blogimages', maxCount:10}, {name:'secondimage', maxCount:10}]),  handleblogImage, blogcontroller.addBlog)
+router.post('/addblog',  upload.fields([{name:'coverimage', maxCount:1}, {name:'secondimage', maxCount:1}]),  handleblogImage, blogcontroller.addBlog)
 router.get('/all', blogcontroller.getallblogs)
 router.delete('/:id', blogcontroller.deleteBlog)
 router.patch('/update/:id', upload.single('secondimage'), imageHandlerUpdate, blogcontroller.updateBlogcontroller)

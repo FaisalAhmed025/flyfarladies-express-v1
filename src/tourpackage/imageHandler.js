@@ -277,8 +277,8 @@ export const handleblogImage = async (req, res, next) => {
   try {
     //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
     //console.log(req.files);
-    const { blogimages, secondimage } = req.files;
-    if (!blogimages || !secondimage)
+    const { coverimage, secondimage } = req.files;
+    if (!coverimage || !secondimage)
       return next(
         new ErrorResponse(
           "You must specify one photo",
@@ -298,8 +298,8 @@ export const handleblogImage = async (req, res, next) => {
     //console.log(profilePic[0], nidCopy[0])
 
     // use in saveGCP file
-    req.file = blogimages[0];
-    req.blogimages = await saveOnGCP(req);
+    req.file = coverimage[0];
+    req.coverimage = await saveOnGCP(req);
     req.file = secondimage[0];
     req.secondimage = await saveOnGCP(req);
     next();

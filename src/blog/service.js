@@ -7,15 +7,12 @@ import pool from "../database/db";
 const addBlog = async(req,res) =>{
 
   const { Title, Description, Blogfor, WrittenBy, Type } = req.body;
-  const blogimages = [];
-  if (req.files.blogimages) {
-    for (let i = 0; i < req.files.blogimages.length; i++) {
+  let imageUrl;
+  if (req.files.coverimage) {
       // Handle each image here, upload to S3 or save locally
       // Example: const imageUrl = await uploadImageToS3(req.files.blogimages[i]);
-      const imageUrl =  req.imageLink
-      const imageId = i+1// Assuming you have an id for each image
-      blogimages.push({ urlid: imageId, url: imageUrl });
-    }
+     imageUrl =  req.imageLink
+
   }
 
 
@@ -31,9 +28,7 @@ const addBlog = async(req,res) =>{
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-
-  const values = [Title, Description, Blogfor, WrittenBy, Type, JSON.stringify(blogimages), secondurl];
-
+  const values = [Title, Description, Blogfor, WrittenBy, Type, imageUrl, secondurl];
 
   try {
     await pool.query(query, values);
@@ -63,7 +58,6 @@ const  deleteBlog = async(req,res)=>{
 const updateBlog =  async (req,res) =>{
   const id = req.params.id;
         const { Title, Description, Blogfor, WrittenBy, Type } = req.body;
-        
         const updateBlockImage = {
             Title, Description, Blogfor, WrittenBy, Type
         };
@@ -71,7 +65,6 @@ const updateBlog =  async (req,res) =>{
         if (req.publicImageLink) {
             updateBlockImage.secondimage = req.publicImageLink;
         }
-
         const updateQuery = `UPDATE blogs SET ? WHERE id=?`;
         const [data] = await pool.query(updateQuery, [updateBlockImage, id]);
 
