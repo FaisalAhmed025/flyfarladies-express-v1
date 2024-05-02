@@ -1,18 +1,11 @@
 import pool from "../database/db";
 
 
-const generatePackageId = () => {
-  // This is just a simple example; you may want to use a more robust method in a production environment
-  return "FFP" + Math.floor(Math.random() * 10000);
-};
-
 const addPressCoverage  = async (req,res) =>{
 
 try {
   const {Description, date, link} =req.body
   const coverImage = req.publicImageLink;
-
-  const id = generatePackageId()
 
   // Check if cover image is present
   if (!coverImage) {
@@ -20,13 +13,13 @@ try {
   }
 
   const values =[
-    id,
+  
     coverImage,
     Description,
     date,
     link
   ]
-  const insertQuery= `INSERT INTO press_coverages (id, image, Description, date, link) VALUES(?,?,?,?,?)`
+  const insertQuery= `INSERT INTO press_coverages (image, Description, date, link) VALUES(?,?,?,?)`
   const [pressResults] =  await  pool.query(insertQuery, values)
   console.log(pressResults);
 
@@ -93,8 +86,16 @@ const updatepressCoverage = async (req, res) => {
 
 
 
+const  deletepress = async(req,res)=>{
+  const id= req.params.id
+  const deleteQuery = `DELETE FROM press_coverages WHERE id=? `
+  await pool.query(deleteQuery, [id])
+  return res.send({status:'success', message:"press has  deleted"})
+}
+
 export const pressCoverService  = {
   addPressCoverage,
   getAllPressCoverage,
-  updatepressCoverage
+  updatepressCoverage,
+  deletepress
 }

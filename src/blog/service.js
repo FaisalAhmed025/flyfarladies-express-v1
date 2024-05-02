@@ -65,7 +65,6 @@ const updateBlog =  async (req,res) =>{
         
   if (req.coverimage)  updateBlockImage.blogimages =   req.coverimage
 
-
   if (req.secondimage) updateBlockImage.secondimage =  req.secondimage
 
 

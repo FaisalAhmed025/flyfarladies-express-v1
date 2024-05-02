@@ -2,14 +2,15 @@ import { pressCoverService } from "./service"
 
 
 const addPressCoverage = async (req,res)=>{
-  const  data  = await  pressCoverService.addPressCoverage(req,res)
-  return res.status(200).json({status:"success", messsage:"Press coverage added successfully", data:data})
+   await  pressCoverService.addPressCoverage(req,res)
+}
+
+const deletePress = async (req,res)=>{
+  await  pressCoverService.deletepress(req,res)
 }
 
 const getAllpresscoverage = async (req,res)=>{
-  const data = await pressCoverService.getAllPressCoverage(req,res)
-  return res.status(200).json({status:"success", messsage:"Press coverage added successfully", data:data})
-
+  await pressCoverService.getAllPressCoverage(req,res)
 }
 
 const  updatepressCoverage = async (req,res) =>{
@@ -22,5 +23,6 @@ const  updatepressCoverage = async (req,res) =>{
 export const pressCoverageControllerr = {
   addPressCoverage,
   getAllpresscoverage,
-  updatepressCoverage
+  updatepressCoverage,
+  deletePress
 }
