@@ -67,11 +67,9 @@ const updateBlog =  async (req,res) =>{
 
   if (req.secondimage) updateBlockImage.secondimage =  req.secondimage
 
-
-
         const updateQuery = `UPDATE blogs SET ? WHERE id=?`;
         const [data] = await pool.query(updateQuery, [updateBlockImage, id]);
-
+    
         // Check if any rows were affected
         if (data.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Blog not found' });

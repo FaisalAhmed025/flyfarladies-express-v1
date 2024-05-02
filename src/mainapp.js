@@ -27,6 +27,7 @@ import "dotenv/config";
 import { hotelRoute } from "./hotel/hotelRoute/allHotelRoute";
 import { visaRoutes } from "./visa/visaRoute";
 import askquestionRoute from  './ask question/router'
+import partnerRoute from  './partner/route'
 const app = express();
 
 const options = {
@@ -92,8 +93,10 @@ app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/press", presscoverageRoute);
 app.use("/api/v1/payment", paymentRoute);
 
+
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/askquestion", askquestionRoute);
+app.use("/api/v1/partner", partnerRoute);
 
 app.use("/api/v1/bkash", bkashRoute);
 app.use("/api/v1/ssl", sslpaymentRoute);

@@ -273,6 +273,49 @@ export const handleAlbumImage = async (req, res, next) => {
 
 
 
+export const handlePartnerImage = async (req, res, next) => {
+  try {
+    const { firstImage, secondImage, thirdImage } = req.files;
+    if (!firstImage || !secondImage || !thirdImage)
+      return next(
+        new ErrorResponse(
+          "You must specify one photo",
+          httpStatus.FORBIDDEN
+        )
+      );
+
+    // use in saveGCP file
+    req.file = firstImage[0];
+    req.firstImage = await saveOnGCP(req);
+    req.file = secondImage[0];
+    req.secondImage = await saveOnGCP(req);
+    req.file = thirdImage[0];
+    req.thirdImage = await saveOnGCP(req);
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updatePartnerImage = async (req, res, next) => {
+  try {
+
+    if(!req.files)  next()
+    const { firstImage, secondImage, thirdImage } = req.files;
+    // use in saveGCP file
+  firstImage &&  (req.file = firstImage[0]);
+  firstImage && ( req.firstImage = await saveOnGCP(req));
+  secondImage &&  (req.file = secondImage[0]);
+  secondImage && (req.secondImage = await saveOnGCP(req));
+  thirdImage &&  (req.file = thirdImage[0]);
+  thirdImage &&  (req.thirdImage = await saveOnGCP(req));
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 export const handleblogImage = async (req, res, next) => {
   try {
     //if (req.files.length !== 2) next(new ErrorResponse('You must specify'))
@@ -285,17 +328,6 @@ export const handleblogImage = async (req, res, next) => {
           httpStatus.FORBIDDEN
         )
       );
-
-    // if (blogimages.length !== 1 || secondimage.length !== 1) {
-    //   return next(
-    //     new ErrorResponse(
-    //       "You must specify at least one photo",
-    //       httpStatus.FORBIDDEN
-    //     )
-    //   );
-    // }
-
-    //console.log(profilePic[0], nidCopy[0])
 
     // use in saveGCP file
     req.file = coverimage[0];
