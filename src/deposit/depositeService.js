@@ -39,7 +39,7 @@ const createBankDeposit = async (req) => {
    const date = new Date();
     // const formattedDate = transactionDate.toDateString();
     const remarks = `Bank Deposit request from ${deposited_from} to ${deposited_to}, On ${formattedDate}.Your TRX ID is ${transaction_id} & amount ${amount} only`;
-
+    
     console.log(image);
     const value = [
       deposit_id,

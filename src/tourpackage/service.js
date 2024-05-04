@@ -1250,7 +1250,7 @@ const createTourPlan = async (req) => {
         // Check if ID is provided
         // Update the tour plan in the database
         await pool.query(
-          `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, staying_place=?, breakFast=?, meals=?, dinner=? WHERE id = ?`,
+          `UPDATE tour_itinerary SET day_title = ?, day_plan = ?, staying_place=?, breakFast=?, meal=?, dinner=? WHERE id = ?`,
           [day_title, day_plan, stayingPlace, breakFast, meal, dinner, id]
         );
       } else {
@@ -1261,7 +1261,7 @@ const createTourPlan = async (req) => {
 
         // Execute the INSERT query to add the tour plan to the database
         const [result] = await pool.query(
-          `INSERT INTO tour_itinerary (id, tour_package_id, day_title, day_plan, staying_place, breakFast, meals, dinner) VALUES (?, ?, ?, ?,?,?,?,?)`,
+          `INSERT INTO tour_itinerary (id, tour_package_id, day_title, day_plan, staying_place, breakFast, meal, dinner) VALUES (?, ?, ?, ?,?,?,?,?)`,
           values
         );
         updatedOrInsertedTourPlans.push(result); // Push the inserted record
