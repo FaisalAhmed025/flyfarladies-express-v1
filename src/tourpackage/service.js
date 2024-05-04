@@ -121,6 +121,7 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      accommodation 
     } = req.body;
 
     // Assuming the file field name is 'coverImage'
@@ -169,6 +170,7 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      accommodation 
     ];
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
@@ -178,9 +180,10 @@ const addtourpackage = async (req, res) => {
         Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
         Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage,   adult_base_price, 
         child_base_price, 
-        infant_base_price
+        infant_base_price,
+        accommodation 
       ) 
-      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
       values
     );
     console.log(values);
@@ -743,7 +746,8 @@ const updateTourPackage = async (req, res) => {
       CancellationDate,
       adult_base_price,
       child_base_price,
-      infant_base_price
+      infant_base_price,
+      accommodation 
       // Assuming coverImage is coming from request body
     } = req.body;
 
@@ -787,6 +791,7 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      accommodation ,
       packageId // Add packageId for WHERE clause
     ];
 
@@ -823,7 +828,8 @@ const updateTourPackage = async (req, res) => {
         coverImage = COALESCE(?, coverImage),
         adult_base_price = COALESCE(?, adult_base_price),
         child_base_price = COALESCE(?, child_base_price),
-        infant_base_price = COALESCE(?, infant_base_price)
+        infant_base_price = COALESCE(?, infant_base_price),
+        accommodation  =  COALESCE(?, accommodation),
       WHERE PKID = ?`,
       values
     );
@@ -1090,13 +1096,9 @@ const addInstallment = async (req, PKID) => {
 };
 
 
-
-
-
 const createAlbumImage = async (req, res, PKID) => {
   let connection;
   const { albumtitle } = req.body;
-
   const albumimageurl = [];
   if (req.files.albumimageurl) {
     for (let i = 0; i < req.files.albumimageurl.length; i++) {

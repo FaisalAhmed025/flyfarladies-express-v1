@@ -26,12 +26,11 @@ const addpopUp = async(req,res) =>{
 const updatePopup = async (req, res) => {
   const id = req.params.id
   const { title, isActive } = req.body;
-  
+
   const updatedvalue  ={
     title, isActive 
   }
   if(req.publicImageLink) updatedvalue.file = req.publicImageLink
-
   const updateQuery = `UPDATE popup SET ? WHERE id=?`;
 
   try {
