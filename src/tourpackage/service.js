@@ -36,7 +36,7 @@ export const upload = multer({
 
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
-  return "" + Math.floor(Math.random() * 10000);
+  return "FFLPK" + Math.floor(Math.random() * 10000);
 };
 
 const visitedimageid = () => {
@@ -129,6 +129,7 @@ const addtourpackage = async (req, res) => {
 
     const coverImage = req.publicImageLink;
     const packgeId = generatePackageId();
+    console.log(packgeId)
 
     // Check if cover image is present
     if (!coverImage) {
@@ -460,7 +461,7 @@ const deleteTourPlanEventsouritenerary = async (req, res) => {
 
 const deletTourItenerary = async (req, res) => {
   const id = req.params.id
-  const tourplanquery = `DELETE FROM tourplan WHERE id= ?`
+  const tourplanquery = `DELETE FROM tour_itinerary WHERE id= ?`
   await pool.query(tourplanquery, [id])
   return res.status(200).json({
     status: true,

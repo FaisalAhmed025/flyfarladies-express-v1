@@ -23,6 +23,40 @@ const addpopUp = async(req,res) =>{
 }
 
 
+const Subscription = async(req,res) =>{
+  const {Email} = req.body;
+  const query = `
+    INSERT INTO subscription (Email, Date)
+    VALUES (?,?)
+  `;
+  const date = new Date()
+  const options = { 
+    weekday: 'long',
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka' 
+  };
+
+  const formattedDate = date.toLocaleString('en-BD', options);
+  const values = [Email, formattedDate];
+
+  try {
+    await pool.query(query, values);
+    res.status(200).json({ status: 'success', message: 'Thanks for your subscription' });
+  } catch (error) {
+    console.error('Error creating blog:', error);
+    res.status(500).json({ status: 'error', message: 'An error occurred while creating blog' });
+  }
+
+}
+
+
+
 const updatePopup = async (req, res) => {
   const id = req.params.id
   const { title, isActive } = req.body;
@@ -57,7 +91,8 @@ const getpopupimage =  async(req,res) =>{
 export const blogPopUp ={
   addpopUp,
   getpopupimage,
-  updatePopup
+  updatePopup,
+  Subscription
   
  
 }

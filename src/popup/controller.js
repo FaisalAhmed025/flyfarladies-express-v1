@@ -4,6 +4,11 @@ const addpopUp = async(req,res)=>{
   await blogPopUp.addpopUp(req,res)
 }
 
+const subscription = async(req,res)=>{
+  await blogPopUp.Subscription(req,res)
+}
+
+
 const getallPopUp = async(req,res)=>{
   await blogPopUp.getpopupimage(req,res)
 }
@@ -21,4 +26,5 @@ export const popUPcontroller  = {
   addpopUp,
   getallPopUp,
   updatepopUp,
+  subscription
 }
