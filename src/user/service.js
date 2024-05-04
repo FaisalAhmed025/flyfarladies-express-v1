@@ -668,60 +668,6 @@ const loginwithGoogle = async (req, res) => {
 };
 
 
-const forgetpasswordResetRequest = async(req, res)=> {
-  try {
-    const { email } = req.body;
-
-    // Check if the user with the provided email exists
-    const [user] = await pool.query("SELECT * FROM user WHERE email = ?", [email]);
-    if (user.length === 0) {
-      throw new Error('User not found with this email');
-    }
-
-    // Generate a random token
-    const token = crypto.randomBytes(32).toString('hex');
-
-    // Save the token in the database
-    await pool.query("INSERT INTO reset_password (email, token) VALUES (?, ?)", [email, token]);
-
-    // Construct the password reset link
-    const resetLink = `https://www.flyfarladies.com/resetpassword?token=${token}`;
-
-    const mailOptions = {
-      from: 'mailserver@flyfarladies.com', // Replace with your email address
-      to: email, // Recipient's email address
-      subject: 'password reset',
-      text: 'please go through this link and update your password',
-      html: `Click <a href="${resetLink}">here</a> to reset your password`
-  
-    }
-
-
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
-      port: 465, // Replace with your email service provider's SMTP port
-      secure: true, // Use TLS for secure connection
-      auth: {
-        user: 'mailserver@flyfarladies.com', // Replace with your email address
-        pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
-      },
-    });
-
-   
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error(error);
-      } else {
-        console.log('Email sent successfully:', info.response);
-      }
-    });
-    return res.status(200).json({ message: 'Password reset link sent successfully' });
-  } catch (error) {
-    console.error('Error sending password reset link:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
 
 // Define a schema for the request body
 const userSchema = object({
@@ -924,6 +870,62 @@ const deleteTraveller = async (req, res) => {
     console.log();
   }
 };
+
+
+
+const forgetpasswordResetRequest = async(req, res)=> {
+  try {
+    const { email } = req.body;
+
+    // Check if the user with the provided email exists
+    const [user] = await pool.query("SELECT * FROM user WHERE email = ?", [email]);
+    if (user.length === 0) {
+      throw new Error('User not found with this email');
+    }
+
+    // Generate a random token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Save the token in the database
+    await pool.query("INSERT INTO reset_password (email, token) VALUES (?, ?)", [email, token]);
+
+    // Construct the password reset link
+    const resetLink = `https://www.flyfarladies.com/resetpassword?token=${token}`;
+
+    const mailOptions = {
+      from: 'mailserver@flyfarladies.com', // Replace with your email address
+      to: email, // Recipient's email address
+      subject: 'password reset',
+      text: 'please go through this link and update your password',
+      html: `Click <a href="${resetLink}">here</a> to reset your password`
+  
+    }
+
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'mailserver@flyfarladies.com', // Replace with your email address
+        pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
+      },
+    });
+
+   
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(error);
+      } else {
+        console.log('Email sent successfully:', info.response);
+      }
+    });
+    return res.status(200).json({status: 'success',  message: 'Password reset link sent successfully' });
+  } catch (error) {
+    console.error('Error sending password reset link:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 
 const resetPassword = async (req, res)=> {
