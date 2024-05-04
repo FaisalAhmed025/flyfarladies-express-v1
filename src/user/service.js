@@ -685,7 +685,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
     await pool.query("INSERT INTO reset_password (email, token) VALUES (?, ?)", [email, token]);
 
     // Construct the password reset link
-    const resetLink = `https://www.example.com/resetpassword?token=${token}`;
+    const resetLink = `https://www.flyfarladies.com/resetpassword?token=${token}`;
 
     const mailOptions = {
       from: 'mailserver@flyfarladies.com', // Replace with your email address
@@ -715,8 +715,6 @@ const forgetpasswordResetRequest = async(req, res)=> {
         console.log('Email sent successfully:', info.response);
       }
     });
-    ;
-    
     return res.status(200).json({ message: 'Password reset link sent successfully' });
   } catch (error) {
     console.error('Error sending password reset link:', error);
@@ -935,8 +933,6 @@ const resetPassword = async (req, res)=> {
       throw new Error('Passwords do not match');
     }
 
-    console.log(token)
-
     // Find password reset request by token
     const restequery = `SELECT * FROM reset_password WHERE token = ?`
     const [passwordReset] = await pool.query(restequery, [token]);
@@ -953,8 +949,6 @@ const resetPassword = async (req, res)=> {
     if (!user) {
       throw new Error('User not found');
     }
-
-    console.log(user);
 
     const userid =user[0].id
 

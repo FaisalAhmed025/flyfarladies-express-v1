@@ -1,5 +1,4 @@
 
-
 import SSLCommerzPayment from 'sslcommerz-lts';
 import { createHash } from 'crypto';
 import pool from '../database/db';
@@ -20,7 +19,7 @@ const initpayment = async(req,res) =>{
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] = await pool.query(userquery, [userid]);
 
-  console.log(user);
+
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
@@ -29,9 +28,9 @@ const initpayment = async(req,res) =>{
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `http://localhost:4004/api/v1/ssl/success/${transactionId}`,
-    fail_url: `http://localhost:4004/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `http://localhost:4004/api/v1/ssl/cancel/${transactionId}`,
+    success_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/success/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email,
@@ -96,7 +95,6 @@ const sucesss  = async (req,res)=>{
       return res.status(404).json({ message: 'Transaction ID not found', error: true });
     }
     await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
-
     return res.status(200).json({
       status: 'success',
       message: 'Payment success',
