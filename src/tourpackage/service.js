@@ -792,7 +792,7 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      accommodation ,
+      accommodation,
       packageId // Add packageId for WHERE clause
     ];
 
@@ -830,7 +830,7 @@ const updateTourPackage = async (req, res) => {
         adult_base_price = COALESCE(?, adult_base_price),
         child_base_price = COALESCE(?, child_base_price),
         infant_base_price = COALESCE(?, infant_base_price),
-        accommodation  =  COALESCE(?, accommodation),
+        accommodation  =  COALESCE(?, accommodation)
       WHERE PKID = ?`,
       values
     );
@@ -1533,21 +1533,35 @@ const createCancelationPolicy = async (req, PKID) => {
 
     const tour_package_id = packageResults[0].PKID;
 
-    const insertQuery =
-      "INSERT INTO cancellation_policy (id, tour_package_id, cancellation_policy) VALUES (?, ?, ?)";
-
     const insertResults = [];
 
-    // Insert each cancellation policy object as a separate row
     for (const cancellationObj of cancellationPolicies) {
-      const id = customcancId();
-      const insertValues = [
-        id,
-        tour_package_id,
-        cancellationObj.cancellation_policy,
-      ];
-      const [result] = await connection.execute(insertQuery, insertValues);
-      insertResults.push(result);
+      const { id, cancellation_policy } = cancellationObj;
+
+      if (!cancellation_policy) {
+        throw new Error("Cancellation policy text is required for each object.");
+      }
+
+      if (id) {
+        // If ID is provided, update the existing cancellation policy
+        const updateQuery = "UPDATE cancellation_policy SET cancellation_policy = ? WHERE id = ? AND tour_package_id = ?";
+        await connection.execute(updateQuery, [cancellation_policy, id, tour_package_id]);
+        insertResults.push({
+          id,
+          status: true,
+          message: "Cancellation policy updated successfully"
+        });
+      } else {
+        // If ID is not provided, it's a new cancellation policy to be inserted
+        const newId = customcancId();
+        const insertQuery = "INSERT INTO cancellation_policy (id, tour_package_id, cancellation_policy) VALUES (?, ?, ?)";
+        await connection.execute(insertQuery, [newId, tour_package_id, cancellation_policy]);
+        insertResults.push({
+          id: newId,
+          status: true,
+          message: "New cancellation policy inserted successfully"
+        });
+      }
     }
     connection.release();
 
