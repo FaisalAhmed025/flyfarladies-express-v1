@@ -19,7 +19,7 @@ try {
     date,
     link
   ]
-  const insertQuery= `INSERT INTO press_coverages (image, Description, date, link) VALUES(?,?,?,?)`
+  const insertQuery= `INSERT INTO press_coverages (image, Description, date, links) VALUES(?,?,?,?)`
   const [pressResults] =  await  pool.query(insertQuery, values)
   console.log(pressResults);
 

@@ -414,7 +414,7 @@ const getmainimage = async (PKID) => {
     mainimage.imageurl
   FROM mainimage
   JOIN tourpackage ON mainimage.packageId = tourpackage.PKID
-  WHERE mainimage.packageId = ?;  
+  WHERE mainimage.packageId = ? 
     `;
     const [results] = await pool.execute(mainimage, [PKID]);
     return results;
@@ -527,7 +527,7 @@ export const getExclusion = async (PKID) => {
     exclusion.id,
     exclusion.tour_package_id,
     exclusion.exclusion
-  FROM exclusion
+    FROM exclusion
   JOIN tourpackage ON exclusion.tour_package_id = tourpackage.PKID
   WHERE exclusion.tour_package_id = ?;  
 `;

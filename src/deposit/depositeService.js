@@ -4695,7 +4695,6 @@ const createMobilebank = async (req) => {
         console.log('Email sent successfully:', info.response);
       }
     });
-
     
     await connection.commit(); // Commit the transaction when the query is successful
     connection.release();
