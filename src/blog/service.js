@@ -74,10 +74,7 @@ const updateBlog =  async (req,res) =>{
         if (data.affectedRows === 0) {
             return res.status(404).json({ success: false, message: 'Blog not found' });
         }
-
         return res.status(200).json({ success: true, message: 'Blog updated successfully' });
-
-
 }
 
 

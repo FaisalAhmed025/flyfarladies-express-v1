@@ -898,9 +898,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
       subject: 'password reset',
       text: 'please go through this link and update your password',
       html: `Click <a href="${resetLink}">here</a> to reset your password`
-  
     }
-
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
@@ -911,8 +909,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
         pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
       },
     });
-
-   
+    
     await transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error(error);

@@ -5,21 +5,20 @@ const addpopUp = async(req,res)=>{
 }
 
 const getallPopUp = async(req,res)=>{
-  await blogPopUp.getallblogs(req,res)
+  await blogPopUp.getpopupimage(req,res)
 }
 
 
-const deletePOp = async(req,res)=>{
-  await blogPopUp.deleteBlog(req,res)
-}
+// const deletePOp = async(req,res)=>{
+//   await blogPopUp.deleteBlog(req,res)
+// }
 
-const updateBlogcontroller = async(req,res)=>{
-  await blogPopUp.updateBlog(req,res)
+const updatepopUp = async(req,res)=>{
+  await blogPopUp.updatePopup(req,res)
 }
 
 export const popUPcontroller  = {
   addpopUp,
   getallPopUp,
-  deletePOp,
-  updateBlogcontroller,
+  updatepopUp,
 }

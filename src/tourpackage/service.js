@@ -1035,12 +1035,6 @@ const addInstallment = async (req, PKID) => {
       IFirstInstallmentAmount,
       ISecondInstallmentAmount
     } = installment;
-
-    if (!FirstInstallmentdueDate || !SecondInstallmentdueDate || !ABookingAmount || !AFirstInstallmentAmount || !ASecondInstallmentAmount ||
-      !CBookingAmount || !CFirstInstallmentAmount || !CSecondInstallmentAmount || !IBookingAmount || !IFirstInstallmentAmount || !ISecondInstallmentAmount) {
-      throw new Error("Please provide all installment details.");
-    }
-
     if (InstallmentId) {
       const updateQuery = `UPDATE installment SET 
                             FirstInstallmentdueDate = ?,
@@ -1660,13 +1654,11 @@ const createAddOns = async (tour_package_id, req) => {
     if (!addOns || !Array.isArray(addOns) || addOns.length === 0) {
       throw new Error("Add-ons are required as an array of objects.");
     }
-
     const connection = await pool.getConnection();
     const updatedOrInsertedAddOns = [];
 
     for (const addOn of addOns) {
       const { id, service, description, cost} = addOn;
-
       if (!service || !description || !cost) { // Corrected !title to !cost
         throw new Error("Service, description, and cost are required for each add-on object.");
       }
