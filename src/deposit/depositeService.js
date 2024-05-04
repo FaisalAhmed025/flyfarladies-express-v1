@@ -39,7 +39,7 @@ const createBankDeposit = async (req) => {
    const date = new Date();
     // const formattedDate = transactionDate.toDateString();
     const remarks = `Bank Deposit request from ${deposited_from} to ${deposited_to}, On ${formattedDate}.Your TRX ID is ${transaction_id} & amount ${amount} only`;
-    
+
     console.log(image);
     const value = [
       deposit_id,
@@ -685,7 +685,6 @@ const createBankDeposit = async (req) => {
     </html>
     `
 
-
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
@@ -732,7 +731,6 @@ const ApprovedBankDeposit = async (req) => {
   const connection = await pool.getConnection();
   try {
     const deposit_id = req.params.deposit_id;
-
     const {action_by } = req.body;
     const depositQuery = "SELECT * FROM bank_transfer WHERE deposit_id = ?";
     const [result] = await pool.query(depositQuery, [deposit_id]);
@@ -757,13 +755,15 @@ const ApprovedBankDeposit = async (req) => {
 
     const updateUserWalletQuery = `UPDATE user SET wallet = wallet+? WHERE id = ?`;
     const user_id = result[0].requested_by;
-
     const  userquery= `SELECT * FROM user WHERE id =?`
     const [user] = await pool.query(userquery, [user_id])
     const [ksocjocj] = await connection.execute(updateUserWalletQuery, [
       amount,
       user_id,
     ]);
+
+// const opeartion = 'Deposit'
+//     const ledgerquery  =`INSERT INTO ledger_2 () VALUES(depositid, )`
 
     const date = new Date()
 

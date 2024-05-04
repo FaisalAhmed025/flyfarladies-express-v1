@@ -481,7 +481,7 @@ const getTourPlan = async (PKID) => {
     tour_itinerary.day_title,
     tour_itinerary.day_plan,
     tour_itinerary.staying_place,
-    tour_itinerary.meals,
+    tour_itinerary.meal,
     tour_itinerary.breakFast,
     tour_itinerary.dinner
   FROM tour_itinerary
@@ -1132,12 +1132,8 @@ const createAlbumImage = async (req, res, PKID) => {
 
   const values = [JSON.stringify(albumimageurl), albumcoverimageurl, albumtitle, tourPackageId];
 
-
   await pool.query(newalbumquery, values);
   return res.status(200).json({ status: 'success', message: 'album created successfully' });
-
-
-
 
 };
 
@@ -1160,7 +1156,7 @@ const UpdateAlbumImage = async (req, AlbumId) => {
   const Id = packageResults[0]?.AlbumId;
   const updateQuery = `UPDATE albumimage  SET albumcoverimageurl = ?,
     albumtitle = ? 
-WHERE AlbumId = ?`;
+  WHERE AlbumId = ?`;
   console.log(updateQuery);
   const values = [imageUrl, albumtitle, Id];
   const [result] = await pool.query(updateQuery, values);
