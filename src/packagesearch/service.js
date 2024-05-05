@@ -44,7 +44,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ?`;
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
       console.log(packagequery);
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
@@ -62,7 +62,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ?`;
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
       console.log(packagequery);
       try {
         const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
@@ -77,7 +77,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
     }
   
     else if(City && Country){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND Country=?` ;
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND Country=? AND isActive=1` ;
       console.log(packagequery)
       const [data] = await pool.query(packagequery, [`%${City}%`, Country])
       if(data.length ===0){
@@ -88,7 +88,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
 
   
    else if(TripType && Country){
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ?` ;
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ? AND isActive=1` ;
       console.log(packagequery)
       const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
       if(data.length ===0){
@@ -98,7 +98,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
     }
   
     else if(City && TripType){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND TripType=?` ;
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND TripType=? AND isActive=1` ;
       console.log(packagequery)
       const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
       if(data.length ===0){
@@ -108,7 +108,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
     }
   
     else if(City){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE?` ;
+      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND isActive=1` ;
       console.log(packagequery)
       const [data] = await pool.query(packagequery, [`%${City}%`])
       if(data.length ===0){
@@ -119,7 +119,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
   
     
     else if(TripType){
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType=?` ;
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND isActive=1` ;
       console.log(packagequery)
       const [data] = await pool.query(packagequery, [TripType])
       if(data.length ===0){

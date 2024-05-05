@@ -1,5 +1,6 @@
 import multer from "multer";
 import pool from "../database/db";
+import cron from 'node-cron'
 
 
 // define image type
@@ -84,6 +85,37 @@ const customHighlight = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "H" + Math.floor(Math.random() * 10000);
 };
+
+
+function logMessage() {
+  console.log('Cron job executed at:', new Date().toLocaleString());
+ }
+
+const deactivatePackages = async () => {
+  try {
+    const connection = await pool.getConnection();
+    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
+    console.log(currentDate)
+
+    const updateQuery = `
+      UPDATE tourpackage
+      SET isActive = 0
+      WHERE StartDate < ? AND isActive = 1
+    `;
+
+    await connection.execute(updateQuery, [currentDate]);
+    connection.release();
+    console.log('Packages deactivated successfully');
+  } catch (error) {
+    console.error('Error deactivating packages:', error);
+  }
+};
+
+cron.schedule('* * * * *', async () => {
+  console.log('Running package deactivation task...');
+  logMessage()
+  await deactivatePackages();
+});
 
 
 const addtourpackage = async (req, res) => {
@@ -326,7 +358,7 @@ const getSingleTourPackages = async (PKID) => {
       cancellationPolicy,
       albumImage,
       FAQS,
-    add_ons
+      add_ons
 
       // addOns,
     ] = await Promise.all([
