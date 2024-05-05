@@ -439,6 +439,25 @@ const createCancelationPolicy = async (req, res) => {
   }
 };
 
+const createbookingSlot = async (req, res) => {
+  try {
+    const id = req.params.PKID;
+    const result = await tourpackageService.createBookingSlot(req,res,id);
+    // Check if the result is an error
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      message: 'Bookingslot created successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 
 const addAddOnsController = async (req, res) => {
@@ -624,5 +643,6 @@ export const tourpackageController = {
   deleteMainimage,
   addFAQs,
   deleteaddons,
+  createbookingSlot
 
 }

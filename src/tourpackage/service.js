@@ -1365,6 +1365,49 @@ const createInclusion = async (req, PKID) => {
 };
 
 
+const createBookingSlot = async (req, res, PKID) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const bookingSlotData = req.body.bookingSlotData;
+
+    const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
+
+    if (packageResults.length === 0) {
+      return res.send({message:"Tour package not found."});
+    }
+    const tourPackageId = packageResults[0].PKID;
+    for (const slotData of bookingSlotData) {
+      const { StartDate, EndDate, id } = slotData;
+      if (id) {
+        // If ID is provided, update the booking slot in the database
+        await connection.query(
+          `UPDATE bookingslot SET StartDate = ?, EndDate = ? WHERE id = ? AND tour_package_id = ?`,
+          [StartDate, EndDate, id, tourPackageId]
+        );
+      } else {
+        // Generate a unique ID for the booking slot
+        // Insert new booking slot into the database
+        await connection.query(
+          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate) VALUES (?, ?, ?)`,
+          [ tourPackageId, StartDate, EndDate]
+        );
+      }
+    }
+
+    console.log('Booking slots added/updated successfully');
+  } catch (error) {
+    console.error('Error creating/updating booking slots:', error);
+    throw new Error('An error occurred while creating/updating booking slots');
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
+};
+
+
 const createExclusion = async (req, PKID) => {
   let connection;
   try {
@@ -1850,5 +1893,6 @@ export const tourpackageService = {
   cancellationPolicy,
   UpdateMainImage,
   updatealbumIinnermage,
-  UpdatevisitedImage
+  UpdatevisitedImage,
+  createBookingSlot
 };
