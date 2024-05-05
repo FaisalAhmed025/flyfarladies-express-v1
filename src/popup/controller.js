@@ -14,9 +14,9 @@ const getallPopUp = async(req,res)=>{
 }
 
 
-// const deletePOp = async(req,res)=>{
-//   await blogPopUp.deleteBlog(req,res)
-// }
+const deletePOp = async(req,res)=>{
+  await blogPopUp.deletepopup(req,res)
+}
 
 const updatepopUp = async(req,res)=>{
   await blogPopUp.updatePopup(req,res)
@@ -26,5 +26,6 @@ export const popUPcontroller  = {
   addpopUp,
   getallPopUp,
   updatepopUp,
-  subscription
+  subscription,
+  deletePOp
 }

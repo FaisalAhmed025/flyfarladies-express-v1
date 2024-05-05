@@ -84,6 +84,18 @@ const getpopupimage =  async(req,res) =>{
 }
 
 
+const deletepopup = async (req, res) => {
+  const id = req.params.id
+  const deletequery = `DELETE FROM popup WHERE id= ?`
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message: 'image has removed'
+  })
+}
+
+
 
 
 
@@ -92,7 +104,8 @@ export const blogPopUp ={
   addpopUp,
   getpopupimage,
   updatePopup,
-  Subscription
+  Subscription,
+  deletepopup
   
  
 }

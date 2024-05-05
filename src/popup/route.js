@@ -9,6 +9,7 @@ const router  = express.Router()
 router.post('/add', upload.single('image'),  imageHandler, popUPcontroller.addpopUp)
 router.get('/all',popUPcontroller.getallPopUp)
 router.post('/subscription',popUPcontroller.subscription)
+router.delete('/delete/:id',popUPcontroller.deletePOp)
 router.patch('/update/:id', upload.single('file'), imageHandlerUpdate, popUPcontroller.updatepopUp)
 
 export default router;
