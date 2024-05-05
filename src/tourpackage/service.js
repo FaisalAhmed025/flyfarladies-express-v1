@@ -111,7 +111,7 @@ const deactivatePackages = async () => {
   }
 };
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   console.log('Running package deactivation task...');
   logMessage()
   await deactivatePackages();
@@ -723,7 +723,7 @@ const getAllTourPackages = async () => {
     const tourPackageQuery = `
     SELECT*
     FROM
-      tourpackage;
+      tourpackage WHERE isActive=1;
   `;
     const [tourPackageResults] = await pool.execute(tourPackageQuery);
     console.log(tourPackageResults);
