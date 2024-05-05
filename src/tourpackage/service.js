@@ -564,7 +564,8 @@ const getBookingslot = async (PKID) => {
     bookingslot.tour_package_id,
     bookingslot.StartDate,
     bookingslot.EndDate,
-    bookingslot.available_seat
+    bookingslot.available_seat,
+    bookingslot.Price
     FROM bookingslot
     JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
     WHERE bookingslot.tour_package_id = ?

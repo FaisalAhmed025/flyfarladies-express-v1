@@ -205,8 +205,6 @@ const infantprice  = tourpackage[0].infant_base_price
 const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? `
 const [installmentdata] = await pool.query(installmentQuery, [packgeId])
 
-console.log(installmentdata)
-
 let totalAdultprice = (installmentdata[0].ABookingAmount +
   installmentdata[0].AFirstInstallmentAmount +
   installmentdata[0].ASecondInstallmentAmount) * totaladult;
@@ -218,10 +216,6 @@ let totalChildprice = (installmentdata[0].CBookingAmount +
 let totalInfantprice = (installmentdata[0].IBookingAmount +
   installmentdata[0].IFirstInstallmentAmount +
   installmentdata[0].ISecondInstallmentAmount) * totalinfant;
-
-console.log("Total Adult Price: ", totalAdultprice);
-console.log("Total Child Price: ", totalChildprice);
-console.log("Total Infant Price: ", totalInfantprice);
 
 const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId])
 
@@ -240,10 +234,6 @@ const selectedAddonsFromRequest = req.body.selectedAddons || [];
       }
     }
 
-    console.log("addonprice", addonTotal)
-
-  
-console.log(adultprice,childprice, infantprice)
 const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice +addonTotal;
 
 let totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
@@ -263,7 +253,6 @@ const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstal
 const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
 
 const paymentstatus = payementStatus.UNPAID
-console.log(totalpackageprice);
     const values = [
       bookingid,
       userid,
@@ -304,7 +293,6 @@ console.log(totalpackageprice);
       
     ];
 
-    console.log(values);
 
     const [result] = await pool.query(
       `INSERT INTO booking (
@@ -348,10 +336,51 @@ console.log(totalpackageprice);
       values
     );
 
-    console.log(result)
 
+    const bookingSlotId = req.body.id
+    const  slotquery = `SELECT * FROM bookingslot WHERE id=?`
+    const [slot] =  await pool.query(slotquery,[bookingSlotId])
 
-    const totalseat = totaladult+totalchild+totalinfant
+    if (slot?.length > 0) {
+      const slotstartdate = new Date(slot[0].StartDate);
+      const bookingStartDateObj = new Date(slotstartdate);
+      
+      const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
+      const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
+      const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
+    
+      // Calculate the differences between the installments
+      const differenceBetweenFirstAndSecondInstallments = Math.floor((SecondInstallmentdueDate - FirstInstallmentdueDate) / (1000 * 60 * 60 * 24));
+      const differenceBetweenSecondAndThirdInstallments = Math.floor((ThirdInstallmentdueDate - SecondInstallmentdueDate) / (1000 * 60 * 60 * 24));
+    
+      // Adjust the new first installment due date
+      const newFirstInstallmentdueDate = new Date(bookingStartDateObj);
+      newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
+    
+      // Adjust the new second installment due date
+      const newSecondInstallmentdueDate = new Date(newFirstInstallmentdueDate);
+      newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + differenceBetweenSecondAndThirdInstallments);
+    
+      // Adjust the new third installment due date
+      const newThirdInstallmentdueDate = new Date(newSecondInstallmentdueDate);
+      newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + differenceBetweenSecondAndThirdInstallments);
+    
+      const updateBookingQuery = `
+        UPDATE booking
+        SET booking_money_due_date = ?,
+        first_installment_due_date=?,
+        second_installment_due_date = ?
+        WHERE bookingid = ?
+      `;
+      
+      await pool.query(updateBookingQuery, [
+        newFirstInstallmentdueDate.toISOString().split('T')[0],
+        newSecondInstallmentdueDate.toISOString().split('T')[0],
+        newThirdInstallmentdueDate.toISOString().split('T')[0],
+        bookingid
+      ]);
+    }
+    
 
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host

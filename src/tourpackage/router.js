@@ -75,7 +75,6 @@ router.post('/addfaqs', tourpackageController.addFAQs)
 router.get('/getallfaqs', tourpackageController.getAllFAQS)
 router.delete('/deletefaqs/:id', tourpackageController.deleteFAQ)
 
-
 //bookingSlot
 router.post('/createbookingslot/:PKID', tourpackageController.createbookingSlot)
 
