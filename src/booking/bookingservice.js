@@ -35,7 +35,7 @@ const Book$Hold = async (req, res) => {
     const packgeId = req.params.PKID;
     const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
     const [tourpackage] = await pool.query(packgaeQuery, [packgeId]);
-    if (tourpackage.length ===0) {
+    if (tourpackage.length === 0) {
       throw new HttpException(
         `TourPackage not found with this id=${packgeId}`,
         httpStatus.BAD_REQUEST
@@ -136,11 +136,10 @@ const Book$Hold = async (req, res) => {
       // Assuming you need to update total amount and push travelers to the array
     }
 
-
     if (Array.isArray(infant) && infant.length > 0) {
       // Prepare an array to hold all adult traveler values
       const infantTravelersValues = [];
-
+    
       for (const infanttraveler of infant) {
         const {
           ipaxType,
@@ -179,10 +178,7 @@ const Book$Hold = async (req, res) => {
     await pool.query(addInfantPassengerQuery , [infantTravelersValues]);
   }
 
-
-
   const date = new Date()
-
   const options = { 
     weekday: 'long',
     year: 'numeric', 
@@ -195,7 +191,7 @@ const Book$Hold = async (req, res) => {
     timeZone: 'Asia/Dhaka' 
   };
 
-  const bookingAt = date.toLocaleString('en-BD', options);
+const bookingAt = date.toLocaleString('en-BD', options);
 
 const totaladult = adult.length
 const totalchild = child.length
@@ -662,7 +658,6 @@ const CancelledBooking = async (req, res) => {
   try {
     const { bookingid } = req.params;
     const { action_by,rejected_reason } = req.body;
-
     const connection = await pool.getConnection();
     // Update booking status
     const status =  bookingStatus.CANCELLED
