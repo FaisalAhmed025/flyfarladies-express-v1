@@ -344,7 +344,8 @@ const getSingleTourPackages = async (PKID) => {
       cancellation_policy: [],
       albumImage: [],
       FAQs: [],
-      add_ons:[]
+      add_ons:[],
+      bookingslot:[]
     };
     const [
       getmainimg,
@@ -358,7 +359,8 @@ const getSingleTourPackages = async (PKID) => {
       cancellationPolicy,
       albumImage,
       FAQS,
-      add_ons
+      add_ons,
+      bookingslot
 
       // addOns,
     ] = await Promise.all([
@@ -374,6 +376,7 @@ const getSingleTourPackages = async (PKID) => {
       getalbumImage(tourPackageData.PKID),
       getFAQs(tourPackageData.PKID),
       getAddOns(tourPackageData.PKID),
+      getBookingslot(tourPackageData.PKID)
     ]);
 
     tourPackageData.main_image = getmainimg;
@@ -388,6 +391,7 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.albumImage = albumImage;
     tourPackageData.FAQs = FAQS
     tourPackageData.add_ons = add_ons;
+    tourPackageData.bookingslot =bookingslot
     tourPackagesData.push(tourPackageData);
     return tourPackageData;
   } catch (error) {
@@ -551,6 +555,28 @@ const getInclusion = async (PKID) => {
     throw error;
   }
 };
+
+const getBookingslot = async (PKID) => {
+  try {
+    const inclusionQuery = `
+    SELECT
+    bookingslot.id,
+    bookingslot.tour_package_id,
+    bookingslot.StartDate,
+    bookingslot.EndDate,
+    bookingslot.available_seat
+    FROM bookingslot
+    JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
+    WHERE bookingslot.tour_package_id = ?
+`;
+    const [results] = await pool.execute(inclusionQuery, [PKID]);
+    return results;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 // Function to fetch exclusion data
 export const getExclusion = async (PKID) => {
   try {
@@ -1379,19 +1405,19 @@ const createBookingSlot = async (req, res, PKID) => {
     }
     const tourPackageId = packageResults[0].PKID;
     for (const slotData of bookingSlotData) {
-      const { StartDate, EndDate, id } = slotData;
+      const { StartDate, EndDate, available_seat, Price, id } = slotData;
       if (id) {
         // If ID is provided, update the booking slot in the database
         await connection.query(
-          `UPDATE bookingslot SET StartDate = ?, EndDate = ? WHERE id = ? AND tour_package_id = ?`,
-          [StartDate, EndDate, id, tourPackageId]
+          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, available_seat=?, Price=? WHERE id = ? AND tour_package_id = ?`,
+          [StartDate, EndDate, available_seat, Price,id, tourPackageId]
         );
       } else {
         // Generate a unique ID for the booking slot
         // Insert new booking slot into the database
         await connection.query(
-          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate) VALUES (?, ?, ?)`,
-          [ tourPackageId, StartDate, EndDate]
+          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, available_seat, Price) VALUES (?, ?,?,?, ?)`,
+          [ tourPackageId, StartDate, EndDate, available_seat, Price]
         );
       }
     }

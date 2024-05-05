@@ -9,7 +9,7 @@ const addpopUp = async(req,res) =>{
     INSERT INTO popup (title, isActive,file)
     VALUES (?, ?,?)
   `;
-
+  
   const values = [title, isActive, imageUrl];
 
   try {

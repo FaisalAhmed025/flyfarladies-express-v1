@@ -6,7 +6,7 @@ import {popUPcontroller } from './controller'
 
 
 const router  = express.Router()
-router.post('/add', upload.single('image'),  imageHandler, popUPcontroller.addpopUp)
+router.post('/add', upload.single('file'),  imageHandler, popUPcontroller.addpopUp)
 router.get('/all',popUPcontroller.getallPopUp)
 router.post('/subscription',popUPcontroller.subscription)
 router.delete('/delete/:id',popUPcontroller.deletePOp)
