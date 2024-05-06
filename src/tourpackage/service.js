@@ -293,6 +293,7 @@ const getSingleTourPackages = async (PKID) => {
         100,
       total_second_installment:
         (parseInt(
+
           tourPackageResults[0].adult_base_price +
           tourPackageResults[0].infant_base_price +
           tourPackageResults[0].child_base_price
@@ -503,7 +504,6 @@ const deletTourItenerary = async (req, res) => {
     message: 'tour plan has deleted.'
   })
 }
-
 
 
 const getTourPlan = async (PKID) => {
@@ -1312,11 +1312,11 @@ const createTourPlan = async (req) => {
         // Generate a unique ID for the tour plan
         const generatedId = generatePackageId();
         // Prepare values for the INSERT query
-        const values = [generatedId, tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner];
+        const values = [tourPackageId, day_title, day_plan, stayingPlace, breakFast, meal, dinner];
 
         // Execute the INSERT query to add the tour plan to the database
         const [result] = await pool.query(
-          `INSERT INTO tour_itinerary (id, tour_package_id, day_title, day_plan, staying_place, breakFast, meal, dinner) VALUES (?, ?, ?, ?,?,?,?,?)`,
+          `INSERT INTO tour_itinerary (tour_package_id, day_title, day_plan, staying_place, breakFast, meal, dinner) VALUES (?, ?, ?,?,?,?,?)`,
           values
         );
         updatedOrInsertedTourPlans.push(result); // Push the inserted record
