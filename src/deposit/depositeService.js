@@ -758,11 +758,12 @@ const ApprovedBankDeposit = async (req) => {
     const updateUserWalletQuery = `UPDATE user SET wallet = wallet+? WHERE id = ?`;
     const user_id = result[0].requested_by;
     const  userquery= `SELECT * FROM user WHERE id =?`
-    const [user] = await pool.query(userquery, [user_id])
+   
     const [updatewallet] = await connection.execute(updateUserWalletQuery, [
       amount,
       user_id,
     ]);
+    const [user] = await pool.query(userquery, [user_id])
 
 
     const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?, ?)`;
@@ -1350,7 +1351,6 @@ const ApprovedBankDeposit = async (req) => {
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
-
     };
     await transporter.sendMail(usermail, (error, info) => {
       if (error) {
@@ -2724,7 +2724,6 @@ const createCheckDeposit = async (req) => {
         console.log('Email sent successfully:', info.response);
       }
     });
-    
     await connection.commit(); // Commit the transaction when the query is successful
     connection.release();
     return results; // Return the ID of the newly created bank transfer
@@ -2748,8 +2747,8 @@ const ApprovedCheckDeposit = async (req) => {
     WHERE deposit_id = ?
   `;
 
-  const status = "approved"
 
+  const status = "approved"
     const values = [
       status,
       action_by,
@@ -2769,22 +2768,7 @@ const ApprovedCheckDeposit = async (req) => {
       user_id,
     ]);
 
-    const userquery = `SELECT * FROM user WHERE id=?`
-    const [user] = await pool.query(userquery, user_id)
-
-
-    const transporter = nodemailer.createTransport({
-      host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
-      port: 465, // Replace with your email service provider's SMTP port
-      secure: true, // Use TLS for secure connection
-      auth: {
-        user: 'flyfarladies@mailservice.center', // Replace with your email address
-        pass: 'YVWJCU.?UY^R', // Replace with your email password
-      },
-    });
-
     const date = new Date()
-
     const options = { 
       weekday: 'long',
       year: 'numeric', 
@@ -2798,6 +2782,33 @@ const ApprovedCheckDeposit = async (req) => {
     };
 
     const approvedAt = date.toLocaleString('en-BD', options);
+
+    const userquery = `SELECT * FROM user WHERE id=?`
+    const [user] = await pool.query(userquery, user_id)
+
+    const remarks = `Mobile Deposit request from ${result[0].accountNumber},Reference ${result[0].reference}, On ${result[0].requestDate} and  Transaction ID is ${result[0].transactionID} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
+
+    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    
+    const ledger = await connection.execute(ledgerquery, [
+      result[0].requested_by,
+      result[0].amount,
+      user[0].wallet,
+      action_by,
+      remarks,
+      approvedAt
+    ]);
+    
+    const transporter = nodemailer.createTransport({
+      host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
+      port: 465, // Replace with your email service provider's SMTP port
+      secure: true, // Use TLS for secure connection
+      auth: {
+        user: 'flyfarladies@mailservice.center', // Replace with your email address
+        pass: 'YVWJCU.?UY^R', // Replace with your email password
+      },
+    });
+
 
 
     const htmltemplate = `<!DOCTYPE html>
@@ -4048,7 +4059,7 @@ const createMobilebank = async (req) => {
     }
     const attachment = req.publicImageLink;
     const tableName = "mobilebank";
-    console.log(tableName);
+
     if (amount < 0) {
       throw new Error(
         "Please check your amount. Negative amount not accepted."
@@ -5448,8 +5459,23 @@ const ApprovedCashDeposit = async (req) => {
     WHERE deposit_id = ?
   `;
 
-  console.log(updateQuery)
 
+
+   const date = new Date()
+
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const approvedAt = date.toLocaleString('en-BD', options);
 
   const status = 'approved'
     const values = [
@@ -5462,7 +5488,7 @@ const ApprovedCashDeposit = async (req) => {
     await connection.beginTransaction();
     const [result] = await connection.execute(getamount, [deposit_id]);
     const  amount = result[0].amount;
-  await connection.execute(updateQuery, values);
+    await connection.execute(updateQuery, values);
     // If the status is 'approved', update  the user wallet
 
     const updateUserWalletQuery = `UPDATE user SET wallet = wallet+ ? WHERE id = ?`;
@@ -5478,6 +5504,20 @@ const ApprovedCashDeposit = async (req) => {
     const [user] = await  pool.query(userQuery, [user_id])
 
 
+    const remarks = `Cash Deposit request from ${result[0].depositor_name}, Receiver ${result[0].receiver_name}, On ${result[0].transaction_date} and  TRXID is ${result[0].transaction_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
+
+    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    
+    const ledger = await connection.execute(ledgerquery, [
+      result[0].requested_by,
+      result[0].amount,
+      user[0].wallet,
+      action_by,
+      remarks,
+      approvedAt
+    ]);
+
+
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
       port: 465, // Replace with your email service provider's SMTP port
@@ -5488,21 +5528,6 @@ const ApprovedCashDeposit = async (req) => {
       },
     });
 
-    const date = new Date()
-
-    const options = { 
-      weekday: 'long',
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      hour12: true,
-      timeZone: 'Asia/Dhaka' 
-    };
-
-    const approvedAt = date.toLocaleString('en-BD', options);
 
 
     const htmltemplate = `<!DOCTYPE html>
