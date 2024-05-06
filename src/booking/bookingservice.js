@@ -344,7 +344,6 @@ const paymentstatus = payementStatus.UNPAID
     if (slot?.length > 0) {
       const slotstartdate = new Date(slot[0].StartDate);
       const bookingStartDateObj = new Date(slotstartdate);
-      
       const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
       const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
       const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
@@ -352,14 +351,16 @@ const paymentstatus = payementStatus.UNPAID
       // Calculate the differences between the installments
       const differenceBetweenFirstAndSecondInstallments = Math.floor((SecondInstallmentdueDate - FirstInstallmentdueDate) / (1000 * 60 * 60 * 24));
       const differenceBetweenSecondAndThirdInstallments = Math.floor((ThirdInstallmentdueDate - SecondInstallmentdueDate) / (1000 * 60 * 60 * 24));
+      
     
       // Adjust the new first installment due date
       const newFirstInstallmentdueDate = new Date(bookingStartDateObj);
-      newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
+      // newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
     
+
       // Adjust the new second installment due date
       const newSecondInstallmentdueDate = new Date(newFirstInstallmentdueDate);
-      newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + differenceBetweenSecondAndThirdInstallments);
+      newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
     
       // Adjust the new third installment due date
       const newThirdInstallmentdueDate = new Date(newSecondInstallmentdueDate);
