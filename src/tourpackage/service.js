@@ -25,7 +25,6 @@ const storage = multer.memoryStorage({
 });
 
 
-
 export const upload = multer({
   storage: storage,
   limits: {
@@ -308,7 +307,7 @@ const getSingleTourPackages = async (PKID) => {
       guide: tourPackageResults[0].guide,
       Availability: tourPackageResults[0].Availability,
       show_on_this_on_home_page:
-        tourPackageResults[0].show_on_this_on_home_page,
+      tourPackageResults[0].show_on_this_on_home_page,
       popular_destination: tourPackageResults[0].popular_destination,
       day_trip: tourPackageResults[0].day_trip,
       night_out_trip: tourPackageResults[0].night_out_trip,
@@ -522,7 +521,9 @@ const getTourPlan = async (PKID) => {
     tour_itinerary.dinner
   FROM tour_itinerary
   JOIN tourpackage ON tour_itinerary.tour_package_id = tourpackage.PKID
-  WHERE tour_itinerary.tour_package_id = ?;  
+  WHERE tour_itinerary.tour_package_id = ?
+  ORDER BY 
+  tour_itinerary.id ASC;    
       `;
     const [tourPlanResults] = await pool.query(tourPlanQuery, [PKID]);
 
@@ -533,8 +534,6 @@ const getTourPlan = async (PKID) => {
     // Release the database connection
   }
 };
-
-
 
 
 
@@ -1289,9 +1288,7 @@ const createTourPlan = async (req) => {
   try {
     connection = await pool.getConnection();
     // Iterate over the array of tour plan data
-
    const updatedOrInsertedTourPlans =[]
-
     for (const tourPlanData of req.body.tourplanData) {
       const { day_title, day_plan, stayingPlace, breakFast, meal, dinner, id } = tourPlanData; // Extract ID from tourPlanData
       // Retrieve tour package ID from the database
