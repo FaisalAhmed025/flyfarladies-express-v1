@@ -1289,6 +1289,9 @@ const createTourPlan = async (req) => {
   try {
     connection = await pool.getConnection();
     // Iterate over the array of tour plan data
+
+   const updatedOrInsertedTourPlans =[]
+
     for (const tourPlanData of req.body.tourplanData) {
       const { day_title, day_plan, stayingPlace, breakFast, meal, dinner, id } = tourPlanData; // Extract ID from tourPlanData
       // Retrieve tour package ID from the database

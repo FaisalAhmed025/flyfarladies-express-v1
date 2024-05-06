@@ -20,7 +20,7 @@ const createBankDeposit = async (req) => {
     } = req.body;
     await connection.beginTransaction(); // Begin a new database transaction
     const requested_by = req.params.id;
-    const userquery = `SELECT * FROM user WHERE id =? `;
+    const userquery = `SELECT * FROM user WHERE id =?`;
     const [user] = await connection.query(userquery, [requested_by]);
     if (user.length === 0) {
       throw new Error("User not found");
@@ -748,6 +748,8 @@ const ApprovedBankDeposit = async (req) => {
       deposit_id,
     ];
 
+    const remarks = `Bank Deposit request approved from ${result[0].deposited_from} to ${result[0].deposited_to}, On ${result[0].transaction_date}.TRX ID is ${result[0].transaction_id} & amount ${result[0].amount} only`;
+
     await pool.query(updateQuery, values)
     await connection.beginTransaction();
 
@@ -757,13 +759,22 @@ const ApprovedBankDeposit = async (req) => {
     const user_id = result[0].requested_by;
     const  userquery= `SELECT * FROM user WHERE id =?`
     const [user] = await pool.query(userquery, [user_id])
-    const [ksocjocj] = await connection.execute(updateUserWalletQuery, [
+    const [updatewallet] = await connection.execute(updateUserWalletQuery, [
       amount,
       user_id,
     ]);
 
-// const opeartion = 'Deposit'
-//     const ledgerquery  =`INSERT INTO ledger_2 () VALUES(depositid, )`
+
+    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?, ?)`;
+    
+    const ledger = await connection.execute(ledgerquery, [
+      result[0].requested_by,
+      result[0].amount,
+      user[0].wallet,
+      action_by,
+      remarks,
+    ]);
+    
 
     const date = new Date()
 
@@ -780,7 +791,6 @@ const ApprovedBankDeposit = async (req) => {
     };
 
     const approvedAt = date.toLocaleString('en-BD', options);
-
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
       port: 465, // Replace with your email service provider's SMTP port
@@ -1356,9 +1366,7 @@ const ApprovedBankDeposit = async (req) => {
         console.log('Email sent successfully:', info.response);
       }
     });
-
     await connection.commit();
-    return ksocjocj;
   } catch (error) {
     console.log(error);
   }
@@ -1395,7 +1403,6 @@ const RejectBankDeposit = async (req) => {
     const user_id = result[0].requested_by;
     const  userquery= `SELECT * FROM user WHERE id =?`
     const [user] = await pool.query(userquery, [user_id])
-
     const date = new Date()
 
     const options = { 
