@@ -484,6 +484,10 @@ const deletebookingpolicy = async (req, res) => {
   return await tourpackageService.deletepolicy(req,res)
 };
 
+const deletebookingslot = async (req, res) => {
+  return await tourpackageService.deleteBOOKINGSLOT(req,res)
+};
+
 
 const cancellationpolicy = async (req, res) => {
   return await tourpackageService.cancellationPolicy(req,res)
@@ -643,6 +647,7 @@ export const tourpackageController = {
   deleteMainimage,
   addFAQs,
   deleteaddons,
-  createbookingSlot
+  createbookingSlot,
+  deletebookingslot
 
 }

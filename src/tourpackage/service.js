@@ -986,6 +986,19 @@ const deletemainimage = async (req, res) => {
 }
 
 
+const deleteBOOKINGSLOT = async (req, res) => {
+  const id = req.params.id
+  const deletequery = `DELETE FROM bookingslot WHERE  id= ? `
+  await pool.query(deletequery, [id])
+
+  return res.status(200).json({
+    status: true,
+    message: 'slot has removed'
+  })
+}
+
+
+
 const createPlaceVisit = async (req, PKID) => {
   let connection;
   try {
@@ -1919,6 +1932,7 @@ export const tourpackageService = {
   updateTourPackage,
   cancellationPolicy,
   UpdateMainImage,
+  deleteBOOKINGSLOT,
   updatealbumIinnermage,
   UpdatevisitedImage,
   createBookingSlot
