@@ -4,8 +4,7 @@ import { tourpackageController } from './controller';
 import { upload } from './imageUpload.midleware';
 import { handleAlbumImage, handleMultipleImage, imageHandler, imageHandlerUpdate } from './imageHandler';
 const router = express.Router();
-
-router.post('/add', upload.single('coverimage'), imageHandler, tourpackageController.addpackage )
+router.post('/add', upload.single('coverImage'), imageHandler, tourpackageController.addpackage )
 router.post('/addinstallment/:PKID', tourpackageController.Addinstallemnt)
 router.patch('/update/:PKID', upload.single('coverImage'), imageHandlerUpdate, tourpackageController.updatePackage)
 router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackages)

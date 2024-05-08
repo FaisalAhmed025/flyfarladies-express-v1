@@ -155,17 +155,14 @@ const addtourpackage = async (req, res) => {
     // Assuming the file field name is 'coverImage'
     // Extract cover image details from the uploaded file
 
-
     const coverImage = req.publicImageLink;
     const packgeId = generatePackageId();
-    console.log(packgeId)
 
     // Check if cover image is present
     if (!coverImage) {
       return res.status(400).json({ error: "Cover image is required" });
     }
 
-    // 
     // Execute raw SQL INSERT query to insert tour package details into database
     const values = [
       packgeId,
@@ -225,6 +222,8 @@ const addtourpackage = async (req, res) => {
     res.status(500).json({ error: "Error adding travel package" });
   }
 };
+
+
 
 const getSingleTourPackages = async (PKID) => {
   try {
