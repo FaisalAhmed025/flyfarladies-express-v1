@@ -252,134 +252,150 @@ const bookingamount =totalAdultBookingAmount + totalChildBookingAmount+ totalInf
 const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstallmentAmount+totalInfantFirstInstallmentAmount
 const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
 
-const paymentstatus = payementStatus.UNPAID
-    const values = [
-      bookingid,
-      userid,
-      email,
-      name,
-      wallet,
-      tourpackage[0].PKID,
-      tourpackage[0].MainTitle,
-      tourpackage[0].StartDate,
-      tourpackage[0].EndDate,
-      tourpackage[0].TripType,
-      tourpackage[0].TotalDuration,
-      adultprice,
-      childprice,
-      infantprice,
-      tourpackage[0].City,
-      tourpackage[0].Flight,
-      tourpackage[0].Food,
-      tourpackage[0].Transport,
-      tourpackage[0].Hotel,
-      bookingamount,
-      firstinstallement,
-      secondinstalemnt,
-      installmentdata[0].FirstInstallmentdueDate,
-      installmentdata[0].SecondInstallmentdueDate,
-      installmentdata[0].ThirdInstallmentdueDate,
-      totaladult,
-      totalchild,
-      totalinfant,
-      totalAdultprice,
-      totalChildprice,
-      totalInfantprice,
-      phone,
-      totalpackageprice,
-      paymentstatus,
-      bookingstatus,
-      bookingAt
-      
-    ];
 
+const bookingSlotId = req.body.id;
+const slotquery = `SELECT * FROM bookingslot WHERE id=?`;
+const [slot] = await pool.query(slotquery, [bookingSlotId]);
 
-    const [result] = await pool.query(
-      `INSERT INTO booking (
-        bookingid,
-        userid,
-        email,
-        name,
-        wallet,
-        PkID,
-        MainTitle,
-        StartDate,
-        EndDate,
-        TripType,
-        TotalDuration,
-        adult_price,
-        child_price,
-        infant_price,
-        city,
-        flight,
-        food,
-        transport,
-        hotel,
-        booking_money,
-        first_installment,
-        second_installment,
-        booking_money_due_date,
-        first_installment_due_date,
-        second_installment_due_date,
-        totaladult,
-        totalchild,
-        totalinfant,
-        totalAdultprice,
-        totalChildprice,
-        totalInfantprice,
-        phone,
-        totalAmount,
-        paymentStatus,
-        bookingStatus,
-        bookingDate
-      ) VALUES (?, ?, ?,?, ?,?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
-      values
-    );
+console.log(bookingSlotId);
 
+console.log();
 
-    const bookingSlotId = req.body.id
-    const  slotquery = `SELECT * FROM bookingslot WHERE id=?`
-    const [slot] =  await pool.query(slotquery,[bookingSlotId])
+const bookingStartDateObj = new Date(slot[0].StartDate);
+console.log(bookingStartDateObj);
+const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
+const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
+const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
 
-    if (slot?.length > 0) {
-      const bookingStartDateObj = new Date(slot[0].StartDate);
-      const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
-      const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
-      const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
-    
-      // Calculate the differences between the installments
-      const differenceBetweenStartAndFirstInstallment = Math.floor((FirstInstallmentdueDate - bookingStartDateObj) / (1000 * 60 * 60 * 24));
-      const differenceBetweenFirstAndSecondInstallments = Math.floor((SecondInstallmentdueDate - FirstInstallmentdueDate) / (1000 * 60 * 60 * 24));
-      const differenceBetweenSecondAndThirdInstallments = Math.floor((ThirdInstallmentdueDate - SecondInstallmentdueDate) / (1000 * 60 * 60 * 24));
-    
-      // Adjust the new first installment due date
-      const newFirstInstallmentdueDate = new Date(bookingStartDateObj);
-      newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenStartAndFirstInstallment);
-    
-      // Adjust the new second installment due date
-      const newSecondInstallmentdueDate = new Date(newFirstInstallmentdueDate);
-      newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
-    
-      // Adjust the new third installment due date
-      const newThirdInstallmentdueDate = new Date(newSecondInstallmentdueDate);
-      newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + differenceBetweenSecondAndThirdInstallments);
-    
-      const updateBookingQuery = `
-        UPDATE booking
-        SET booking_money_due_date = ?,
-        first_installment_due_date = ?,
-        second_installment_due_date = ?
-        WHERE bookingid = ?
-      `;
-    
-      await pool.query(updateBookingQuery, [
-        newFirstInstallmentdueDate.toISOString().split('T')[0],
-        newSecondInstallmentdueDate.toISOString().split('T')[0],
-        newThirdInstallmentdueDate.toISOString().split('T')[0],
-        bookingid
-      ]);
-    }
-    
+console.log(FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate);
+
+// Calculate the month difference between the start date and the installment dates
+const startMonth = bookingStartDateObj.getMonth();
+const firstInstallmentMonth = FirstInstallmentdueDate.getMonth();
+const secondInstallmentMonth = SecondInstallmentdueDate.getMonth();
+const thirdInstallmentMonth = ThirdInstallmentdueDate.getMonth();
+
+// Adjust the year if necessary
+let newFirstInstallmentYear = bookingStartDateObj.getFullYear();
+let newSecondInstallmentYear = bookingStartDateObj.getFullYear();
+let newThirdInstallmentYear = bookingStartDateObj.getFullYear();
+
+// Calculate new installment months
+let newFirstInstallmentMonth = startMonth - 1;
+let newSecondInstallmentMonth = startMonth - 1;
+let newThirdInstallmentMonth = startMonth - 1;
+
+// Adjust the day of the month if necessary
+let newFirstInstallmentDay = FirstInstallmentdueDate.getDate();
+let newSecondInstallmentDay = SecondInstallmentdueDate.getDate();
+let newThirdInstallmentDay = ThirdInstallmentdueDate.getDate();
+
+// Handle cases where the month is January
+if (startMonth === 0) {
+  newFirstInstallmentYear -= 1;
+  newSecondInstallmentYear -= 1;
+  newThirdInstallmentYear -= 1;
+  newFirstInstallmentMonth = 11; // December
+  newSecondInstallmentMonth = 11; // December
+  newThirdInstallmentMonth = 11; // December
+}
+
+// Adjust the new installment due dates
+let newFirstInstallmentdueDate = new Date(newFirstInstallmentYear, newFirstInstallmentMonth, newFirstInstallmentDay);
+newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + 1);
+
+let newSecondInstallmentdueDate = new Date(newSecondInstallmentYear, newSecondInstallmentMonth, newSecondInstallmentDay);
+newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + 1);
+
+let newThirdInstallmentdueDate = new Date(newThirdInstallmentYear, newThirdInstallmentMonth, newThirdInstallmentDay);
+newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + 1);
+
+console.log(newFirstInstallmentdueDate, newSecondInstallmentdueDate, newThirdInstallmentdueDate);
+
+const paymentstatus = payementStatus.UNPAID;
+const values = [
+  bookingid,
+  userid,
+  email,
+  name,
+  wallet,
+  tourpackage[0].PKID,
+  tourpackage[0].MainTitle,
+  tourpackage[0].StartDate,
+  tourpackage[0].EndDate,
+  tourpackage[0].TripType,
+  tourpackage[0].TotalDuration,
+  adultprice,
+  childprice,
+  infantprice,
+  tourpackage[0].City,
+  tourpackage[0].Flight,
+  tourpackage[0].Food,
+  tourpackage[0].Transport,
+  tourpackage[0].Hotel,
+  bookingamount,
+  firstinstallement,
+  secondinstalemnt,
+  newFirstInstallmentdueDate.toISOString().split('T')[0],
+  newSecondInstallmentdueDate.toISOString().split('T')[0],
+  newThirdInstallmentdueDate.toISOString().split('T')[0],
+  totaladult,
+  totalchild,
+  totalinfant,
+  totalAdultprice,
+  totalChildprice,
+  totalInfantprice,
+  phone,
+  totalpackageprice,
+  paymentstatus,
+  bookingstatus,
+  bookingAt
+];
+
+console.log(values);
+
+const [result] = await pool.query(
+  `INSERT INTO booking (
+    bookingid,
+    userid,
+    email,
+    name,
+    wallet,
+    PkID,
+    MainTitle,
+    StartDate,
+    EndDate,
+    TripType,
+    TotalDuration,
+    adult_price,
+    child_price,
+    infant_price,
+    city,
+    flight,
+    food,
+    transport,
+    hotel,
+    booking_money,
+    first_installment,
+    second_installment,
+    booking_money_due_date,
+    first_installment_due_date,
+    second_installment_due_date,
+    totaladult,
+    totalchild,
+    totalinfant,
+    totalAdultprice,
+    totalChildprice,
+    totalInfantprice,
+    phone,
+    totalAmount,
+    paymentStatus,
+    bookingStatus,
+    bookingDate
+  ) VALUES (?, ?, ?,?, ?,?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+  values
+);
+
  
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
