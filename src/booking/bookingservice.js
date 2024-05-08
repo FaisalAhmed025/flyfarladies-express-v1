@@ -342,22 +342,20 @@ const paymentstatus = payementStatus.UNPAID
     const [slot] =  await pool.query(slotquery,[bookingSlotId])
 
     if (slot?.length > 0) {
-      const slotstartdate = new Date(slot[0].StartDate);
-      const bookingStartDateObj = new Date(slotstartdate);
+      const bookingStartDateObj = new Date(slot[0].StartDate);
       const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
       const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
       const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
     
       // Calculate the differences between the installments
+      const differenceBetweenStartAndFirstInstallment = Math.floor((FirstInstallmentdueDate - bookingStartDateObj) / (1000 * 60 * 60 * 24));
       const differenceBetweenFirstAndSecondInstallments = Math.floor((SecondInstallmentdueDate - FirstInstallmentdueDate) / (1000 * 60 * 60 * 24));
       const differenceBetweenSecondAndThirdInstallments = Math.floor((ThirdInstallmentdueDate - SecondInstallmentdueDate) / (1000 * 60 * 60 * 24));
-      
     
       // Adjust the new first installment due date
       const newFirstInstallmentdueDate = new Date(bookingStartDateObj);
-      // newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
+      newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + differenceBetweenStartAndFirstInstallment);
     
-
       // Adjust the new second installment due date
       const newSecondInstallmentdueDate = new Date(newFirstInstallmentdueDate);
       newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + differenceBetweenFirstAndSecondInstallments);
@@ -369,11 +367,11 @@ const paymentstatus = payementStatus.UNPAID
       const updateBookingQuery = `
         UPDATE booking
         SET booking_money_due_date = ?,
-        first_installment_due_date=?,
+        first_installment_due_date = ?,
         second_installment_due_date = ?
         WHERE bookingid = ?
       `;
-      
+    
       await pool.query(updateBookingQuery, [
         newFirstInstallmentdueDate.toISOString().split('T')[0],
         newSecondInstallmentdueDate.toISOString().split('T')[0],
@@ -382,7 +380,7 @@ const paymentstatus = payementStatus.UNPAID
       ]);
     }
     
-
+ 
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
       port: 465, // Replace with your email service provider's SMTP port

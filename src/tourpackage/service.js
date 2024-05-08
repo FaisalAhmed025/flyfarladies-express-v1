@@ -122,7 +122,6 @@ const addtourpackage = async (req, res) => {
     // Extract tour package details from request body
     const {
       MainTitle,
-      SubTitle,
       Price,
       City,
       Discount,
@@ -167,7 +166,6 @@ const addtourpackage = async (req, res) => {
     const values = [
       packgeId,
       MainTitle,
-      SubTitle,
       Price,
       City,
       Discount,
@@ -199,7 +197,7 @@ const addtourpackage = async (req, res) => {
     ];
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
-        MainTitle, SubTitle, Price,
+        MainTitle, Price,
         City, Discount, Location, Availability, TripType,
         TotalDuration, MinimumAge, MaximumAge, PackageOverview,
         Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
@@ -208,7 +206,7 @@ const addtourpackage = async (req, res) => {
         infant_base_price,
         accommodation 
       ) 
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
       values
     );
     console.log(values);
@@ -552,19 +550,22 @@ const getInclusion = async (PKID) => {
 
 const getBookingslot = async (PKID) => {
   try {
+    const currentDate = new Date().toISOString().split('T')[0];
     const inclusionQuery = `
-    SELECT
-    bookingslot.id,
-    bookingslot.tour_package_id,
-    bookingslot.StartDate,
-    bookingslot.EndDate,
-    bookingslot.available_seat,
-    bookingslot.Price
-    FROM bookingslot
-    JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
-    WHERE bookingslot.tour_package_id = ?
-`;
-    const [results] = await pool.execute(inclusionQuery, [PKID]);
+      SELECT
+        bookingslot.id,
+        bookingslot.tour_package_id,
+        bookingslot.StartDate,
+        bookingslot.EndDate,
+        bookingslot.available_seat
+      FROM bookingslot
+      JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
+      WHERE bookingslot.tour_package_id = ? AND bookingslot.StartDate > ?
+    `;
+
+    console.log(currentDate)
+    
+    const [results] = await pool.execute(inclusionQuery, [PKID, currentDate]);
     return results;
   } catch (error) {
     throw error;
@@ -1677,9 +1678,8 @@ const createCancelationPolicy = async (req, PKID) => {
 
 const cancellationPolicy = async (req, res) => {
   const id = req.params.id
-  const deletequery = `DELETE FROM cancellation_policy WHERE id= ? `
+  const deletequery = `DELETE FROM cancellation_policy WHERE id= ?`
   await pool.query(deletequery, [id])
-
   return res.status(200).json({
     status: true,
     message: 'cancellationPolicy has deleted'
