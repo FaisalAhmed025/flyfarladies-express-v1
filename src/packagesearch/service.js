@@ -5,7 +5,6 @@ const getTourPackageByLocation = async(req,res) => {
   try {
     // Execute raw SQL query to fetch tour packages
     const tourPackages = await db.query('SELECT * FROM tourpackage');
-
     const matchingPackages = [];
 
     // Loop through fetched tour packages
@@ -33,10 +32,7 @@ const getTourPackageByLocation = async(req,res) => {
 }
 
 
-
-
 const getTourPackagesByDifferentField = async (req, res) => {
- 
   try {
     const { TripType, City, StartDate, Country } = req.query;
 

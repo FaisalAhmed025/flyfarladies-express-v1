@@ -494,8 +494,6 @@ const cancellationpolicy = async (req, res) => {
 };
 
 
-
-
 const createHighlights = async (req, res) => {
   try {
     const PKID = req.params.PKID;
@@ -554,14 +552,12 @@ const Addinstallemnt = async (req, res) => {
 };
 
 
-
-
 const getTourPlan = async (req, res) => {
   try {
-    const tourPlanId = req.params.id; // Assuming the tourPlanId is provided as a URL parameter
+    const tourPlanId = req.params.id; 
+    // Assuming the tourPlanId is provided as a URL parameter
     // Call the getTourPlan function to retrieve the tour plan details
     const tourPlanDetails = await tourpackageService.getTourPlan(tourPlanId);
-
     // Send the tour plan details as a JSON response
     res.status(200).json({
       success: true,
@@ -579,7 +575,6 @@ const deleteTourPlanEvents = async (req, res) => {
   try {
     const id = req.params.id;
     const result = await tourpackageService.deleteTourPlanEvents(req, id);
-
     res.status(200).json({
       success: true,
       message: 'Deleted successfully',

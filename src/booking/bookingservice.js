@@ -615,7 +615,7 @@ const paymentstatus = payementStatus.UNPAID
   } catch (error) {
     console.log(error);
   }
-};
+}
 
 const getAllBooking = async (req,res) =>{
   const packagequery = `SELECT * FROM  booking`

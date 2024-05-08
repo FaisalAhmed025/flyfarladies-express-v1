@@ -33,8 +33,22 @@ try {
   const  userid = req.body.id
   const bookingid = req.body.bookingid
   const  bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
-
   const [booking] = await pool.query(bookingquery, [bookingid])
+
+  const date = new Date()
+  const options = { 
+    weekday: 'long',
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka' 
+  };
+
+  const approvedAt = date.toLocaleString('en-BD', options);
 
   if (!booking || booking.length === 0) {
     throw new NotFoundException('Booking not found');
@@ -70,7 +84,7 @@ try {
       userid
     ]
     const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
-    await pool.query(updateuserbalancequery,walletvalue);
+   const [userwallewt] = await pool.query(updateuserbalancequery,walletvalue);
 
 
     const bookingstatus = bookingStatus.CONFIRMED
@@ -89,20 +103,18 @@ try {
 
     const [updatedBooking] = await pool.query(updatebookingquery, value)
 
-    // const depositby = `${user[0].name}`;
-    // const status = 'purchase'
+    const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${PKID}. Total Amount  is ${totalprice}`;
 
-    // const ledgervalue = [
-    //   userid,
-    //   depositby,
-    //   paymentstatus,
-    //   totalprice,
-    //   bookingid,
-    //   status
-    // ]
+    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    
+    const ledger = await connection.execute(ledgerquery, [
+      userid,
+      totalprice,
+      userwallewt[0].wallet,
+      remarks,
+      approvedAt
+    ]);
 
-    // const insertledger = 'INSERT INTO ledger (userID, depositby, paymentStatus, amount, bookingrefId, Date, status) VALUES (?, ?, ?, ?, ?, NOW(), ?)'
-    // await pool.query (insertledger, ledgervalue)
   
 } catch (error) {
   console.error("Error making payment with wallet:", error);

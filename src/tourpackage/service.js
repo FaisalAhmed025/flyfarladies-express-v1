@@ -128,8 +128,6 @@ const addtourpackage = async (req, res) => {
       Discount,
       Location,
       Availability,
-      StartDate,
-      EndDate,
       TripType,
       TotalDuration,
       PackageOverview,
@@ -139,7 +137,6 @@ const addtourpackage = async (req, res) => {
       Food,
       Hotel,
       Country,
-      AvailableSeats,
       MinimumAge,
       MaximumAge,
       GirlsTrip,
@@ -158,6 +155,7 @@ const addtourpackage = async (req, res) => {
     // Assuming the file field name is 'coverImage'
     // Extract cover image details from the uploaded file
 
+
     const coverImage = req.publicImageLink;
     const packgeId = generatePackageId();
     console.log(packgeId)
@@ -167,6 +165,7 @@ const addtourpackage = async (req, res) => {
       return res.status(400).json({ error: "Cover image is required" });
     }
 
+    // 
     // Execute raw SQL INSERT query to insert tour package details into database
     const values = [
       packgeId,
@@ -177,11 +176,8 @@ const addtourpackage = async (req, res) => {
       Discount,
       Location,
       Availability,
-      StartDate,
-      EndDate,
       TripType,
       TotalDuration,
-      AvailableSeats,
       MinimumAge,
       MaximumAge,
       PackageOverview,
@@ -207,15 +203,15 @@ const addtourpackage = async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO tourpackage (PKID,
         MainTitle, SubTitle, Price,
-        City, Discount, Location, Availability, StartDate, EndDate, TripType,
-        TotalDuration, AvailableSeats, MinimumAge, MaximumAge, PackageOverview,
+        City, Discount, Location, Availability, TripType,
+        TotalDuration, MinimumAge, MaximumAge, PackageOverview,
         Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
         Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage,   adult_base_price, 
-        child_base_price, 
+        child_base_price,
         infant_base_price,
         accommodation 
       ) 
-      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+      VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
       values
     );
     console.log(values);
@@ -900,9 +896,6 @@ const updateTourPackage = async (req, res) => {
 };
 
 
-
-
-
 const MainImage = async (req, PKID) => {
   let connection;
   try {
@@ -1236,7 +1229,6 @@ const UpdateAlbumImage = async (req, AlbumId) => {
 };
 
 
-
 const updatealbumIinnermage = async (req, res) => {
   try {
     const id = req.params.AlbumId;
@@ -1295,6 +1287,7 @@ export async function deleteImageFromURL(url) {
     console.error(`Error deleting image: ${error}`);
   }
 }
+
 
 const createTourPlan = async (req) => {
   let connection;
@@ -1419,19 +1412,19 @@ const createBookingSlot = async (req, res, PKID) => {
     }
     const tourPackageId = packageResults[0].PKID;
     for (const slotData of bookingSlotData) {
-      const { StartDate, EndDate, available_seat, Price, id } = slotData;
+      const { StartDate, EndDate, available_seat, id } = slotData;
       if (id) {
         // If ID is provided, update the booking slot in the database
         await connection.query(
-          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, available_seat=?, Price=? WHERE id = ? AND tour_package_id = ?`,
-          [StartDate, EndDate, available_seat, Price,id, tourPackageId]
+          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, available_seat=? WHERE id = ? AND tour_package_id = ?`,
+          [StartDate, EndDate, available_seat,id, tourPackageId]
         );
       } else {
         // Generate a unique ID for the booking slot
         // Insert new booking slot into the database
         await connection.query(
-          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, available_seat, Price) VALUES (?, ?,?,?, ?)`,
-          [ tourPackageId, StartDate, EndDate, available_seat, Price]
+          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, available_seat) VALUES (?, ?,?,?)`,
+          [ tourPackageId, StartDate, EndDate, available_seat]
         );
       }
     }
@@ -1523,7 +1516,6 @@ const deleteexclusion = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM exclusion WHERE id= ? `
   await pool.query(deletequery, [id])
-
   return res.status(200).json({
     status: true,
     message: 'inclusion has removed'

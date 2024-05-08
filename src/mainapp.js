@@ -31,6 +31,8 @@ import partnerRoute from  './partner/route'
 import popUpRoute from './popup/route'
 const app = express();
 
+
+
 const options = {
   definition: {
     openapi: "3.1.0",
@@ -78,6 +80,8 @@ app.use(
     credentials: true, // Include cookies and other credentials
   })
 );
+
+
 //parser
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(logger("dev"));
@@ -85,8 +89,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// routes
 
+// routes
 app.use("/api/v1/package", tourpackageRoute);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/deposit", depositRoute);
@@ -96,6 +100,7 @@ app.use("/api/v1/payment", paymentRoute);
 app.use("/api/v1/popup", popUpRoute);
 
 
+//Routes 
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/askquestion", askquestionRoute);
 app.use("/api/v1/partner", partnerRoute);
@@ -116,6 +121,8 @@ app.use("/api/v1/visa", visaRoutes);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Expressjs v1 ");
 });
+
+
 
 //handle not found
 app.use((req, res, next) => {
