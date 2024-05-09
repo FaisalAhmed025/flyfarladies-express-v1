@@ -202,8 +202,12 @@ const adultprice =  tourpackage[0].adult_base_price
 const childprice=  tourpackage[0].child_base_price
 const infantprice  = tourpackage[0].infant_base_price
 
-const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? `
-const [installmentdata] = await pool.query(installmentQuery, [packgeId])
+const bookingSlotId = req.body.id;
+const slotquery = `SELECT * FROM bookingslot WHERE id=?`;
+const [slot] = await pool.query(slotquery, [bookingSlotId]);
+
+const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `
+const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId])
 
 let totalAdultprice = (installmentdata[0].ABookingAmount +
   installmentdata[0].AFirstInstallmentAmount +
@@ -253,65 +257,12 @@ const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstal
 const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
 
 
-const bookingSlotId = req.body.id;
-const slotquery = `SELECT * FROM bookingslot WHERE id=?`;
-const [slot] = await pool.query(slotquery, [bookingSlotId]);
 
-console.log(bookingSlotId);
-
-console.log();
-
-const bookingStartDateObj = new Date(slot[0].StartDate);
-console.log(bookingStartDateObj);
-const FirstInstallmentdueDate = new Date(installmentdata[0].FirstInstallmentdueDate);
-const SecondInstallmentdueDate = new Date(installmentdata[0].SecondInstallmentdueDate);
-const ThirdInstallmentdueDate = new Date(installmentdata[0].ThirdInstallmentdueDate);
-
-console.log(FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate);
-
-// Calculate the month difference between the start date and the installment dates
-const startMonth = bookingStartDateObj.getMonth();
-const firstInstallmentMonth = FirstInstallmentdueDate.getMonth();
-const secondInstallmentMonth = SecondInstallmentdueDate.getMonth();
-const thirdInstallmentMonth = ThirdInstallmentdueDate.getMonth();
-
-// Adjust the year if necessary
-let newFirstInstallmentYear = bookingStartDateObj.getFullYear();
-let newSecondInstallmentYear = bookingStartDateObj.getFullYear();
-let newThirdInstallmentYear = bookingStartDateObj.getFullYear();
-
-// Calculate new installment months
-let newFirstInstallmentMonth = startMonth - 1;
-let newSecondInstallmentMonth = startMonth - 1;
-let newThirdInstallmentMonth = startMonth - 1;
-
-// Adjust the day of the month if necessary
-let newFirstInstallmentDay = FirstInstallmentdueDate.getDate();
-let newSecondInstallmentDay = SecondInstallmentdueDate.getDate();
-let newThirdInstallmentDay = ThirdInstallmentdueDate.getDate();
-
-// Handle cases where the month is January
-if (startMonth === 0) {
-  newFirstInstallmentYear -= 1;
-  newSecondInstallmentYear -= 1;
-  newThirdInstallmentYear -= 1;
-  newFirstInstallmentMonth = 11; // December
-  newSecondInstallmentMonth = 11; // December
-  newThirdInstallmentMonth = 11; // December
-}
-
-// Adjust the new installment due dates
-let newFirstInstallmentdueDate = new Date(newFirstInstallmentYear, newFirstInstallmentMonth, newFirstInstallmentDay);
-newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + 1);
-
-let newSecondInstallmentdueDate = new Date(newSecondInstallmentYear, newSecondInstallmentMonth, newSecondInstallmentDay);
-newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + 1);
+const FirstInstallmentdueDate = (installmentdata[0].FirstInstallmentdueDate);
+const SecondInstallmentdueDate = (installmentdata[0].SecondInstallmentdueDate);
+const ThirdInstallmentdueDate = (installmentdata[0].ThirdInstallmentdueDate);
 
 
-let newThirdInstallmentdueDate = new Date(newThirdInstallmentYear, newThirdInstallmentMonth, newThirdInstallmentDay);
-
-newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + 1);
-console.log(newFirstInstallmentdueDate, newSecondInstallmentdueDate, newThirdInstallmentdueDate);
 
 const paymentstatus = payementStatus.UNPAID;
 const values = [
@@ -337,9 +288,9 @@ const values = [
   bookingamount,
   firstinstallement,
   secondinstalemnt,
-  newFirstInstallmentdueDate.toISOString().split('T')[0],
-  newSecondInstallmentdueDate.toISOString().split('T')[0],
-  newThirdInstallmentdueDate.toISOString().split('T')[0],
+  FirstInstallmentdueDate,
+  SecondInstallmentdueDate,
+  ThirdInstallmentdueDate,
   totaladult,
   totalchild,
   totalinfant,

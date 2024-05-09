@@ -404,6 +404,7 @@ const getinstallment = async (PKID) => {
     const installment = `
     SELECT
     installment.InstallmentId,
+    installment.bookingslotid,
     installment.tourpackageId,
     installment.FirstInstallmentdueDate,
     installment.SecondInstallmentdueDate,
@@ -747,22 +748,151 @@ const getBookingPolicy = async (PKID) => {
   }
 };
 
-
 const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
-    SELECT*
-    FROM
-      tourpackage WHERE isActive=1;
-  `;
+      SELECT
+        tourpackage.PKID,
+        tourpackage.MainTitle,
+        tourpackage.SubTitle,
+        tourpackage.TripType,
+        tourpackage.Location,
+        tourpackage.StartDate,
+        tourpackage.EndDate,
+        tourpackage.AvailableSeats,
+        tourpackage.MinimumAge,
+        tourpackage.MaximumAge,
+        tourpackage.TotalDuration,
+        tourpackage.adult_base_price,
+        tourpackage.child_base_price,
+        tourpackage.infant_base_price,
+        tourpackage.Discount,
+        tourpackage.PackageOverview,
+        tourpackage.Showpackage,
+        tourpackage.Flight,
+        tourpackage.Transport,
+        tourpackage.Food,
+        tourpackage.Hotel,
+        tourpackage.Country,
+        tourpackage.GirlsTrip,
+        tourpackage.FamilyTrips,
+        tourpackage.Adventure,
+        tourpackage.FullyGuided,
+        tourpackage.SelfGuided,
+        tourpackage.Guide,
+        tourpackage.CancellationDate,
+        tourpackage.coverImage,
+        tourpackage.booking_money_due_date,
+        tourpackage.first_installment_due_date,
+        tourpackage.second_installment_due_date,
+        tourpackage.booking_money,
+        tourpackage.first_installment,
+        tourpackage.second_installment,
+        tourpackage.Nature,
+        tourpackage.couponCode,
+        tourpackage.vipCoupon,
+        tourpackage.universalCoupon,
+        tourpackage.internationalCoupon,
+        tourpackage.domesticCoupon,
+        tourpackage.bucketCoupon,
+        tourpackage.tourType,
+        tourpackage.metatag,
+        tourpackage.metaDescription,
+        tourpackage.accommodation,
+        GROUP_CONCAT(
+          JSON_OBJECT(
+            'id', bookingslot.id,
+            'StartDate', bookingslot.StartDate,
+            'EndDate', bookingslot.EndDate,
+            'available_seat', bookingslot.available_seat
+          )
+        ) AS booking_slots
+      FROM
+        tourpackage
+      LEFT JOIN
+        bookingslot ON tourpackage.PKID = bookingslot.tour_package_id
+      WHERE
+        tourpackage.isActive=1
+      GROUP BY
+        tourpackage.PKID,
+        tourpackage.MainTitle,
+        tourpackage.SubTitle,
+        tourpackage.TripType,
+        tourpackage.Location,
+        tourpackage.StartDate,
+        tourpackage.EndDate,
+        tourpackage.AvailableSeats,
+        tourpackage.MinimumAge,
+        tourpackage.MaximumAge,
+        tourpackage.TotalDuration,
+        tourpackage.adult_base_price,
+        tourpackage.child_base_price,
+        tourpackage.infant_base_price,
+        tourpackage.Discount,
+        tourpackage.PackageOverview,
+        tourpackage.Showpackage,
+        tourpackage.Flight,
+        tourpackage.Transport,
+        tourpackage.Food,
+        tourpackage.Hotel,
+        tourpackage.Country,
+        tourpackage.GirlsTrip,
+        tourpackage.FamilyTrips,
+        tourpackage.Adventure,
+        tourpackage.FullyGuided,
+        tourpackage.SelfGuided,
+        tourpackage.Guide,
+        tourpackage.CancellationDate,
+        tourpackage.coverImage,
+        tourpackage.booking_money_due_date,
+        tourpackage.first_installment_due_date,
+        tourpackage.second_installment_due_date,
+        tourpackage.booking_money,
+        tourpackage.first_installment,
+        tourpackage.second_installment,
+        tourpackage.Nature,
+        tourpackage.couponCode,
+        tourpackage.vipCoupon,
+        tourpackage.universalCoupon,
+        tourpackage.internationalCoupon,
+        tourpackage.domesticCoupon,
+        tourpackage.bucketCoupon,
+        tourpackage.tourType,
+        tourpackage.metatag,
+        tourpackage.metaDescription,
+        tourpackage.accommodation;
+    `;
     const [tourPackageResults] = await pool.execute(tourPackageQuery);
-    console.log(tourPackageResults);
-    return tourPackageResults;
+    // Parse JSON strings to objects for booking_slots
+    const formattedResults = tourPackageResults.map((result) => {
+      result.booking_slots = result.booking_slots ? JSON.parse(`[${result.booking_slots}]`) : [];
+      return result;
+    });
 
+    console.log(formattedResults);
+    return formattedResults;
   } catch (error) {
     throw error;
   }
 };
+
+
+
+// const getAllTourPackages = async () => {
+//   try {
+//     const tourPackageQuery = `
+//     SELECT*
+//     FROM
+//       tourpackage WHERE isActive=1;
+//   `;
+//     const [tourPackageResults] = await pool.execute(tourPackageQuery);
+//     console.log(tourPackageResults);
+//     return tourPackageResults;
+
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 
 
