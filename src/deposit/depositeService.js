@@ -2762,12 +2762,13 @@ const ApprovedCheckDeposit = async (req) => {
     const getamount = "SELECT * FROM cheque_deposit WHERE deposit_id = ?";
     await connection.beginTransaction();
     const [result] = await connection.execute(getamount, [deposit_id]);
-    const amount = result[0]?.amount;
+    const amount =  parseInt(result[0].amount);
     console.log(deposit_id)
     console.log(updateQuery);
 
+    console.log(amount);
     // If the status is 'approved', update  the user wallet
-    const updateUserWalletQuery = `UPDATE user SET wallet = wallet+ ? WHERE id = ?`;
+    const updateUserWalletQuery = `UPDATE user SET wallet = IFNULL(wallet, 0) + ? WHERE id = ?`;
     const user_id = result[0].requested_by;
     const [ksocjocj] = await connection.execute(updateUserWalletQuery, [
       amount,
