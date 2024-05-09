@@ -721,6 +721,9 @@ export const getHighlights = async (PKID) => {
   }
 };
 
+
+
+
 const getBookingPolicy = async (PKID) => {
   try {
     const bookingPolicyQuery = `
@@ -1045,7 +1048,6 @@ const createPlaceVisit = async (req, PKID) => {
   }
 };
 
-
 const UpdatevisitedImage = async (req, res, id) => {
   const { placetovisit_name } = req.body;
   const imageUrl = req.publicImageLink;
@@ -1070,25 +1072,21 @@ WHERE  id = ?`;
   const values = [imageUrl, placetovisit_name, Id];
   const [result] = await pool.query(updateQuery, values);
   return res.send({ status: 'success', message: " image has updated" });
-
 };
-
 
 const addInstallment = async (req, PKID) => {
   let connection;
   try {
     connection = await pool.getConnection();
     const updatedOrInsertedInstallments = [];
-
     const installment = req.body;
-
     const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
-
+    
     const tour_package_id = packageResults[0].PKID;
 
     const {
@@ -1612,10 +1610,10 @@ const deleteAddons = async (req, res) => {
   })
 }
 
+
 const createCancelationPolicy = async (req, PKID) => {
   try {
     const cancellationPolicies = req.body;
-
     if (
       !cancellationPolicies ||
       !Array.isArray(cancellationPolicies) ||
@@ -1656,22 +1654,24 @@ const createCancelationPolicy = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new cancellation policy to be inserted
-        const newId = customcancId();
         const insertQuery = "INSERT INTO cancellation_policy (id, tour_package_id, cancellation_policy) VALUES (?, ?, ?)";
         await connection.execute(insertQuery, [newId, tour_package_id, cancellation_policy]);
+        await connection.commit();
         insertResults.push({
-          id: newId,
           status: true,
           message: "New cancellation policy inserted successfully"
         });
       }
     }
-    connection.release();
 
     return insertResults;
   } catch (error) {
+    await connection.rollback()
     console.error(error);
     throw new Error(error.message);
+  }
+  finally{
+    await connection.release()
   }
 };
 

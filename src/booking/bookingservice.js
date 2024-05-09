@@ -307,9 +307,10 @@ newFirstInstallmentdueDate.setDate(newFirstInstallmentdueDate.getDate() + 1);
 let newSecondInstallmentdueDate = new Date(newSecondInstallmentYear, newSecondInstallmentMonth, newSecondInstallmentDay);
 newSecondInstallmentdueDate.setDate(newSecondInstallmentdueDate.getDate() + 1);
 
-let newThirdInstallmentdueDate = new Date(newThirdInstallmentYear, newThirdInstallmentMonth, newThirdInstallmentDay);
-newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + 1);
 
+let newThirdInstallmentdueDate = new Date(newThirdInstallmentYear, newThirdInstallmentMonth, newThirdInstallmentDay);
+
+newThirdInstallmentdueDate.setDate(newThirdInstallmentdueDate.getDate() + 1);
 console.log(newFirstInstallmentdueDate, newSecondInstallmentdueDate, newThirdInstallmentdueDate);
 
 const paymentstatus = payementStatus.UNPAID;
