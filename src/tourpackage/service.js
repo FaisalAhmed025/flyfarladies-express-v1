@@ -480,6 +480,19 @@ const getbookingslot = async (req, res) => {
   })
 }
 
+const getInstallment = async (id,pkid) => {
+  try{
+  const tourplanquery = `SELECT * FROM installment WHERE tourpackageId=? AND  bookingslotid= ?`
+  const [data] = await pool.query(tourplanquery, [pkid,id])
+  console.log(data)
+  return data
+}
+catch(error){
+  throw new Error(error)
+}
+}
+
+
 
 const deletePackage = async (req, res) => {
   const id = req.params.PKID
@@ -2066,6 +2079,7 @@ const AddFAQs = async (req, res) => {
 
 export const tourpackageService = {
   getbookingslot,
+  getInstallment,
   deleteinclusion,
   getSingleTourPackages,
   deletePackage,

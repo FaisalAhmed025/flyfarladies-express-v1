@@ -9,6 +9,7 @@ router.post('/addinstallment/:PKID', tourpackageController.Addinstallemnt)
 router.patch('/update/:PKID', upload.single('coverImage'), imageHandlerUpdate, tourpackageController.updatePackage)
 router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackages)
 router.get('/get-bookingslot/:id', tourpackageController.getbookingslot)
+router.post('/get-installement/:bookingslotid', tourpackageController.getInstallment)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
 router.delete('/delete/:PKID', tourpackageController.deletePAckage)
 

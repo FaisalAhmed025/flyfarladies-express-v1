@@ -78,6 +78,26 @@ const  getbookingslot = async(req,res) =>{
 
 }
 
+const  getInstallment = async(req,res) =>{
+ try{
+  const id = req.params.bookingslotid;
+  const pkid =  req.body.tourpackageId;
+  console.log(id,pkid)
+  const result = await tourpackageService.getInstallment(id,pkid)
+  res.status(200).json({
+    success:true,
+    data:result
+  })
+}
+catch(error){
+res.status(500).json({
+  success:false,
+  message:error.message
+})
+}
+}
+
+
 const  deletePAckage = async(req,res) =>{
   return await tourpackageService.deletePackage(req,res)
 
@@ -613,6 +633,7 @@ export const tourpackageController = {
   deletetourinclusion,
   getbookingslot,
   getSingleTourPackages,
+  getInstallment,
   getAllTourPackages,
   getalladdons,
   getAllFAQS,
