@@ -80,6 +80,11 @@ const AlbumImageID = () => {
   return "A" + Math.floor(Math.random() * 10000);
 };
 
+const cancelationpolicy = () => {
+  // This is just a simple example; you may want to use a more robust method in a production environment
+  return "c" + Math.floor(Math.random() * 10000);
+};
+
 const customHighlight = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "H" + Math.floor(Math.random() * 10000);
@@ -1067,7 +1072,7 @@ const UpdatevisitedImage = async (req, res, id) => {
   const Id = packageResults[0]?.id;
   const updateQuery = `UPDATE place_to_visit SET place_image = ?,
   placetovisit_name = ? 
-WHERE  id = ?`;
+  WHERE  id = ?`;
   console.log(updateQuery);
   const values = [imageUrl, placetovisit_name, Id];
   const [result] = await pool.query(updateQuery, values);
@@ -1082,11 +1087,10 @@ const addInstallment = async (req, PKID) => {
     const installment = req.body;
     const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
-
     if (packageResults.length === 0) {
       throw new Error("Tour package not found.");
     }
-    
+
     const tour_package_id = packageResults[0].PKID;
 
     const {
@@ -1612,6 +1616,7 @@ const deleteAddons = async (req, res) => {
 
 
 const createCancelationPolicy = async (req, PKID) => {
+  let connection;
   try {
     const cancellationPolicies = req.body;
     if (
@@ -1624,7 +1629,7 @@ const createCancelationPolicy = async (req, PKID) => {
       );
     }
 
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
@@ -1654,9 +1659,9 @@ const createCancelationPolicy = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new cancellation policy to be inserted
+        const newId = cancelationpolicy(); // Assume generateUniqueId is your function to generate unique IDs
         const insertQuery = "INSERT INTO cancellation_policy (id, tour_package_id, cancellation_policy) VALUES (?, ?, ?)";
         await connection.execute(insertQuery, [newId, tour_package_id, cancellation_policy]);
-        await connection.commit();
         insertResults.push({
           status: true,
           message: "New cancellation policy inserted successfully"
@@ -1664,16 +1669,19 @@ const createCancelationPolicy = async (req, PKID) => {
       }
     }
 
+    await connection.commit();
     return insertResults;
   } catch (error) {
-    await connection.rollback()
+    await connection.rollback();
     console.error(error);
     throw new Error(error.message);
-  }
-  finally{
-    await connection.release()
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
+
 
 
 const cancellationPolicy = async (req, res) => {
