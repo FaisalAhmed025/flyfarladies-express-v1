@@ -470,6 +470,16 @@ const gettouritenerary = async (req, res) => {
   })
 }
 
+const getbookingslot = async (req, res) => {
+  const id = req.params.id
+  const tourplanquery = `SELECT * FROM bookingslot WHERE id= ?`
+  const [data] = await pool.query(tourplanquery, [id])
+  return res.status(200).json({
+    status: true,
+    data: data
+  })
+}
+
 
 const deletePackage = async (req, res) => {
   const id = req.params.PKID
@@ -2055,6 +2065,7 @@ const AddFAQs = async (req, res) => {
 
 
 export const tourpackageService = {
+  getbookingslot,
   deleteinclusion,
   getSingleTourPackages,
   deletePackage,

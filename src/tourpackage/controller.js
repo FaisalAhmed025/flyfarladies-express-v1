@@ -73,6 +73,11 @@ const  gettouritenrary = async(req,res) =>{
 
 }
 
+const  getbookingslot = async(req,res) =>{
+  return await tourpackageService.getbookingslot(req,res)
+
+}
+
 const  deletePAckage = async(req,res) =>{
   return await tourpackageService.deletePackage(req,res)
 
@@ -606,6 +611,7 @@ const updateinneralbumiamge = async (req,res)=>{
 
 export const tourpackageController = {
   deletetourinclusion,
+  getbookingslot,
   getSingleTourPackages,
   getAllTourPackages,
   getalladdons,

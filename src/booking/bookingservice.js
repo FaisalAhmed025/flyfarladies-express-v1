@@ -203,11 +203,10 @@ const childprice=  tourpackage[0].child_base_price
 const infantprice  = tourpackage[0].infant_base_price
 
 const bookingSlotId = req.body.id;
-const slotquery = `SELECT * FROM bookingslot WHERE id=?`;
-const [slot] = await pool.query(slotquery, [bookingSlotId]);
 
 const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `
 const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId])
+console.log(installmentdata);
 
 let totalAdultprice = (installmentdata[0].ABookingAmount +
   installmentdata[0].AFirstInstallmentAmount +

@@ -38,6 +38,7 @@ const getuserBookings  = async (req, res) => {
 }
 
 
+
 export const bookingController = {
   Book$Hold,
   getAllBookings,
