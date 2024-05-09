@@ -429,7 +429,7 @@ const paythiredInstallment = async (req,res) =>{
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
-  if( booking[0].firstInstallmentStatus !=='complete' &&  booking[0].bookingAmountStatus !=='complete'){
+  if( booking[0].firstInstallmentStatus !=='completed' &&  booking[0].bookingAmountStatus !=='completed'){
    return res.send({ message:"please pay your early installment"})
   }
 
