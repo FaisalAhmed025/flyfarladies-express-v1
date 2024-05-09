@@ -21,7 +21,7 @@ export const storeMultipleImage = async (req, res, next) =>
 
 /*   common function for image handler */
 async function saveOnGCP(req) {
-  const uniqueSuffix = req.file.originalname.replace(/[()]/g, "-");
+  const uniqueSuffix = req.file.originalname.split(" ").join("-");
   req.file.originalname = `${uniqueSuffix}_${Date.now()}.pdf`;
   // Convert the image buffer to WebP format
   let webpBuffer = req.file.buffer;
@@ -48,7 +48,7 @@ async function saveOnGCP(req) {
   });
 
   // Get the publicly accessible URL of the uploaded file
-  const publicUrl = `https://storage.googleapis.com/ffl/${bucket.name}/${fileData.name}`;
+  const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileData.name}`;
   req.imageLink = publicUrl;
   //console.log(req.imageLink);
   //console.log('berofe undefine')

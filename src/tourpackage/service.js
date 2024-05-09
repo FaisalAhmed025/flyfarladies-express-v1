@@ -590,6 +590,7 @@ const getBookingslot = async (PKID) => {
       FROM bookingslot
       JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
       WHERE bookingslot.tour_package_id = ? AND bookingslot.StartDate > ?
+      ORDER BY bookingslot.id ASC
     `;
 
     console.log(currentDate)
