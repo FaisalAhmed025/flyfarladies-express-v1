@@ -529,7 +529,7 @@ const Addinstallemnt = async (req, res) => {
     const result = await tourpackageService.addInstallment(req, PKID);
     console.log(PKID)
 
-    // Check if the result is an error
+    // Check if the result is an erro
     if (result instanceof Error) {
       return res.status(500).json({
         success: false,

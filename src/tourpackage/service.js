@@ -1092,9 +1092,11 @@ const addInstallment = async (req, PKID) => {
     }
 
     const tour_package_id = packageResults[0].PKID;
+    console.log(tour_package_id)
 
     const {
       InstallmentId,
+      bookingslotid,
       FirstInstallmentdueDate,
       SecondInstallmentdueDate,
       ThirdInstallmentdueDate,
@@ -1108,6 +1110,7 @@ const addInstallment = async (req, PKID) => {
       IFirstInstallmentAmount,
       ISecondInstallmentAmount
     } = installment;
+
     if (InstallmentId) {
       const updateQuery = `UPDATE installment SET 
                             FirstInstallmentdueDate = ?,
@@ -1121,12 +1124,26 @@ const addInstallment = async (req, PKID) => {
                             CSecondInstallmentAmount = ?,
                             IBookingAmount = ?,
                             IFirstInstallmentAmount = ?,
-                            ISecondInstallmentAmount = ?
+                            ISecondInstallmentAmount = ?,
+                            bookingslotid = ?
                             WHERE InstallmentId = ?`;
 
-      await connection.execute(updateQuery, [FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
-        ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount, CBookingAmount, CFirstInstallmentAmount,
-        CSecondInstallmentAmount, IBookingAmount, IFirstInstallmentAmount, ISecondInstallmentAmount, InstallmentId]);
+      await connection.execute(updateQuery, [
+        FirstInstallmentdueDate,
+        SecondInstallmentdueDate,
+        ThirdInstallmentdueDate,
+        ABookingAmount,
+        AFirstInstallmentAmount,
+        ASecondInstallmentAmount,
+        CBookingAmount,
+        CFirstInstallmentAmount,
+        CSecondInstallmentAmount,
+        IBookingAmount,
+        IFirstInstallmentAmount,
+        ISecondInstallmentAmount,
+        bookingslotid,
+        InstallmentId
+      ]);
 
       updatedOrInsertedInstallments.push({
         InstallmentId,
@@ -1134,16 +1151,29 @@ const addInstallment = async (req, PKID) => {
         message: "Installment updated successfully"
       });
     } else {
-     // Define your function to generate a unique ID for installment
+      // Define your function to generate a unique ID for installment
       const insertQuery = `INSERT INTO installment (FirstInstallmentdueDate, SecondInstallmentdueDate, 
                           ThirdInstallmentdueDate, ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount,
                           CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, IBookingAmount,
-                          IFirstInstallmentAmount, ISecondInstallmentAmount, tourpackageId) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                          IFirstInstallmentAmount, ISecondInstallmentAmount, tourpackageId, bookingslotid) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-      await connection.execute(insertQuery, [FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
-        ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount, CBookingAmount, CFirstInstallmentAmount,
-        CSecondInstallmentAmount, IBookingAmount, IFirstInstallmentAmount, ISecondInstallmentAmount, tour_package_id]);
+      await connection.execute(insertQuery, [
+        FirstInstallmentdueDate,
+        SecondInstallmentdueDate,
+        ThirdInstallmentdueDate,
+        ABookingAmount,
+        AFirstInstallmentAmount,
+        ASecondInstallmentAmount,
+        CBookingAmount,
+        CFirstInstallmentAmount,
+        CSecondInstallmentAmount,
+        IBookingAmount,
+        IFirstInstallmentAmount,
+        ISecondInstallmentAmount,
+        tour_package_id,
+        bookingslotid
+      ]);
 
       updatedOrInsertedInstallments.push({
         status: true,
@@ -1161,6 +1191,9 @@ const addInstallment = async (req, PKID) => {
     }
   }
 };
+
+
+
 
 
 const createAlbumImage = async (req, res, PKID) => {
@@ -1638,12 +1671,10 @@ const createCancelationPolicy = async (req, PKID) => {
     }
 
     const tour_package_id = packageResults[0].PKID;
-
     const insertResults = [];
 
     for (const cancellationObj of cancellationPolicies) {
       const { id, cancellation_policy } = cancellationObj;
-
       if (!cancellation_policy) {
         throw new Error("Cancellation policy text is required for each object.");
       }
@@ -1668,7 +1699,6 @@ const createCancelationPolicy = async (req, PKID) => {
         });
       }
     }
-
     await connection.commit();
     return insertResults;
   } catch (error) {
