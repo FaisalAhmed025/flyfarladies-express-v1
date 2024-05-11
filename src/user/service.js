@@ -872,8 +872,6 @@ const deleteTraveller = async (req, res) => {
 };
 
 
-
-
 const deleteUser = async (req, res) => {
   try {
     const partnerId = req.params.id;
@@ -888,6 +886,9 @@ const deleteUser = async (req, res) => {
     console.log();
   }
 };
+
+
+
 
 
 
@@ -989,9 +990,9 @@ export const UserService = {
   Register,
   login,
   loginwithGoogle,
+  deleteUser,
   forgetpasswordResetRequest,
   resetPassword,
-  deleteUser,
   allUser,
   updateUser,
   userdashBoard,

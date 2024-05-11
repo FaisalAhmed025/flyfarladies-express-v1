@@ -18,7 +18,6 @@ router.put('/update/:id', upload.single('images'), imageHandlerUpdate, userContr
 router.post('/traveller/add/:id', userController.addtravlercontroller)
 
 router.put('/traveller/update/:partnerId', upload.single('images'), imageHandlerUpdate,  userController.updateTravlercontroller)
-
 router.get('/mytraveller/tst/:user_id', userController.myTravelerList)
 router.delete('/mytraveller/:partnerId', userController.deleteTraveller)
 router.delete('/user/:id', userController.deleteUser)

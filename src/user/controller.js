@@ -12,6 +12,11 @@ const loginuser = async (req, res) => {
 
 };
 
+const deleteUser = async (req, res) => {
+  await UserService.deleteUser(req,res)
+
+};
+
 
 const loginwithGoogle = async (req, res) => {
   await UserService.loginwithGoogle(req,res)
@@ -129,6 +134,7 @@ const resetPassword = async (req, res) => {
 export const userController = {
   RegisterUser,
   loginuser,
+  deleteUser,
   forgetpasswordResetRequest,
   resetPassword,
   updateUser,
