@@ -876,6 +876,7 @@ const deleteUser = async (req, res) => {
   try {
     const partnerId = req.params.id;
     const query = `DELETE FROM user WHERE  id = ?`;
+    console.log(partnerId)
     const [result] = await pool.query(query, [partnerId]);
     return res.status(200).json({
       success: true,
