@@ -22,7 +22,7 @@ const Register = async (req, res) => {
     const { name, phone, email, password, platform } = req.body;
     // Do some validation on the data
 
-    if (!name || !email || !password || !phone || !platform) {
+    if (!name || !email || !password || !platform) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -873,6 +873,24 @@ const deleteTraveller = async (req, res) => {
 
 
 
+
+const deleteUser = async (req, res) => {
+  try {
+    const partnerId = req.params.id;
+    const query = `DELETE FROM user WHERE  id = ?`;
+    const [result] = await pool.query(query, [partnerId]);
+    return res.status(200).json({
+      success: true,
+      status: httpStatus.OK,
+      message:"user has deleted"
+    });
+  } catch (error) {
+    console.log();
+  }
+};
+
+
+
 const forgetpasswordResetRequest = async(req, res)=> {
   try {
     const { email } = req.body;
@@ -973,6 +991,7 @@ export const UserService = {
   loginwithGoogle,
   forgetpasswordResetRequest,
   resetPassword,
+  deleteUser,
   allUser,
   updateUser,
   userdashBoard,
