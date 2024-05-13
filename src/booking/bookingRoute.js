@@ -8,5 +8,6 @@ router.get("/book/single/:bookingid", bookingController.getSingleBookings)
 router.get("/book/userid/:userid", bookingController.getuserBookings)
 router.post("/approved/:bookingid", bookingController.approvedBooking)
 router.post("/cancelled/:bookingid", bookingController.CancelledBooking)
+router.post("/cancelledbyuser/:bookingid", bookingController.CancelledBookingUser)
 
 export default router;

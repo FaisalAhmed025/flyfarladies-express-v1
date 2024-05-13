@@ -127,13 +127,6 @@ const Book$Hold = async (req, res) => {
   `;
       // Execute the SQL query to insert all adult travelers
       const newTravelerResult = await pool.query(addChildPassengerQuery , [childTravelersValues]);
-
-      console.log(newTravelerResult)
-
-      // Assuming you need to process the result or do something with it
-      const newTravelers = newTravelerResult.rows;
-
-      // Assuming you need to update total amount and push travelers to the array
     }
 
     if (Array.isArray(infant) && infant.length > 0) {
@@ -205,6 +198,13 @@ const infantprice  = tourpackage[0].infant_base_price
 const bookingSlotId = req.body.id;
 const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `;
 const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
+
+const bookingslot = `SELECT * FROM bookingslot WHERE  id=?`
+const [slot] = await pool.query(bookingslot, [bookingSlotId])
+
+const cancellationDate = slot[0].cancellationDate
+
+console.log(slot[0].cancellationDate)
 
 if (!installmentdata.length) {
   console.log('No installment data found');
@@ -321,7 +321,8 @@ const values = [
   totalpackageprice,
   paymentstatus,
   bookingstatus,
-  bookingAt
+  bookingAt,
+  cancellationDate
 ];
 
 
@@ -362,8 +363,9 @@ const [result] = await pool.query(
     totalAmount,
     paymentStatus,
     bookingStatus,
-    bookingDate
-  ) VALUES (?, ?, ?,?, ?,?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+    bookingDate,
+    cancellationDate
+  ) VALUES (?, ?, ?,?, ?,?, ?, ?,?, ?, ?,?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
   values
 );
 
@@ -672,19 +674,51 @@ const ApprovedBooking = async (req, res) => {
 const CancelledBooking = async (req, res) => {
   try {
     const { bookingid } = req.params;
-    const { action_by,rejected_reason } = req.body;
+    const { action_by, rejected_reason } = req.body;
     const connection = await pool.getConnection();
+
     // Update booking status
-    const status =  bookingStatus.CANCELLED
+    const status =  bookingStatus.CANCELLED;
     const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, rejected_reason=?, action_by =? WHERE Bookingid = ?`;
-    await connection.execute(updateBookingQuery, [status,rejected_reason, action_by, bookingid]);
+    await connection.execute(updateBookingQuery, [status, rejected_reason, action_by, bookingid]);
     connection.release();
-    res.status(200).json({ success: true, message: 'Booking  has  Cancelled.' });
+    res.status(200).json({ success: true, message: 'Booking has been cancelled.' });
   } catch (error) {
     console.error('Error updating booking status:', error);
     res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 };
+
+
+const CancelledBookingByuser = async (req, res) => {
+  try {
+    const { bookingid } = req.params;
+    const {id} =req.body.id
+    const connection = await pool.getConnection();
+
+    const bookingQuery =`SELECT * FROM booking WHERE bookingid=? AND userid=? `
+    const [data] = await pool.query(bookingQuery, [bookingid, id])
+    const cancellation_date = data[0].cancellationDate
+
+    // Check if cancellation date has passed
+    const currentDate = new Date();
+    if (new Date(cancellation_date) < currentDate) {
+      connection.release();
+      return res.status(400).json({ success: false, message: 'Cancellation date has passed. Cannot cancel booking.' });
+    }
+
+    // Update booking status
+    const status =  bookingStatus.CANCELLED;
+    const updateBookingQuery = `UPDATE booking SET bookingStatus = ? WHERE Bookingid = ?`;
+    await connection.execute(updateBookingQuery, [status, bookingid]);
+    connection.release();
+    res.status(200).json({ success: true, message: 'Booking has been cancelled.' });
+  } catch (error) {
+    console.error('Error updating booking status:', error);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+};
+
 
 export const BookingService = {
   Book$Hold,
@@ -692,5 +726,6 @@ export const BookingService = {
   getSingleBooking,
   getBookingsByUserId,
   ApprovedBooking,
-  CancelledBooking
+  CancelledBooking,
+  CancelledBookingByuser
 }
