@@ -203,65 +203,86 @@ const childprice=  tourpackage[0].child_base_price
 const infantprice  = tourpackage[0].infant_base_price
 
 const bookingSlotId = req.body.id;
+const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `;
+const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
 
-const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `
-const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId])
-console.log(installmentdata);
+if (!installmentdata.length) {
+  console.log('No installment data found');
+  // Set default values or handle the case where installment data is not found
+}
 
-let totalAdultprice = (installmentdata[0].ABookingAmount +
-  installmentdata[0].AFirstInstallmentAmount +
-  installmentdata[0].ASecondInstallmentAmount) * totaladult;
+let totalAdultprice = 0;
+let totalChildprice = 0;
+let totalInfantprice = 0;
+let totalAdultBookingAmount = 0;
+let totalChildBookingAmount = 0;
+let totalInfantBookingAmount = 0;
+let totalAdultFirstInstallmentAmount = 0;
+let totalChildFirstInstallmentAmount = 0;
+let totalInfantFirstInstallmentAmount = 0;
+let totalAdultSecondInstallmentAmount = 0;
+let totalChildSecondInstallmentAmount = 0;
+let totalInfantSecondInstallmentAmount = 0;
+let FirstInstallmentdueDate = null;
+let SecondInstallmentdueDate = null;
+let ThirdInstallmentdueDate = null;
 
-let totalChildprice = (installmentdata[0].CBookingAmount +
-  installmentdata[0].CFirstInstallmentAmount +
-  installmentdata[0].CSecondInstallmentAmount) * totalchild;
+totalAdultprice= adultprice*totaladult
+totalChildprice = childprice *totalchild
+totalInfantprice = infantprice * infantprice
 
-let totalInfantprice = (installmentdata[0].IBookingAmount +
-  installmentdata[0].IFirstInstallmentAmount +
-  installmentdata[0].ISecondInstallmentAmount) * totalinfant;
+if (installmentdata.length > 0) {
+  totalAdultprice = (installmentdata[0].ABookingAmount +
+    installmentdata[0].AFirstInstallmentAmount +
+    installmentdata[0].ASecondInstallmentAmount) * totaladult;
 
-const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId])
+  totalChildprice = (installmentdata[0].CBookingAmount +
+    installmentdata[0].CFirstInstallmentAmount +
+    installmentdata[0].CSecondInstallmentAmount) * totalchild;
+
+  totalInfantprice = (installmentdata[0].IBookingAmount +
+    installmentdata[0].IFirstInstallmentAmount +
+    installmentdata[0].ISecondInstallmentAmount) * totalinfant;
+
+  totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
+  totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
+  totalInfantBookingAmount = installmentdata[0].IBookingAmount * totalinfant;
+  totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
+  totalChildFirstInstallmentAmount = installmentdata[0].CFirstInstallmentAmount * totalchild;
+  totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
+
+  // Total second installment amount calculation
+  totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
+  totalChildSecondInstallmentAmount = installmentdata[0].CSecondInstallmentAmount * totalchild;
+  totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
+
+  FirstInstallmentdueDate = installmentdata[0].FirstInstallmentdueDate;
+  SecondInstallmentdueDate = installmentdata[0].SecondInstallmentdueDate;
+  ThirdInstallmentdueDate = installmentdata[0].ThirdInstallmentdueDate;
+}
+
+const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId]);
 
 const selectedAddonsFromRequest = req.body.selectedAddons || [];
-    let addonTotal = 0;
-    if (addonServices && addonServices.length > 0) {
-      for (const selectaddn of selectedAddonsFromRequest) {
-        const { service, description, cost } = selectaddn;
-        // Save addon booking
-        const insertAddonQuery = `
-          INSERT INTO addon_booking (service, description, cost, packageId, userid, bookingId) 
-          VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        await pool.query(insertAddonQuery, [service, description, cost, packgeId, userid, bookingid]);
-        addonTotal += cost;
-      }
-    }
+let addonTotal = 0;
 
-const totalpackageprice = totalAdultprice+totalChildprice+totalInfantprice +addonTotal;
+if (addonServices && addonServices.length > 0) {
+  for (const selectaddn of selectedAddonsFromRequest) {
+    const { service, description, cost } = selectaddn;
+    // Save addon booking
+    const insertAddonQuery = `
+      INSERT INTO addon_booking (service, description, cost, packageId, userid, bookingId) 
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+    await pool.query(insertAddonQuery, [service, description, cost, packgeId, userid, bookingid]);
+    addonTotal += cost;
+  }
+}
 
-let totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
-let totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
-let totalInfantBookingAmount = installmentdata[0].IBookingAmount * totalinfant;
-let totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
-let totalChildFirstInstallmentAmount = installmentdata[0].CFirstInstallmentAmount * totalchild;
-let totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
-
-// Total second installment amount calculation
-let totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
-let totalChildSecondInstallmentAmount = installmentdata[0].CSecondInstallmentAmount * totalchild;
-let totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
-
-const bookingamount =totalAdultBookingAmount + totalChildBookingAmount+ totalInfantBookingAmount +addonTotal
-const firstinstallement = totalAdultFirstInstallmentAmount+totalChildFirstInstallmentAmount+totalInfantFirstInstallmentAmount
-const secondinstalemnt = totalAdultSecondInstallmentAmount+ totalChildSecondInstallmentAmount+ totalInfantSecondInstallmentAmount
-
-
-
-const FirstInstallmentdueDate = (installmentdata[0].FirstInstallmentdueDate);
-const SecondInstallmentdueDate = (installmentdata[0].SecondInstallmentdueDate);
-const ThirdInstallmentdueDate = (installmentdata[0].ThirdInstallmentdueDate);
-
-
+const totalpackageprice = totalAdultprice + totalChildprice + totalInfantprice + addonTotal;
+const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
+const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
+const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
 
 const paymentstatus = payementStatus.UNPAID;
 const values = [
@@ -303,7 +324,6 @@ const values = [
   bookingAt
 ];
 
-console.log(values);
 
 const [result] = await pool.query(
   `INSERT INTO booking (

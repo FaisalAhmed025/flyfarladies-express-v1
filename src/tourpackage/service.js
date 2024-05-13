@@ -586,7 +586,8 @@ const getBookingslot = async (PKID) => {
         bookingslot.tour_package_id,
         bookingslot.StartDate,
         bookingslot.EndDate,
-        bookingslot.available_seat
+        bookingslot.available_seat,
+        bookingslot.cancellationDate
       FROM bookingslot
       JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
       WHERE bookingslot.tour_package_id = ? AND bookingslot.StartDate > ?
@@ -1601,19 +1602,19 @@ const createBookingSlot = async (req, res, PKID) => {
     }
     const tourPackageId = packageResults[0].PKID;
     for (const slotData of bookingSlotData) {
-      const { StartDate, EndDate, available_seat, id } = slotData;
+      const { StartDate, EndDate, available_seat, cancellationDate, id } = slotData;
       if (id) {
         // If ID is provided, update the booking slot in the database
         await connection.query(
-          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, available_seat=? WHERE id = ? AND tour_package_id = ?`,
-          [StartDate, EndDate, available_seat,id, tourPackageId]
+          `UPDATE bookingslot SET StartDate = ?, EndDate = ?,cancellationDate=?, available_seat=? WHERE id = ? AND tour_package_id = ?`,
+          [StartDate, EndDate, cancellationDate, available_seat,id, tourPackageId]
         );
       } else {
         // Generate a unique ID for the booking slot
         // Insert new booking slot into the database
         await connection.query(
-          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, available_seat) VALUES (?, ?,?,?)`,
-          [ tourPackageId, StartDate, EndDate, available_seat]
+          `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, cancellationDate, available_seat) VALUES (?, ?,?,?,?)`,
+          [ tourPackageId, StartDate, EndDate, cancellationDate,available_seat]
         );
       }
     }
