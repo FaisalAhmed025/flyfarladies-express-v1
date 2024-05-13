@@ -1314,18 +1314,18 @@ const addInstallment = async (req, PKID) => {
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       await connection.execute(insertQuery, [
-        FirstInstallmentdueDate,
-        SecondInstallmentdueDate,
-        ThirdInstallmentdueDate,
-        ABookingAmount,
-        AFirstInstallmentAmount,
-        ASecondInstallmentAmount,
-        CBookingAmount,
-        CFirstInstallmentAmount,
-        CSecondInstallmentAmount,
-        IBookingAmount,
-        IFirstInstallmentAmount,
-        ISecondInstallmentAmount,
+        FirstInstallmentdueDate || null,
+        SecondInstallmentdueDate || null,
+        ThirdInstallmentdueDate ||null,
+        ABookingAmount || null,
+        AFirstInstallmentAmount || null,
+        ASecondInstallmentAmount || null,
+        CBookingAmount || null,
+        CFirstInstallmentAmount || null,
+        CSecondInstallmentAmount || null,
+        IBookingAmount || null,
+        IFirstInstallmentAmount || null,
+        ISecondInstallmentAmount || null,
         tour_package_id,
         bookingslotid
       ]);
