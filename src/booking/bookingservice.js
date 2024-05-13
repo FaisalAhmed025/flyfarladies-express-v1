@@ -203,6 +203,8 @@ const bookingslot = `SELECT * FROM bookingslot WHERE  id=?`
 const [slot] = await pool.query(bookingslot, [bookingSlotId])
 
 const cancellationDate = slot[0].cancellationDate
+const startdate = slot[0].StartDate
+const enddate  = slot[0].EndDate
 
 console.log(slot[0].cancellationDate)
 
@@ -293,8 +295,8 @@ const values = [
   wallet,
   tourpackage[0].PKID,
   tourpackage[0].MainTitle,
-  tourpackage[0].StartDate,
-  tourpackage[0].EndDate,
+  startdate,
+  enddate,
   tourpackage[0].TripType,
   tourpackage[0].TotalDuration,
   adultprice,
