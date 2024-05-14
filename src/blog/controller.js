@@ -9,6 +9,10 @@ const getallblogs = async(req,res)=>{
 }
 
 
+const geBlog = async(req,res)=>{
+  await blogService.getblog(req,res)
+}
+
 const deleteBlog = async(req,res)=>{
   await blogService.deleteBlog(req,res)
 }
@@ -25,6 +29,8 @@ export const blogcontroller  = {
   addBlog,
   getallblogs,
   deleteBlog,
+  deleteBlog,
+  geBlog,
   updateBlogcontroller,
   updateimages
 }

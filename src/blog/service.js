@@ -48,6 +48,14 @@ const getallblogs =  async(req,res) =>{
   
 }
 
+const getblog =  async(req,res) =>{
+  const blogquery = `SELECT * from blogs`
+  const id = req.params.id
+  const [data]  = await pool.query(blogquery,[id])
+  return res.send(data)
+  
+}
+
 
 const  deleteBlog = async(req,res)=>{
   const id= req.params.id
@@ -119,6 +127,7 @@ export const blogService ={
   addBlog,
   getallblogs,
   deleteBlog,
+  getblog,
   updateBlog,
   updateBlogImage
 }

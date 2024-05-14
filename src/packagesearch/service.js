@@ -277,8 +277,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       }
     }
 
-  
-
+    
    else if (TripType && City && StartDate) {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
