@@ -8,6 +8,12 @@ const  getPackageByDifferent=  async (req,res)=> {
   
 }
 
+const  getCityAndCountry =  async (req,res)=> {
+  await packageSearch.getcityAndCountry(req,res)
+   
+ }
+
 export const packageSearchController ={
-  getPackageByDifferent
+  getPackageByDifferent,
+  getCityAndCountry
 }
