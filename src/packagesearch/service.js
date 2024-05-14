@@ -60,11 +60,11 @@ const getTourPackagesByDifferentField = async (req, res) => {
   try {
     const { TripType, City, StartDate, Country } = req.query;
 
-    if (TripType && Country && StartDate) {
+    if (TripType && Country && StartDate && City) {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ?  AND City LIKE ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
       console.log(packagequery);
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
