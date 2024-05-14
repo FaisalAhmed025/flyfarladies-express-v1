@@ -29,6 +29,7 @@ import { visaRoutes } from "./visa/visaRoute";
 import askquestionRoute from  './ask question/router'
 import partnerRoute from  './partner/route'
 import popUpRoute from './popup/route'
+import helmet from "helmet";
 const app = express();
 
 
@@ -60,6 +61,7 @@ const options = {
   apis: ["./routes/*.js"],
 };
 
+app.use(helmet())
 const specs = swaggerJSDoc(options);
 app.use(express.json());
 app.use(cors());

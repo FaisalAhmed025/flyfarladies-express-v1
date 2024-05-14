@@ -27,6 +27,7 @@
     "express": "^4.18.3",
     "express-sharp": "^4.2.41",
     "fs": "^0.0.1-security",
+    "helmet": "^7.1.0",
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",

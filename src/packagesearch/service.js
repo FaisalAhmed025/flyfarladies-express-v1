@@ -30,13 +30,41 @@ const getTourPackageByLocation = async(req,res) => {
 
 }
 
+// const getcityAndCountry = async (req, res) => {
+//   const { TripType, StartDate } = req.query;
+//   const [month, year] = StartDate.split(' ');
+//   const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+//   const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+//   const packagequery = `SELECT City, Country FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+
+//   try {
+//     const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
+//     if (data.length === 0) {
+//       return res.send({ message: "Package not found" });
+//     }
+//     return res.send({ data: data });
+//   } catch (error) {
+//     console.error('Error fetching tour packages:', error);
+//     return res.status(500).send({ error: 'Internal server error' });
+//   }
+// };
+
+
+
 const getcityAndCountry = async (req, res) => {
   const { TripType, StartDate } = req.query;
-
   const [month, year] = StartDate.split(' ');
   const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
   const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-  const packagequery = `SELECT City, Country FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+  const packagequery = `
+    SELECT tp.City, tp.Country, tp.PKID
+    FROM tourpackage tp
+    INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+    WHERE tp.TripType = ? 
+    AND bs.StartDate >= ? 
+    AND bs.EndDate <= ? 
+    AND tp.isActive=1
+  `;
 
   try {
     const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
@@ -52,6 +80,146 @@ const getcityAndCountry = async (req, res) => {
 
 
 
+
+
+
+// const getTourPackagesByDifferentField = async (req, res) => {
+//   try {
+//     const { TripType, City, StartDate, Country } = req.query;
+
+//     if (TripType && Country && City && StartDate ) {
+//       const [month, year] = StartDate.split(' ');
+//       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+//       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND City LIKE?  AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+//       console.log(packagequery);
+//       try {
+//         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, `%${City}%`,startOfMonth, endOfMonth]);
+//         if (data.length === 0) {
+//           return res.send({ message: "Package not found" });
+//         }
+//         return res.send({ data: data });
+//       } catch (error) {
+//         console.error('Error fetching tour packages:', error);
+//         return res.status(500).send({ error: 'Internal server error' });
+//       }
+//     }
+
+//     else if (TripType && Country && StartDate ) {
+//       const [month, year] = StartDate.split(' ');
+//       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+//       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+//       console.log(packagequery);
+//       try {
+//         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
+//         if (data.length === 0) {
+//           return res.send({ message: "Package not found" });
+//         }
+//         return res.send({ data: data });
+//       } catch (error) {
+//         console.error('Error fetching tour packages:', error);
+//         return res.status(500).send({ error: 'Internal server error' });
+//       }
+//     }
+
+  
+
+//    else if (TripType && City && StartDate) {
+//       const [month, year] = StartDate.split(' ');
+//       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+//       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND City LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+//       console.log(packagequery);
+//       try {
+//         const [data] = await pool.query(packagequery, [TripType, `%${City}%`, startOfMonth, endOfMonth]);
+//         if (data.length === 0) {
+//           return res.send({ message: "Package not found" });
+//         }
+//         return res.send({ data: data });
+//       } catch (error) {
+//         console.error('Error fetching tour packages:', error);
+//         return res.status(500).send({ error: 'Internal server error' });
+//       }
+//     }
+
+//    else if (TripType && StartDate) {
+//       const [month, year] = StartDate.split(' ');
+//       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+//       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
+//       console.log(packagequery);
+//       try {
+//         const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
+//         if (data.length === 0) {
+//           return res.send({ message: "Package not found" });
+//         }
+//         return res.send({ data: data });
+//       } catch (error) {
+//         console.error('Error fetching tour packages:', error);
+//         return res.status(500).send({ error: 'Internal server error' });
+//       }
+//     }
+  
+//     else if(City && Country){
+//       const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND Country=? AND isActive=1` ;
+//       console.log(packagequery)
+//       const [data] = await pool.query(packagequery, [`%${City}%`, Country])
+//       if(data.length ===0){
+//          return res.send({message:"package not found"})
+//       }
+//       return res.send({data:data})
+//     }
+
+  
+//    else if(TripType && Country){
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ? AND isActive=1` ;
+//       console.log(packagequery)
+//       const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
+//       if(data.length ===0){
+//          return res.send({message:"package not found"})
+//       }
+//       return res.send({data:data})
+//     }
+  
+//     else if(City && TripType){
+//       const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND TripType=? AND isActive=1` ;
+//       console.log(packagequery)
+//       const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
+//       if(data.length ===0){
+//          return res.send({message:"package not found"})
+//       }
+//       return res.send({data:data})
+//     }
+  
+//     else if(City){
+//       const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND isActive=1` ;
+//       console.log(packagequery)
+//       const [data] = await pool.query(packagequery, [`%${City}%`])
+//       if(data.length ===0){
+//          return res.send({message:"package not found"})
+//       }
+//       return res.send({data:data})
+//     }
+  
+    
+//     else if(TripType){
+//       const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND isActive=1` ;
+//       console.log(packagequery)
+//       const [data] = await pool.query(packagequery, [TripType])
+//       if(data.length ===0){
+//          return res.send({message:"package not found"})
+//       }
+//       return res.send({data:data})
+//     }
+ 
+//   } catch (error) {
+//     console.error('Error fetching tour packages:', error);
+//     throw error;
+//   }
+// }
+
+
 const getTourPackagesByDifferentField = async (req, res) => {
   try {
     const { TripType, City, StartDate, Country } = req.query;
@@ -60,10 +228,19 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND City LIKE?  AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
-      console.log(packagequery);
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+        WHERE tp.TripType = ? 
+        AND tp.Country LIKE ? 
+        AND tp.City LIKE ? 
+        AND bs.StartDate >= ? 
+        AND bs.EndDate <= ? 
+        AND tp.isActive=1
+      `;
       try {
-        const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, `%${City}%`,startOfMonth, endOfMonth]);
+        const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, `%${City}%`, startOfMonth, endOfMonth]);
         if (data.length === 0) {
           return res.send({ message: "Package not found" });
         }
@@ -78,8 +255,16 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND Country LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
-      console.log(packagequery);
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+        WHERE tp.TripType = ? 
+        AND tp.Country LIKE ? 
+        AND bs.StartDate >= ? 
+        AND bs.EndDate <= ? 
+        AND tp.isActive=1
+      `;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
         if (data.length === 0) {
@@ -98,8 +283,16 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND City LIKE ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
-      console.log(packagequery);
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+        WHERE tp.TripType = ? 
+        AND tp.City LIKE ? 
+        AND bs.StartDate >= ? 
+        AND bs.EndDate <= ? 
+        AND tp.isActive=1
+      `;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${City}%`, startOfMonth, endOfMonth]);
         if (data.length === 0) {
@@ -116,8 +309,15 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType = ? AND StartDate >= ? AND StartDate <= ? AND isActive=1`;
-      console.log(packagequery);
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+        WHERE tp.TripType = ? 
+        AND bs.StartDate >= ? 
+        AND bs.EndDate <= ? 
+        AND tp.isActive=1
+      `;
       try {
         const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
         if (data.length === 0) {
@@ -131,55 +331,103 @@ const getTourPackagesByDifferentField = async (req, res) => {
     }
   
     else if(City && Country){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND Country=? AND isActive=1` ;
-      console.log(packagequery)
-      const [data] = await pool.query(packagequery, [`%${City}%`, Country])
-      if(data.length ===0){
-         return res.send({message:"package not found"})
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage
+        WHERE City LIKE ? 
+        AND Country = ? 
+        AND isActive=1
+      ` ;
+      try {
+        const [data] = await pool.query(packagequery, [`%${City}%`, Country])
+        if(data.length === 0){
+          return res.send({message:"Package not found"})
+        }
+        return res.send({data:data})
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({error: 'Internal server error'});
       }
-      return res.send({data:data})
     }
 
   
    else if(TripType && Country){
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND Country LIKE ? AND isActive=1` ;
-      console.log(packagequery)
-      const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
-      if(data.length ===0){
-         return res.send({message:"package not found"})
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage
+        WHERE TripType = ? 
+        AND Country LIKE ? 
+        AND isActive=1
+      ` ;
+      try {
+        const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
+        if(data.length === 0){
+          return res.send({message:"Package not found"})
+        }
+        return res.send({data:data})
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({error: 'Internal server error'});
       }
-      return res.send({data:data})
     }
   
     else if(City && TripType){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND TripType=? AND isActive=1` ;
-      console.log(packagequery)
-      const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
-      if(data.length ===0){
-         return res.send({message:"package not found"})
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage
+        WHERE City LIKE ? 
+        AND TripType = ? 
+        AND isActive=1
+      ` ;
+      try {
+        const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
+        if(data.length === 0){
+          return res.send({message:"Package not found"})
+        }
+        return res.send({data:data})
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({error: 'Internal server error'});
       }
-      return res.send({data:data})
     }
   
     else if(City){
-      const packagequery = `SELECT * FROM tourpackage WHERE City LIKE? AND isActive=1` ;
-      console.log(packagequery)
-      const [data] = await pool.query(packagequery, [`%${City}%`])
-      if(data.length ===0){
-         return res.send({message:"package not found"})
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage
+        WHERE City LIKE ? 
+        AND isActive=1
+      ` ;
+      try {
+        const [data] = await pool.query(packagequery, [`%${City}%`])
+        if(data.length === 0){
+          return res.send({message:"Package not found"})
+        }
+        return res.send({data:data})
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({error: 'Internal server error'});
       }
-      return res.send({data:data})
     }
   
     
     else if(TripType){
-      const packagequery = `SELECT * FROM tourpackage WHERE TripType=? AND isActive=1` ;
-      console.log(packagequery)
-      const [data] = await pool.query(packagequery, [TripType])
-      if(data.length ===0){
-         return res.send({message:"package not found"})
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage
+        WHERE TripType = ? 
+        AND isActive=1
+      ` ;
+      try {
+        const [data] = await pool.query(packagequery, [TripType])
+        if(data.length === 0){
+          return res.send({message:"Package not found"})
+        }
+        return res.send({data:data})
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({error: 'Internal server error'});
       }
-      return res.send({data:data})
     }
  
   } catch (error) {
@@ -187,6 +435,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
     throw error;
   }
 }
+
 
 
 export const packageSearch =  {
