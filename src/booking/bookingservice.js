@@ -695,11 +695,12 @@ const CancelledBooking = async (req, res) => {
 const CancelledBookingByuser = async (req, res) => {
   try {
     const { bookingid } = req.params;
-    const {id} =req.body.id
+    const {id} =req.body
     const connection = await pool.getConnection();
 
     const bookingQuery =`SELECT * FROM booking WHERE bookingid=? AND userid=? `
     const [data] = await pool.query(bookingQuery, [bookingid, id])
+    console.log(data)
     const cancellation_date = data[0].cancellationDate
 
     // Check if cancellation date has passed
