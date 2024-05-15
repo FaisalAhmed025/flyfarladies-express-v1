@@ -937,7 +937,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
         console.log('Email sent successfully:', info.response);
       }
     });
-    return res.status(200).json({status: 'success',  message: 'Password reset link sent successfully' });
+    return res.status(200).json({status: 'success', token:token,  message: 'Password reset link sent successfully' });
   } catch (error) {
     console.error('Error sending password reset link:', error);
     return res.status(500).json({ error: 'Internal server error' });

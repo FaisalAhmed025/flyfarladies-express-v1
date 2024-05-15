@@ -79,10 +79,6 @@ const getcityAndCountry = async (req, res) => {
 };
 
 
-
-
-
-
 // const getTourPackagesByDifferentField = async (req, res) => {
 //   try {
 //     const { TripType, City, StartDate, Country } = req.query;
@@ -277,7 +273,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       }
     }
 
-    
+
    else if (TripType && City && StartDate) {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
