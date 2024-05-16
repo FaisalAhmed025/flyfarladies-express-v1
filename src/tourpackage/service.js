@@ -1576,7 +1576,6 @@ const createInclusion = async (req, PKID) => {
         const insertQuery = "INSERT INTO inclusion ( tour_package_id, inclusion) VALUES ( ?, ?)";
         await connection.execute(insertQuery, [ tourPackageId, inclusionText]);
         updatedOrInsertedInclusions.push({
-          id: newId,
           status: "success",
           message: "New inclusion inserted successfully"
         });
@@ -1688,7 +1687,6 @@ const createExclusion = async (req, PKID) => {
         const insertQuery = "INSERT INTO exclusion ( tour_package_id, exclusion) VALUES (?, ?)";
         await connection.execute(insertQuery, [tourPackageId, exclusionText]);
         updatedOrInsertedExclusions.push({
-          id: newId,
           status: true,
           message: "New exclusion inserted successfully"
         });
