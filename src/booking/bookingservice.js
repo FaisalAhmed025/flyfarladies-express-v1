@@ -697,7 +697,6 @@ const CancelledBookingByuser = async (req, res) => {
     const { bookingid } = req.params;
     const {id} =req.body
     const connection = await pool.getConnection();
-
     const bookingQuery =`SELECT * FROM booking WHERE bookingid=? AND userid=? `
     const [data] = await pool.query(bookingQuery, [bookingid, id])
     console.log(data)

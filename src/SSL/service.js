@@ -20,7 +20,6 @@ const initpayment = async(req,res) =>{
   const [user] = await pool.query(userquery, [userid]);
 
 
-
   const data = {
     store_id: process.env.SSL_STORE_ID,
     store_passwd: process.env.SSL_STORE_PASSWORD,
@@ -85,8 +84,6 @@ const sucesss  = async (req,res)=>{
     // const uuid = req.params.id;
     const data = req.body;
     console.log(req.body)
-
-
 
     // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
     const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);

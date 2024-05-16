@@ -78,19 +78,22 @@ try {
     }
     
     const newWalletBalance = user[0].wallet - totalprice;
+    console.log(newWalletBalance)
 
     const walletvalue = [
       newWalletBalance,
       userid
     ]
     const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
-   const [userwallewt] = await pool.query(updateuserbalancequery,walletvalue);
+   const [userwallet] = await pool.query(updateuserbalancequery,walletvalue);
+
+   const [updatedwallet]  = await pool.query(userquery, [userid])
+
+   console.log(userwallet[0]?.wallet)
 
 
     const bookingstatus = bookingStatus.CONFIRMED
     const paymentstatus = payementStatus.PAID
-
-    console.log(bookingStatus)
 
     const value = [
       bookingstatus,
@@ -103,14 +106,16 @@ try {
 
     const [updatedBooking] = await pool.query(updatebookingquery, value)
 
-    const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${PKID}. Total Amount  is ${totalprice}`;
+    const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}. Total Amount  is ${totalprice}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
     
-    const ledger = await connection.execute(ledgerquery, [
+
+  const  lastbalance = parseInt(updatedwallet[0].wallet)
+    const ledger = await pool.query(ledgerquery, [
       userid,
       totalprice,
-      userwallewt[0].wallet,
+      lastbalance,
       remarks,
       approvedAt
     ]);
@@ -717,8 +722,6 @@ const initwithssl1stinstallemnt = async(req,res) =>{
 
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
-
-  console.log(user)
 
 
   const data = {
