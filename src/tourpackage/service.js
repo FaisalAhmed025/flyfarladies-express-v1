@@ -1924,7 +1924,7 @@ const createHighlights = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new highlight to be inserted
-        const insertQuery = "INSERT INTO highlights ( tour_package_id, highlights) VALUES (?, ?, ?)";
+        const insertQuery = "INSERT INTO highlights ( tour_package_id, highlights) VALUES (?, ?)";
         await connection.execute(insertQuery, [tour_package_id, highlights]);
         updatedOrInsertedHighlights.push({
 
