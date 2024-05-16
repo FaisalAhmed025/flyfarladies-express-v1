@@ -1573,9 +1573,8 @@ const createInclusion = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new inclusion to be inserted
-        const newId = custominclusion();
-        const insertQuery = "INSERT INTO inclusion (id, tour_package_id, inclusion) VALUES (?, ?, ?)";
-        await connection.execute(insertQuery, [newId, tourPackageId, inclusionText]);
+        const insertQuery = "INSERT INTO inclusion ( tour_package_id, inclusion) VALUES ( ?, ?)";
+        await connection.execute(insertQuery, [ tourPackageId, inclusionText]);
         updatedOrInsertedInclusions.push({
           id: newId,
           status: "success",
@@ -1685,9 +1684,9 @@ const createExclusion = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new inclusion to be inserted
-        const newId = custominclusion();
-        const insertQuery = "INSERT INTO exclusion (id, tour_package_id, exclusion) VALUES (?, ?, ?)";
-        await connection.execute(insertQuery, [newId, tourPackageId, exclusionText]);
+  
+        const insertQuery = "INSERT INTO exclusion ( tour_package_id, exclusion) VALUES (?, ?)";
+        await connection.execute(insertQuery, [tourPackageId, exclusionText]);
         updatedOrInsertedExclusions.push({
           id: newId,
           status: true,

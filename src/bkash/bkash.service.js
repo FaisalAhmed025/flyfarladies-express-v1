@@ -166,14 +166,14 @@ const callback = async (req, res) => {
 
       ]
 
-      return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
+      return res.redirect(`https://www.flyfarladies.com/dashboard/myWallet/statusMessage=${encodeURIComponent(result.statusMessage)}&status=${status}$ statusCode =${result.statusCode}`);
     }
 
     if (result) response = {
       statusCode: result?.statusCode,
       statusMessage: result?.statusMessage
     }
-    return res.redirect(`http://localhost:3001/dashboard/myWallet/statusMessage=${encodeURIComponent(response.statusMessage)}$ statusCode =${response.statusCode}`);
+    return res.redirect(`https://www.flyfarladies.com/dashboard/myWallet/statusMessage=${encodeURIComponent(response.statusMessage)}$ statusCode =${response.statusCode}`);
 
   }
 
