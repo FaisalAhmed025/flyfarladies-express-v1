@@ -502,8 +502,7 @@ const initwithsslfullamount = async(req,res) =>{
   const userid  = req.body?.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-  const fees = (booking[0].totalAmount* 2.5)/100
-  const amount = booking[0].totalAmount + fees
+  const amount = booking[0].totalAmount
   console.log(amount);
 
   const userquery =  `SELECT * FROM user WHERE id=?`
@@ -607,8 +606,7 @@ const initwithsslbookingmoney = async(req,res) =>{
   const userid  = req.body.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-  const fees = (booking[0].booking_money* 2.5)/100
-  const amount = booking[0].booking_money +fees
+  const amount = booking[0].booking_money
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
 
@@ -699,7 +697,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     bookingid
   ]
 
-
   const updatequery  = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
 
@@ -717,9 +714,7 @@ const initwithssl1stinstallemnt = async(req,res) =>{
   const userid  = req.body.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-
-  const fees = (booking[0].first_installment* 2.5)/100
-  const amount = booking[0].first_installment + fees
+  const amount = booking[0].first_installment
 
   if(booking.length ===0){
     return res.send({message:"booking not found"})
@@ -829,7 +824,6 @@ const initwithssl2ndinstallemnt = async(req,res) =>{
   const userid  = req.body.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-  const fees = (booking[0].second_installment* 2.5)/100
   const amount = booking[0].second_installment
 
   if(booking.length ===0){
@@ -942,12 +936,10 @@ const initwithssl1stAnd2ndinstallment = async(req,res) =>{
   const userid  = req.body.id
   const bookingquery =  `SELECT * FROM booking WHERE bookingid = ?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-
   const firstamount = booking[0].first_installment
   const bookingAmount   = booking[0].booking_money
 
- const fees  = (firstamount+bookingAmount *2.5) /100
-  const totalAmount = firstamount+bookingAmount +fees
+  const totalAmount = firstamount+bookingAmount
 
   if(booking.length ===0){
     return res.send({message:"booking not found"})
@@ -1064,9 +1056,7 @@ const initwithssl2ndand3rdinstallment = async(req,res) =>{
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const firstamount = booking[0].first_installment
   const secondAmount   = booking[0].secondAmount
-
-  const fees = (firstamount+secondAmount)*2.5/100
-  const totalAmount = firstamount+secondAmount +fees
+  const totalAmount = firstamount+secondAmount
 
   if(booking.length ===0){
     return res.send({message:"booking not found"})
