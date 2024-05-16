@@ -558,7 +558,7 @@ const paymentstatus = "unpaid"
     ]);
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -663,7 +663,7 @@ const paymentstatus = "unpaid"
     ]);
 
 
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -775,7 +775,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -887,7 +887,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -1002,7 +1002,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -1119,7 +1119,7 @@ const paymentstatus = "unpaid"
       paymentstatus
     ]);
     
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
