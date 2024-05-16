@@ -13,6 +13,7 @@ const paywithwallet =  async (req,res)=>{
   });
 }
 
+
 const paybookingamount =  async (req,res)=>{
   const result = await payemntService.paybookingamount(req,res)
   res.status(httpStatus.OK).json({
