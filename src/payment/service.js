@@ -55,7 +55,7 @@ try {
   }
 
   if (booking[0].bookingStatus !== 'hold') {
-    throw new NotFoundException('Booking request already approved or Rejected');
+    return res.send({status: "error", message:"Booking request already approved or Rejected"});
   }
   const userquery =  `SELECT * FROM user WHERE id = ?`
 
@@ -74,7 +74,7 @@ try {
 
     // Check wallet balance
     if (wallet < data) {
-      throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+       return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
     }
     
     const newWalletBalance = user[0].wallet - totalprice;
