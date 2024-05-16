@@ -568,7 +568,9 @@ const getInclusion = async (PKID) => {
     inclusion.inclusion
   FROM inclusion
   JOIN tourpackage ON inclusion.tour_package_id = tourpackage.PKID
-  WHERE inclusion.tour_package_id = ?;  
+  WHERE inclusion.tour_package_id = ? 
+  ORDER BY
+  inclusion.id ASC;  
 `;
     const [results] = await pool.execute(inclusionQuery, [PKID]);
     return results;
@@ -614,7 +616,8 @@ export const getExclusion = async (PKID) => {
     exclusion.exclusion
     FROM exclusion
   JOIN tourpackage ON exclusion.tour_package_id = tourpackage.PKID
-  WHERE exclusion.tour_package_id = ?;  
+  WHERE exclusion.tour_package_id = ?
+  ORDER BY exclusion.id;  
 `;
     const [results] = await pool.execute(exclusionQuery, [PKID]);
     return results;
@@ -744,6 +747,8 @@ export const getHighlights = async (PKID) => {
         JOIN tourpackage ON highlights.tour_package_id = tourpackage.PKID
       WHERE
         highlights.tour_package_id = ?
+        ORDER BY
+        highlights.id ASC
     `;
     const [results] = await pool.execute(highlightsQuery, [PKID]);
     return results;
