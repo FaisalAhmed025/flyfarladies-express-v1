@@ -1,38 +1,33 @@
-import cors from "cors";
-import express from "express";
-import httpStatus from "http-status";
-import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import "dotenv/config";
+import express from "express";
+import helmet from "helmet";
+import httpStatus from "http-status";
 import logger from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import tourpackageRoute from "./tourpackage/router";
-import userRouter from "./user/userroute";
-import depositRoute from "./deposit/depositeRoute";
+import sslpaymentRoute from "./SSL/router";
+import searchResult from "./air/sabre/airSearch/aiSearchRoute";
+import askquestionRoute from "./ask question/router";
+import bkashRoute from "./bkash/bkash.route";
+import blogRoute from "./blog/route";
 import bookingRouter from "./booking/bookingRoute";
-import presscoverageRoute from "./presscoverage/route";
-import paymentRoute from "./payment/route";
-import bkashRoute from  "./bkash/bkash.route"
-import sslpaymentRoute from './SSL/router'
-import wishlistRoute from "./wishlist/route";
-import blogRoute from './blog/route'
-import packagesearchRoute  from './packagesearch/route'
-import { onWayPostRoute } from "./air/sabre/sabreRoutes/oneWayRoute";
-import { roundWayPostRoute } from "./air/sabre/sabreRoutes/roundWayRoute";
-import { multiCitySearch } from "./air/sabre/sabreRoutes/multiCityRoute";
-import { flightBookingRoute } from "./air/sabre/airBooking/flightBookingRoute";
+import depositRoute from "./deposit/depositeRoute";
+import { hotelRoute } from "./hotel/hotelRoute/allHotelRoute";
 import rateHawkAutoCompleteResult from "./hotel/hotelRoute/autoCompleteRoute";
 import { hotelSearchRoute } from "./hotel/hotelRoute/hotelSearchRoute";
-import "dotenv/config";
-import { hotelRoute } from "./hotel/hotelRoute/allHotelRoute";
+import packagesearchRoute from "./packagesearch/route";
+import partnerRoute from "./partner/route";
+import paymentRoute from "./payment/route";
+import popUpRoute from "./popup/route";
+import presscoverageRoute from "./presscoverage/route";
+import tourpackageRoute from "./tourpackage/router";
+import userRouter from "./user/userroute";
 import { visaRoutes } from "./visa/visaRoute";
-import askquestionRoute from  './ask question/router'
-import partnerRoute from  './partner/route'
-import popUpRoute from './popup/route'
-import helmet from "helmet";
+import wishlistRoute from "./wishlist/route";
 const app = express();
-
-
 
 const options = {
   definition: {
@@ -61,7 +56,7 @@ const options = {
   apis: ["./routes/*.js"],
 };
 
-app.use(helmet())
+app.use(helmet());
 const specs = swaggerJSDoc(options);
 app.use(express.json());
 app.use(cors());
@@ -83,14 +78,12 @@ app.use(
   })
 );
 
-
 //parser
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
 
 // routes
 app.use("/api/v1/package", tourpackageRoute);
@@ -100,9 +93,7 @@ app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/press", presscoverageRoute);
 app.use("/api/v1/payment", paymentRoute);
 app.use("/api/v1/popup", popUpRoute);
-
-
-//Routes 
+//Routes
 app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/askquestion", askquestionRoute);
 app.use("/api/v1/partner", partnerRoute);
@@ -111,11 +102,7 @@ app.use("/api/v1/bkash", bkashRoute);
 app.use("/api/v1/ssl", sslpaymentRoute);
 app.use("/api/v1/wishlist", wishlistRoute);
 app.use("/api/v1/search", packagesearchRoute);
-
-app.post("/api/v1/air-search/oneway", onWayPostRoute);
-app.post("/api/v1/air-search/roundWay", roundWayPostRoute);
-app.post("/api/v1/air-search/multiCity", multiCitySearch);
-app.use("/api/v1/air/booking", flightBookingRoute);
+app.post("/api/v1/air-search", searchResult);
 app.get("/api/v1/hotel/autocomplete/:asking", rateHawkAutoCompleteResult);
 app.post("/api/v1/hotel/search", hotelSearchRoute);
 app.use("/api/v1/hotel/hotel-booking", hotelRoute);
@@ -123,8 +110,6 @@ app.use("/api/v1/visa", visaRoutes);
 app.get("/", (req, res, next) => {
   res.send("Welcome to FlyFar Ladies Expressjs v1 ");
 });
-
-
 
 //handle not found
 app.use((req, res, next) => {
