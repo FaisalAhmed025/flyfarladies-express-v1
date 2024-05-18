@@ -189,7 +189,6 @@ const bookingAt = date.toLocaleString('en-BD', options);
 const totaladult = adult.length
 const totalchild = child.length
 const totalinfant = infant.length
-
 const bookingstatus  =  bookingStatus.HOLD
 const adultprice =  tourpackage[0].adult_base_price 
 const childprice=  tourpackage[0].child_base_price
@@ -229,9 +228,11 @@ let FirstInstallmentdueDate = null;
 let SecondInstallmentdueDate = null;
 let ThirdInstallmentdueDate = null;
 
-const totalAdultprice= adultprice*totaladult
-const totalChildprice = childprice *totalchild
-const totalInfantprice = infantprice * infantprice
+let totalAdultprice= adultprice*totaladult
+let totalChildprice = childprice *totalchild
+let totalInfantprice = infantprice * infantprice
+
+console.log(totalAdultprice, totalChildprice, totalInfantprice)
 
 if (installmentdata.length > 0) {
   totalAdultprice = (installmentdata[0].ABookingAmount +
