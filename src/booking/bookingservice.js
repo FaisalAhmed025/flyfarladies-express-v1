@@ -229,9 +229,9 @@ let FirstInstallmentdueDate = null;
 let SecondInstallmentdueDate = null;
 let ThirdInstallmentdueDate = null;
 
-const  totalAdultprice= adultprice*totaladult
-const  totalChildprice = childprice * totalchild
-const totalInfantprice = infantprice * infantprice
+let  totalAdultprice= adultprice*totaladult
+let  totalChildprice = childprice * totalchild
+let totalInfantprice = infantprice * infantprice
 
 console.log(totalAdultprice, totalChildprice, totalInfantprice)
 

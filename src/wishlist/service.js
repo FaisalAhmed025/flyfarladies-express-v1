@@ -18,11 +18,11 @@ const addwishlist = async (req,res) =>{
   const  userquery =  `SELECT * FROM user WHERE id =?`
   const [user] = await pool.query(userquery, [userid])
   if (user.length === 0) {
-    throw new Error('User ID not found');
+    return res.send({message:"User ID not found"})
   }
 
   if (tourpackage.length === 0) {
-    throw new Error('Package ID not found');
+    return res.send({message:"Package ID not found"})
   }
   const wishCheckQuery = `SELECT * FROM wishlist WHERE packageid = ? AND userid = ?`;
   const [existingWishlist] = await pool.query(wishCheckQuery, [packageid, userid]);
