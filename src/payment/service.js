@@ -457,6 +457,8 @@ const paythiredInstallment = async (req,res) =>{
     );
   }
 
+  console.log()
+
     // Check wallet balance
     if (user[0].wallet < second_installment) {
     throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
@@ -558,9 +560,8 @@ const paymentstatus = "unpaid"
     ]);
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
  
 }
