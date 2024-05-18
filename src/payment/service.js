@@ -518,8 +518,8 @@ const initwithsslfullamount = async(req,res) =>{
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/failure/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email,
@@ -594,6 +594,27 @@ const sucesssslfullamount = async (req,res)=>{
   const updatequery  = `UPDATE booking SET paymentStatus=?,  bookingStatus = ? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+
+
+} 
+
+
+const cancelledfullamount = async (req,res)=>{
+  const tran_id = req.params.tran_id;
+  const bookingid = req.params.bookingid
+  // const uuid = req.params.id;
+  const data = req.body;
+  console.log(req.body)
+  // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
+  const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);
+  const transaction = transactionRows[0];
+  if (!transaction) {
+    return res.status(404).json({ message: 'Transaction ID not found', error: true });
+  }
+
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+
+  return res.redirect(`https://flyfarladies.com/dashboard/mybookings`);
 
 
 } 
@@ -1175,6 +1196,7 @@ export const payemntService = {
   paySecondandthirdInstallment,
   initwithsslfullamount,
   sucesssslfullamount,
+  cancelledfullamount,
   initwithsslbookingmoney,
   sucess_ssl_bookingAmount,
   initwithssl1stinstallemnt,

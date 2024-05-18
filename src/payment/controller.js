@@ -80,6 +80,13 @@ const succeesssslfullamount =  async (req,res)=>{
  
 }
 
+const cancelledlfullamount =  async (req,res)=>{
+  await payemntService.cancelledfullamount(req,res)
+
+}
+
+
+
 
 const initpaywithsslbookingAmount=  async (req,res)=>{
   await payemntService.initwithsslbookingmoney(req,res)
@@ -145,6 +152,7 @@ export const paymentController =  {
   paybookingamount,
   paySecondInstallment,
   paythiredInstallment,
+  cancelledlfullamount,
   payfirstAndsecondInstallment,
   paySecondAndthirdInstallment,
   initpaywithsslfullamount,
