@@ -8,7 +8,7 @@ const segmentSchema = z.object({
   destination: z.string().length(3, {
     message: "Must be exaclty 3 characters long",
   }),
-  departureDate: z.string().date({ message: "Invalid date string!" }),
+  departureDate: z.date({ message: "Invalid date string!" }),
 });
 // Define the schema for vendor preferences
 const vendorPrefSchema = z.object({
