@@ -45,5 +45,8 @@
     "uuidv4": "^6.2.13",
     "yarn": "^1.22.22",
     "zod": "^3.23.8"
+  },
+  "optionalDependencies": {
+    "@img/sharp-win32-x64": "^0.33.2"
   }
 }
