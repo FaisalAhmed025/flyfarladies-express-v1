@@ -65,7 +65,7 @@ const addwishlist = async (req,res) =>{
     tourpackage[0].FullyGuided,
     tourpackage[0].SelfGuided,
     tourpackage[0].Guide,
-    tourpackage[0].coverimageurl,
+    tourpackage[0].coverImage,
     tourpackage[0].Location,
     tourpackage[0].SubTitle,
     tourpackage[0].Price,

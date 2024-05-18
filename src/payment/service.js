@@ -597,9 +597,6 @@ const sucesssslfullamount = async (req,res)=>{
 
 } 
 
-
-
-
 const initwithsslbookingmoney = async(req,res) =>{
   const transactionId = generateCustomTransactionId();
   const bookingid  = req.body.bookingid
@@ -609,8 +606,6 @@ const initwithsslbookingmoney = async(req,res) =>{
   const amount = booking[0].booking_money
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
-
-  console.log(user)
 
 
   const data = {
