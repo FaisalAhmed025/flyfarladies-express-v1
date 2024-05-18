@@ -213,9 +213,9 @@ if (!installmentdata.length) {
   // Set default values or handle the case where installment data is not found
 }
 
-let totalAdultprice = 0;
-let totalChildprice = 0;
-let totalInfantprice = 0;
+// let totalAdultprice = 0;
+// let totalChildprice = 0;
+// let totalInfantprice = 0;
 let totalAdultBookingAmount = 0;
 let totalChildBookingAmount = 0;
 let totalInfantBookingAmount = 0;
@@ -229,9 +229,9 @@ let FirstInstallmentdueDate = null;
 let SecondInstallmentdueDate = null;
 let ThirdInstallmentdueDate = null;
 
-totalAdultprice= adultprice*totaladult
-totalChildprice = childprice *totalchild
-totalInfantprice = infantprice * infantprice
+const totalAdultprice= adultprice*totaladult
+const totalChildprice = childprice *totalchild
+const totalInfantprice = infantprice * infantprice
 
 if (installmentdata.length > 0) {
   totalAdultprice = (installmentdata[0].ABookingAmount +
