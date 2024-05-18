@@ -186,9 +186,10 @@ const Book$Hold = async (req, res) => {
 
 const bookingAt = date.toLocaleString('en-BD', options);
 
-const totaladult = adult.length
-const totalchild = child.length
-const totalinfant = infant.length
+const totaladult = parseFloat(adult.length)
+const totalchild = parseFloat(child.length)
+const totalinfant = parseFloat(infant.length)
+
 const bookingstatus  =  bookingStatus.HOLD
 const adultprice =  tourpackage[0].adult_base_price 
 const childprice=  tourpackage[0].child_base_price
@@ -228,9 +229,9 @@ let FirstInstallmentdueDate = null;
 let SecondInstallmentdueDate = null;
 let ThirdInstallmentdueDate = null;
 
-let totalAdultprice= adultprice*totaladult
-let totalChildprice = childprice *totalchild
-let totalInfantprice = infantprice * infantprice
+const  totalAdultprice= adultprice*totaladult
+const  totalChildprice = childprice * totalchild
+const totalInfantprice = infantprice * infantprice
 
 console.log(totalAdultprice, totalChildprice, totalInfantprice)
 
@@ -283,6 +284,7 @@ if (addonServices && addonServices.length > 0) {
 }
 
 const totalpackageprice = totalAdultprice + totalChildprice + totalInfantprice + addonTotal;
+console.log(totalpackageprice)
 const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
 const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
 const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
@@ -598,9 +600,15 @@ const [result] = await pool.query(
       }
     });
 
+    const [bookingData] = await pool.query(
+      `SELECT * FROM booking WHERE bookingid = ?`,
+      [bookingid]
+    );
+
     return res.status(200).json({
       status: "success",
       message: "Booking success",
+      data:bookingData[0]
     });
   } catch (error) {
     console.log(error);
