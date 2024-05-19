@@ -639,9 +639,18 @@ const loginwithGoogle = async (req, res) => {
     );
 
     if (user.length === 0) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    if(user[0].platform ==='manual'){
+      return res.status(401).json({ message: "please login  with manual" });
+    }
+
+    if(user[0].platform ==='facebook'){
+      return res.status(401).json({ message: "please login  with facebook" });
+    }
+
+    if(user[0].platform ==='google'){ 
     // Generate JWT token
     const token = jwt.sign(
       { id: user[0].id, email: user[0].email },
@@ -661,6 +670,70 @@ const loginwithGoogle = async (req, res) => {
       user: user[0],
       token,
     });
+
+    }
+
+  } catch (err) {
+    console.error("Error during login:", err);
+    res.status(500).json({ error: "Error during login" });
+  }
+};
+
+
+
+const loginwithfacebook = async (req, res) => {
+  try {
+    // Extract the data from the request body
+    const { email } = req.body;
+    // Do some validation on the data
+    if (!email) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Hash the password to compare with the stored hashed password
+    // const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    // Check if the user exists with the provided email and hashed password
+    const [user] = await pool.query(
+      "SELECT * FROM user WHERE email = ?",
+      [email]
+    );
+
+    if (user.length === 0) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    if(user[0].platform ==='manual'){
+      return res.status(401).json({ message: "please login  with manual" });
+    }
+
+    if(user[0].platform ==='google'){
+      return res.status(401).json({ message: "please login  with google" });
+    }
+
+    if(user[0].platform ==='facebook'){ 
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user[0].id, email: user[0].email },
+      "helloladies",
+      { expiresIn: "15d" }
+    );
+
+    // Update the user table with the token
+    await pool.query("UPDATE user SET token = ? WHERE id = ?", [
+      token,
+      user[0].id,
+    ]);
+    console.log("User login successful");
+    return res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      user: user[0],
+      token,
+    });
+
+    }
+
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ error: "Error during login" });
@@ -991,6 +1064,7 @@ export const UserService = {
   Register,
   login,
   loginwithGoogle,
+  loginwithfacebook,
   deleteUser,
   forgetpasswordResetRequest,
   resetPassword,

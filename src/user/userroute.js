@@ -10,6 +10,7 @@ const router = express.Router();
 router.post('/register', userController.RegisterUser)
 router.post('/login', userController.loginuser)
 router.post('/loginwithgoogle', userController.loginwithGoogle)
+router.post('/loginwithfacebook', userController.loginwithfacebook)
 router.post('/forgetpasss/request', userController.forgetpasswordResetRequest)
 router.post('/resetpass', userController.resetPassword)
 router.get('/mydashboard/:id', userController.userdashbaord)

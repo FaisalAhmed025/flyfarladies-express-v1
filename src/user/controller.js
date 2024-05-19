@@ -23,6 +23,12 @@ const loginwithGoogle = async (req, res) => {
 
 };
 
+const loginwithfacebook = async (req, res) => {
+  await UserService.loginwithfacebook(req,res)
+
+};
+
+
 
 
 
@@ -135,6 +141,7 @@ export const userController = {
   RegisterUser,
   loginuser,
   deleteUser,
+  loginwithfacebook,
   forgetpasswordResetRequest,
   resetPassword,
   updateUser,
