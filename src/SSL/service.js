@@ -19,6 +19,10 @@ const initpayment = async(req,res) =>{
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] = await pool.query(userquery, [userid]);
 
+  if(user.length === 0){
+    return res.send ({status: "error", message:"user not found"})
+  }
+
   console.log(user[0])
 
 
