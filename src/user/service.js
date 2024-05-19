@@ -1032,8 +1032,6 @@ const resetPassword = async (req, res)=> {
       throw new Error('Invalid token');
     }
 
-    console.log(passwordReset)
-
     // Find user by email
 
     const userquery = `SELECT * FROM user WHERE email = ?`

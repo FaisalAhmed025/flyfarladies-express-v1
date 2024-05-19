@@ -19,6 +19,8 @@ const initpayment = async(req,res) =>{
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] = await pool.query(userquery, [userid]);
 
+  console.log(user[0])
+
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
@@ -31,9 +33,9 @@ const initpayment = async(req,res) =>{
     fail_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/cancel/${transactionId}`,
     emi_option: 0,
-    cus_name: user[0].name,
-    cus_email:  user[0].email,
-    cus_phone:  user[0].phone,
+    cus_name: user[0].name || "",
+    cus_email:  user[0].email || "",
+    cus_phone:  "01XXXXXXXXX",
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -147,7 +149,6 @@ const sucesss = async (req, res) => {
 
   const refundInitiate  = async(req,res )=>{
     const  {refund_amount, refund_remarks, bank_tran_id, refe_id} = req.body
-
     const data = {
       refund_amount: refund_amount,
       refund_remarks: refund_remarks,
@@ -168,6 +169,7 @@ const sucesss = async (req, res) => {
     const data = {
       refund_ref_id:refund_ref_id,
   };
+
 
   const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
   sslcz.refundQuery(data).then(data => {
