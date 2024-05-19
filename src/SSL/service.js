@@ -27,7 +27,7 @@ const initpayment = async(req,res) =>{
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/success/${transactionId}`,
+    success_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/success/${transactionId}/${userid}`,
     fail_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.de.r.appspot.com/api/v1/ssl/cancel/${transactionId}`,
     emi_option: 0,
@@ -41,7 +41,7 @@ const initpayment = async(req,res) =>{
     product_name: "Sample Product",
     product_category: "Sample Category",
     product_profile: "general",
-    value_a: "scfcc" || user.uuid,
+    value_a: "scfcc" || userid,
   }
 
 
@@ -69,8 +69,6 @@ const paymentstatus = "unpaid"
     
     ]);
 
- 
-  console.log(data)
     const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
@@ -78,25 +76,64 @@ const paymentstatus = "unpaid"
  
 }
 
-const sucesss  = async (req,res)=>{
-
+const sucesss = async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
     const tran_id = req.params.tran_id;
-    // const uuid = req.params.id;
+    const userid = req.params.id;
     const data = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
-    // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
+    console.log(tran_id, userid)
+
+    // Fetch the transaction details
     const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);
     const transaction = transactionRows[0];
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction ID not found', error: true });
     }
-    await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
-    return res.status(200).json({
-      status: 'success',
-      message: 'Payment success',
+
+    // Update the transaction details
+    await pool.query(
+      'UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?, status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?',
+      ['VALIDATED', data?.store_amount, data?.status, data?.tran_date, data?.val_id, data?.bank_tran_id, tran_id]
+    );
+
+    // Update the user's wallet
+    const updateUserWalletQuery = 'UPDATE user SET wallet = wallet + IFNULL(?, 0) WHERE id = IFNULL(?, 0)';
+
+    console.log(updateUserWalletQuery)
+    const userQuery = 'SELECT * FROM user WHERE id = ?';
+    const amount  = parseFloat(data?.store_amount)
+    await connection.execute(updateUserWalletQuery, [amount, userid]);
+
+    // Fetch the updated user details
+    const [userRows] = await pool.query(userQuery, [userid]);
+    const user = userRows[0];
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Insert into the ledger
+    const ledgerQuery = 'INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?, ?)';
+    const remarks = `SSL Deposit from user ${userid} on ${data.tran_date}. TRX ID is ${tran_id} & amount ${data.store_amount} only`;
+    const actionBy = 'ssl';
+
+    await connection.execute(ledgerQuery, [userid, amount,userRows[0].wallet , actionBy, remarks]);
+
+    return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal Server Error',
+      error: error.message,
     });
-  } 
+  } finally {
+    connection.release();
+  }
+};
+
 
   const validatepayment = async(req,res)=>{
     const val_id = req.params.val_id

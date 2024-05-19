@@ -5504,7 +5504,7 @@ const ApprovedCashDeposit = async (req) => {
       user_id,
     ]);
 
-    const userQuery =`SELECT *  FROm user WHERE id=?`
+    const userQuery =`SELECT *  FROM user WHERE id=?`
     const [user] = await  pool.query(userQuery, [user_id])
 
 
