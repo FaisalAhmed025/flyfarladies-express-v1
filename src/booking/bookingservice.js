@@ -603,7 +603,7 @@ const [result] = await pool.query(
 }
 
 const getAllBooking = async (req,res) =>{
-  const packagequery = `SELECT * FROM  booking`
+  const packagequery = `SELECT * FROM  booking ORDER BY STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') DESC`
   const [bookingresults] = await pool.execute(packagequery);
   console.log(bookingresults);
   return bookingresults;
@@ -628,9 +628,12 @@ const getBookingsByUserId = async (req, res) => {
   try {
     // Assuming userid is obtained from request parameters or session
     const userId = req.params.userid;
-
     // Query to fetch bookings for the given user
-    const bookingQuery = `SELECT * FROM booking WHERE userid = ?`;
+    const bookingQuery = `
+  SELECT * FROM booking 
+  WHERE userid = ? 
+  ORDER BY STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') DESC
+`;
     const [bookingResults] = await pool.execute(bookingQuery, [userId]);
 
     // Iterate through booking results to fetch passengers for each booking

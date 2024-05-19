@@ -583,7 +583,7 @@ const getBookingslot = async (PKID) => {
   try {
     const currentDate = new Date().toISOString().split('T')[0];
     const inclusionQuery = `
-      SELECT
+        SELECT
         bookingslot.id,
         bookingslot.tour_package_id,
         bookingslot.StartDate,
@@ -598,7 +598,6 @@ const getBookingslot = async (PKID) => {
     `;
 
     console.log(currentDate)
-    
     const [results] = await pool.execute(inclusionQuery, [PKID, currentDate]);
     return results;
   } catch (error) {
