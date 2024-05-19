@@ -643,11 +643,11 @@ const loginwithGoogle = async (req, res) => {
     }
 
     if(user[0].platform ==='manual'){
-      return res.status(401).json({ message: "please login  with manual" });
+      return res.status(401).json({ message: "You registered  manually, please try to login  manually" });
     }
 
     if(user[0].platform ==='facebook'){
-      return res.status(401).json({ message: "please login  with facebook" });
+      return res.status(401).json({ message: " you registered with facebook,please login  with facebook" });
     }
 
     if(user[0].platform ==='google'){ 
@@ -704,11 +704,11 @@ const loginwithfacebook = async (req, res) => {
     }
 
     if(user[0].platform ==='manual'){
-      return res.status(401).json({ message: "please login  with manual" });
+      return res.status(401).json({ message: "you registered with manually,please login manually" });
     }
 
     if(user[0].platform ==='google'){
-      return res.status(401).json({ message: "please login  with google" });
+      return res.status(401).json({ message: "you register with google, please login  with google" });
     }
 
     if(user[0].platform ==='facebook'){ 
