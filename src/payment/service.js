@@ -69,7 +69,6 @@ try {
   console.log(user[0].wallet)
 
   const data = parseInt(totalprice)
-
   const wallet = parseInt(user[0].wallet)
 
     // Check wallet balance
@@ -84,14 +83,11 @@ try {
       newWalletBalance,
       userid
     ]
-    const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
+   const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
    const [userwallet] = await pool.query(updateuserbalancequery,walletvalue);
 
    const [updatedwallet]  = await pool.query(userquery, [userid])
-
    console.log(userwallet[0]?.wallet)
-
-
     const bookingstatus = bookingStatus.CONFIRMED
     const paymentstatus = payementStatus.PAID
 
@@ -126,9 +122,6 @@ try {
   throw error;
   
 }
-
-
-
 
 
 }
@@ -601,7 +594,6 @@ const sucesssslfullamount = async (req,res)=>{
 
 const cancelledfullamount = async (req,res)=>{
   const tran_id = req.params.tran_id;
-  const bookingid = req.params.bookingid
   // const uuid = req.params.id;
   const data = req.body;
   console.log(req.body)
@@ -639,7 +631,7 @@ const initwithsslbookingmoney = async(req,res) =>{
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/bookingamount/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email ,
@@ -680,7 +672,7 @@ const paymentstatus = "unpaid"
     ]);
 
 
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -716,7 +708,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
 
   const updatequery  = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
-
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
@@ -750,7 +741,7 @@ const initwithssl1stinstallemnt = async(req,res) =>{
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email ,
@@ -792,7 +783,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -828,7 +819,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
 
   const updatequery  = `UPDATE booking SET firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
-
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
@@ -862,7 +852,7 @@ const initwithssl2ndinstallemnt = async(req,res) =>{
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/2ndinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email ,
@@ -904,7 +894,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -977,7 +967,7 @@ const initwithssl1stAnd2ndinstallment = async(req,res) =>{
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1nstand2ndinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email ,
@@ -1019,7 +1009,7 @@ const paymentstatus = "unpaid"
 
  
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -1098,7 +1088,7 @@ const initwithssl2ndand3rdinstallment = async(req,res) =>{
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/2ndAnd3rdinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email:  user[0].email ,
@@ -1136,7 +1126,7 @@ const paymentstatus = "unpaid"
       paymentstatus
     ]);
     
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -1160,7 +1150,6 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req,res)=>{
 
 await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-
   const paymentstatus  = payementStatus.PAID
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
@@ -1179,7 +1168,6 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     bookingid
   ]
   
-  console.log(valuedata)
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=? WHERE bookingid= ? `
    await pool.query(updateBookingquery,valuedata)
