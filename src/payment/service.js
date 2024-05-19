@@ -164,7 +164,7 @@ const paybookingamount = async (req,res) =>{
     console.log(parseInt(user[0].wallet))
     console.log(parseInt(bookingamount))
     if (parseInt(user[0].wallet) < parseInt(bookingamount)) {
-    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
  
@@ -224,7 +224,7 @@ const payFirstandSecondInstallment = async (req,res) =>{
   const firstinstalmentAmount =  booking[0].firstinstalmentAmount
   const  totalAmount = bookingamount + firstinstalmentAmount
     if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
-    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
  
@@ -295,7 +295,7 @@ const paySecondandthirdInstallment = async (req,res) =>{
 
   const  totalAmount = secondinstalmentAmount + firstinstalmentAmount
     if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
-    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
   
@@ -378,7 +378,7 @@ const paySecondInstallment = async (req,res) =>{
 
     // Check wallet balance
     if (user[0].wallet < first_installment) {
-    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
    const updatedwalet =  user[0].wallet - first_installment
@@ -454,7 +454,7 @@ const paythiredInstallment = async (req,res) =>{
 
     // Check wallet balance
     if (user[0].wallet < second_installment) {
-    throw new HttpException('Insufficient balance! please deposit to your wallet', httpStatus.BAD_REQUEST);
+      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
  
