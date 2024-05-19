@@ -377,7 +377,7 @@ const paySecondInstallment = async (req,res) =>{
   }
 
     // Check wallet balance
-    if (user[0].wallet < first_installment) {
+    if (parseInt(user[0].wallet) < parseInt(first_installment)) {
       return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
