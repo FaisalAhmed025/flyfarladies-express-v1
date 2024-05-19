@@ -1020,9 +1020,7 @@ const paymentstatus = "unpaid"
 const sucess_ssl_1st_and_2nd_booking_Amount = async (req,res)=>{
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
-  // const uuid = req.params.id;
   const data = req.body;
-  console.log(req.body)
 
   // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
   const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);

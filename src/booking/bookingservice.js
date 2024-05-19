@@ -213,9 +213,6 @@ if (!installmentdata.length) {
   // Set default values or handle the case where installment data is not found
 }
 
-// let totalAdultprice = 0;
-// let totalChildprice = 0;
-// let totalInfantprice = 0;
 let totalAdultBookingAmount = 0;
 let totalChildBookingAmount = 0;
 let totalInfantBookingAmount = 0;
@@ -229,25 +226,13 @@ let FirstInstallmentdueDate = null;
 let SecondInstallmentdueDate = null;
 let ThirdInstallmentdueDate = null;
 
-let  totalAdultprice= adultprice*totaladult
-let  totalChildprice = childprice * totalchild
-let totalInfantprice = infantprice * infantprice
+const totalAdultprice = adultprice*totaladult
+const  totalChildprice = childprice * totalchild
+const totalInfantprice = infantprice * infantprice
 
 console.log(totalAdultprice, totalChildprice, totalInfantprice)
 
 if (installmentdata.length > 0) {
-  totalAdultprice = (installmentdata[0].ABookingAmount +
-    installmentdata[0].AFirstInstallmentAmount +
-    installmentdata[0].ASecondInstallmentAmount) * totaladult;
-
-  totalChildprice = (installmentdata[0].CBookingAmount +
-    installmentdata[0].CFirstInstallmentAmount +
-    installmentdata[0].CSecondInstallmentAmount) * totalchild;
-
-  totalInfantprice = (installmentdata[0].IBookingAmount +
-    installmentdata[0].IFirstInstallmentAmount +
-    installmentdata[0].ISecondInstallmentAmount) * totalinfant;
-
   totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
   totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
   totalInfantBookingAmount = installmentdata[0].IBookingAmount * totalinfant;
@@ -586,7 +571,6 @@ const [result] = await pool.query(
       subject: 'Booking Details',
       text: 'Please find the attached file.',
       html:htmlContent
-
     };
     await transporter.sendMail(usermail, (error, info) => {
       if (error) {
