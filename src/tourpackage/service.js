@@ -1154,8 +1154,10 @@ const deletemainimage = async (req, res) => {
 
 const deleteBOOKINGSLOT = async (req, res) => {
   const id = req.params.id
-  const deletequery = `DELETE FROM bookingslot WHERE  id= ? `
+  const deletequery = `DELETE FROM bookingslot WHERE  id= ?`
   await pool.query(deletequery, [id])
+  const deleteinstallmentQuery =`DELETE FROM bookingslot WHERE bookingslotid= ?`
+  await pool.query(deleteinstallmentQuery, [id])
 
   return res.status(200).json({
     status: true,
