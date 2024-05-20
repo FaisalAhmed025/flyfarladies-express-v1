@@ -28,7 +28,7 @@ const addwishlist = async (req,res) =>{
   const [existingWishlist] = await pool.query(wishCheckQuery, [packageid, userid]);
   
   if (existingWishlist.length > 0) {
-    throw new Error('Wishlist already exists for this user and package ID');
+    return res.send({status:  "error", message:'Wishlist already exists for this package'});
   }
   
 
