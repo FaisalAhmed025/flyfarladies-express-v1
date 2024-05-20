@@ -29,7 +29,7 @@ const paySecondInstallment =  async (req,res)=>{
   res.status(httpStatus.OK).json({
     success: true,
     message:
-      'payment Successful',
+      'second installment payment Successful',
     data: result,
   });
 }

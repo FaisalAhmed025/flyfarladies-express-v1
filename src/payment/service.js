@@ -167,7 +167,6 @@ const paybookingamount = async (req,res) =>{
       return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
- 
    const updatedwalet =  user[0].wallet - bookingamount
    console.log(updatedwalet);
 
@@ -178,7 +177,6 @@ const paybookingamount = async (req,res) =>{
 
   const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
   await pool.query(updatequery, value)
-
   const paymentstatus  = payementStatus.BOOKINGSTATUS
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
@@ -196,7 +194,6 @@ const paybookingamount = async (req,res) =>{
   const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
   return updatebooing;
 }
-
 
 
 const payFirstandSecondInstallment = async (req,res) =>{

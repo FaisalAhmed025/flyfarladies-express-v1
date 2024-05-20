@@ -769,11 +769,14 @@ const ApprovedBankDeposit = async (req) => {
     ]);
     const [user] = await pool.query(userquery, [user_id])
 
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionType, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?,?,?, ?)`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?, ?)`;
+    const deposit ='Deposit'
     
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
+      deposit_id,
+      deposit,
       result[0].amount,
       user[0].wallet,
       action_by,
@@ -2038,7 +2041,6 @@ const htmltemplate = `<!DOCTYPE html>
   }
 };
 
-
 const createCheckDeposit = async (req) => {
   const connection = await pool.getConnection();
   try {
@@ -2792,16 +2794,22 @@ const ApprovedCheckDeposit = async (req) => {
 
     const remarks = `Mobile Deposit request from ${result[0].accountNumber},Reference ${result[0].reference}, On ${result[0].requestDate} and  Transaction ID is ${result[0].transactionID} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?, ?)`;
+
+    const deposit ='Deposit'
     
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
+      deposit_id,
+      deposit,
       result[0].amount,
       user[0].wallet,
       action_by,
       remarks,
       approvedAt
     ]);
+
+
     
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
@@ -5510,10 +5518,14 @@ const ApprovedCashDeposit = async (req) => {
 
     const remarks = `Cash Deposit request from ${result[0].depositor_name}, Receiver ${result[0].receiver_name}, On ${result[0].transaction_date} and  TRXID is ${result[0].transaction_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid,transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?,?,?,?, ?, ?, ?)`;
+
+    const deposit ='Deposit'
     
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
+      deposit_id,
+      deposit,
       result[0].amount,
       user[0].wallet,
       action_by,

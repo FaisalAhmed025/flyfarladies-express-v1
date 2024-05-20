@@ -1771,7 +1771,7 @@ const createBookingPolicy = async (req, PKID) => {
         });
       } else {
     
-        const insertQuery = "INSERT INTO booking_policy ( tour_package_id, booking_policy) VALUES (?, ?, ?)";
+        const insertQuery = "INSERT INTO booking_policy ( tour_package_id, booking_policy) VALUES (?, ?)";
         await connection.execute(insertQuery, [ tour_package_id, booking_policy]);
         updatedOrInsertedPolicies.push({
           status: true,
