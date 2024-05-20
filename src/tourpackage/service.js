@@ -198,7 +198,6 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      adultAgeLimit,
       accommodation 
     ];
     const [result] = await pool.query(
@@ -689,7 +688,9 @@ export const getCancellationPolicy = async (PKID) => {
     cancellation_policy.cancellation_policy
   FROM cancellation_policy
   JOIN tourpackage ON cancellation_policy.tour_package_id = tourpackage.PKID
-  WHERE cancellation_policy.tour_package_id = ?;  
+  WHERE cancellation_policy.tour_package_id = ?
+  ORDER BY 
+  cancellation_policy.id ASC;
 `;
     const [results] = await pool.execute(cancellationPolicyQuery, [PKID]);
     return results;
@@ -771,7 +772,9 @@ const getBookingPolicy = async (PKID) => {
     booking_policy.booking_policy
   FROM booking_policy
   JOIN tourpackage ON booking_policy.tour_package_id = tourpackage.PKID
-  WHERE booking_policy.tour_package_id = ?;
+  WHERE booking_policy.tour_package_id = ?
+  ORDER BY
+  booking_policy.id ASC;  
 `;
     const [results] = await pool.execute(bookingPolicyQuery, [PKID]);
     return results;
