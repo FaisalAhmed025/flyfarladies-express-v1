@@ -82,7 +82,6 @@ const  getInstallment = async(req,res) =>{
  try{
   const id = req.params.bookingslotid;
   const pkid =  req.body.tourpackageId;
-  console.log(id,pkid)
   const result = await tourpackageService.getInstallment(id,pkid)
   res.status(200).json({
     success:true,

@@ -1058,6 +1058,17 @@ const resetPassword = async (req, res)=> {
   }
 }
 
+const userLedger =  async (req,res)=>{
+  const userid = req.params.user_id
+  const ledgerQuery = `SELECT * FROM ledger WHERE user_id =?`
+  const [data] = await pool.query(ledgerQuery, [userid])
+  return res.status(200).json({
+    success: true,
+    status: httpStatus.OK,
+    data:data
+  });
+}
+
 export const UserService = {
   Register,
   login,
@@ -1067,6 +1078,7 @@ export const UserService = {
   forgetpasswordResetRequest,
   resetPassword,
   allUser,
+  userLedger,
   updateUser,
   userdashBoard,
   addtravler,

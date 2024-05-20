@@ -22,5 +22,6 @@ router.put('/traveller/update/:partnerId', upload.single('images'), imageHandler
 router.delete('/mytraveller/:partnerId', userController.deleteTraveller)
 router.delete('/deleteuser/:id', userController.deleteUser)
 router.get('/alltraveler/test/:user_id', userController.myTravelerList)
+router.get('/ledger/:user_id', userController.userLedger)
 
 export default router;

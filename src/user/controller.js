@@ -136,10 +136,16 @@ const resetPassword = async (req, res) => {
   return result;
 };
 
+const userLedger = async (req, res) => {
+  const result = await UserService.userLedger(req,res);
+};
+
+
 
 export const userController = {
   RegisterUser,
   loginuser,
+  userLedger,
   deleteUser,
   loginwithfacebook,
   forgetpasswordResetRequest,
