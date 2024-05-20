@@ -110,7 +110,7 @@ const sucesss = async (req, res) => {
 
     console.log(updateUserWalletQuery)
     const userQuery = 'SELECT * FROM user WHERE id = ?';
-    const amount  = parseFloat(data?.store_amount)
+    const amount  = parseFloat(data?.amount)
     await connection.execute(updateUserWalletQuery, [amount, userid]);
 
     // Fetch the updated user details
@@ -121,11 +121,13 @@ const sucesss = async (req, res) => {
     }
 
     // Insert into the ledger
-    const ledgerQuery = 'INSERT INTO ledger(user_id, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?, ?)';
-    const remarks = `SSL Deposit from user ${userid} on ${data.tran_date}. TRX ID is ${tran_id} & amount ${data.store_amount} only`;
+    const ledgerQuery = 'INSERT INTO ledger(user_id, transactionid,transactionType, referenceid, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?,?,?,?, ?)';
+    const remarks = `SSL Deposit from user ${userid} on ${data.tran_date}. TRX ID is ${tran_id} & amount ${data.amount} only`;
     const actionBy = 'ssl';
 
-    await connection.execute(ledgerQuery, [userid, amount,userRows[0].wallet , actionBy, remarks]);
+
+    const deposit = 'Deposit'
+    await connection.execute(ledgerQuery, [userid, tran_id, deposit, data?.val_id, amount,userRows[0].wallet , actionBy, remarks]);
 
     return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
   } catch (error) {
