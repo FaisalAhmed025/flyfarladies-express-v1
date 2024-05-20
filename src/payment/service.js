@@ -447,7 +447,7 @@ const paythiredInstallment = async (req,res) =>{
   console.log()
 
     // Check wallet balance
-    if (user[0].wallet < second_installment) {
+    if (parseFloat(user[0].wallet) < parseFloat(second_installment)) {
       return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
   }
 
