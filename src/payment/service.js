@@ -130,7 +130,7 @@ try {
 const paybookingamount = async (req,res) =>{
   const bookingid = req.body.bookingid
   const userid = req.body.id
-  const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
+  const packagequery = `SELECT * FROM booking WHERE bookingid =?`
   const [booking] = await pool.query(packagequery, [bookingid])
 
   if (!booking || booking.length === 0) {
@@ -148,8 +148,6 @@ const paybookingamount = async (req,res) =>{
     throw new NotFoundException('User not found');
   }
   const bookingamount = booking[0].booking_money;
-  console.log(user[0].wallet);
-  console.log(bookingamount);
 
   const currentDate = new Date(); // Use JavaScript Date objects
   const dueDate = booking.booking_money_due_date;
@@ -194,7 +192,6 @@ const paybookingamount = async (req,res) =>{
   const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
   return updatebooing;
 }
-
 
 const payFirstandSecondInstallment = async (req,res) =>{
   const bookingid = req.body.bookingid

@@ -1060,7 +1060,7 @@ const resetPassword = async (req, res)=> {
 
 const userLedger =  async (req,res)=>{
   const userid = req.params.user_id
-  const ledgerQuery = `SELECT * FROM ledger WHERE user_id =?`
+  const ledgerQuery = `SELECT * FROM ledger WHERE user_id =? ORDER BY uid DESC`
   const [data] = await pool.query(ledgerQuery, [userid])
   return res.status(200).json({
     success: true,
