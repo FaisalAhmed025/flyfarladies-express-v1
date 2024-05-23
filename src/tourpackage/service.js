@@ -123,7 +123,11 @@ cron.schedule('0 0 * * *', async () => {
 
 
 const addtourpackage = async (req, res) => {
+  const connection = await pool.getConnection();
   try {
+    // Start transaction
+    await connection.beginTransaction();
+
     // Extract tour package details from request body
     const {
       MainTitle,
@@ -153,23 +157,25 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      accommodation 
+      accommodation,
+      child // Extract child array from request body
     } = req.body;
+
+    console.log(req.body)
 
     // Assuming the file field name is 'coverImage'
     // Extract cover image details from the uploaded file
-
     const coverImage = req.publicImageLink;
-    const packgeId = generatePackageId();
+    const packageId = generatePackageId();
 
     // Check if cover image is present
     if (!coverImage) {
       return res.status(400).json({ error: "Cover image is required" });
     }
 
-    // Execute raw SQL INSERT query to insert tour package details into database
-    const values = [
-      packgeId,
+    // Insert tour package details into database
+    const tourPackageValues = [
+      packageId,
       MainTitle,
       Price,
       City,
@@ -200,29 +206,50 @@ const addtourpackage = async (req, res) => {
       infant_base_price,
       accommodation 
     ];
-    const [result] = await pool.query(
-      `INSERT INTO tourpackage (PKID,
-        MainTitle, Price,
-        City, Discount, Location, Availability, TripType,
-        TotalDuration, MinimumAge, MaximumAge, PackageOverview,
-        Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips,
-        Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage,   adult_base_price, 
-        child_base_price,
-        infant_base_price,
-        accommodation 
-      ) 
-      VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
-      values
-    );
-    console.log(values);
+
+    const insertPackageQuery = `
+      INSERT INTO tourpackage (PKID, MainTitle, Price, City, Discount, Location, Availability, TripType, TotalDuration, MinimumAge, MaximumAge, PackageOverview, Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips, Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage, adult_base_price, child_base_price, infant_base_price, accommodation)
+      VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    await connection.query(insertPackageQuery, tourPackageValues);
+
+    // Insert child details into database
+
+    if (child) {
+      const childArray = JSON.parse(child);
+      if (Array.isArray(childArray) && childArray.length > 0) {
+        const childInsertValues = childArray.map(({ agelimit, price, inclusion, exclusion }) => [
+          packageId,  // Reference to the tour package ID
+          agelimit,
+          price,
+          inclusion,
+          exclusion
+        ]);
+        console.log(childInsertValues)
+        const insertChildQuery = `
+          INSERT INTO childfare (packageId, agelimit, price, inclusion, exclusion)
+          VALUES ?
+        `;
+        await connection.query(insertChildQuery, [childInsertValues]);
+      }
+    }
+
+    // Commit transaction
+    await connection.commit();
+
     return res.status(200).json({
       status: "success",
       message: "Travel package added successfully",
-      Id: packgeId
+      packageId
     });
   } catch (error) {
+    // Rollback transaction in case of error
+    await connection.rollback();
     console.error("Error adding travel package:", error);
     res.status(500).json({ error: "Error adding travel package" });
+  } finally {
+    // Release connection back to the pool
+    connection.release();
   }
 };
 
@@ -402,33 +429,70 @@ const getSingleTourPackages = async (PKID) => {
 const getinstallment = async (PKID) => {
   try {
     console.log("id", PKID);
-    const installment = `
-    SELECT
-    installment.InstallmentId,
-    installment.bookingslotid,
-    installment.tourpackageId,
-    installment.FirstInstallmentdueDate,
-    installment.SecondInstallmentdueDate,
-    installment.ABookingAmount,
-    installment.AFirstInstallmentAmount,
-    installment.ASecondInstallmentAmount,
-    installment.CBookingAmount,
-    installment.CFirstInstallmentAmount,
-    installment.CSecondInstallmentAmount,
-    installment.ISecondInstallmentAmount,
-    installment.IBookingAmount,
-    installment.IFirstInstallmentAmount,
-    installment.ThirdInstallmentdueDate
-  FROM installment
-  JOIN tourpackage ON installment.tourpackageId = tourpackage.PKID
-  WHERE  installment.tourpackageId  = ?;  
+    const installmentQuery = `
+      SELECT
+        i.InstallmentId,
+        i.bookingslotid,
+        i.tourpackageId,
+        i.FirstInstallmentdueDate,
+        i.SecondInstallmentdueDate,
+        i.ThirdInstallmentdueDate,
+        i.ABookingAmount,
+        i.AFirstInstallmentAmount,
+        i.ASecondInstallmentAmount,
+        i.IBookingAmount,
+        i.IFirstInstallmentAmount,
+        i.ISecondInstallmentAmount,
+        ci.childid,
+        ci.CBookingAmount AS ChildBookingAmount,
+        ci.CFirstInstallmentAmount AS ChildFirstInstallmentAmount,
+        ci.CSecondInstallmentAmount AS ChildSecondInstallmentAmount
+      FROM installment i
+      LEFT JOIN childinstalment ci ON i.InstallmentId = ci.InstallmentId
+      WHERE i.tourpackageId = ? ORDER BY childid ASC;
     `;
-    const [results] = await pool.execute(installment, [PKID]);
-    return results;
+    const [results] = await pool.execute(installmentQuery, [PKID]);
+
+    const installmentMap = {};
+
+    // Group the results by InstallmentId to structure the output correctly
+    results.forEach(row => {
+      if (!installmentMap[row.InstallmentId]) {
+        installmentMap[row.InstallmentId] = {
+          InstallmentId: row.InstallmentId,
+          bookingslotid: row.bookingslotid,
+          tourpackageId: row.tourpackageId,
+          FirstInstallmentdueDate: row.FirstInstallmentdueDate,
+          SecondInstallmentdueDate: row.SecondInstallmentdueDate,
+          ThirdInstallmentdueDate: row.ThirdInstallmentdueDate,
+          ABookingAmount: row.ABookingAmount,
+          AFirstInstallmentAmount: row.AFirstInstallmentAmount,
+          ASecondInstallmentAmount: row.ASecondInstallmentAmount,
+          IBookingAmount: row.IBookingAmount,
+          IFirstInstallmentAmount: row.IFirstInstallmentAmount,
+          ISecondInstallmentAmount: row.ISecondInstallmentAmount,
+          childinstallments: []
+        };
+      }
+      if (row.childid) {
+        installmentMap[row.InstallmentId].childinstallments.push({
+          childid: row.childid,
+          bookingslotid: row.bookingslotid,
+          CBookingAmount: row.ChildBookingAmount,
+          CFirstInstallmentAmount: row.ChildFirstInstallmentAmount,
+          CSecondInstallmentAmount: row.ChildSecondInstallmentAmount
+        });
+      }
+    });
+
+    // Convert the map to an array
+    const structuredResults = Object.values(installmentMap);
+    return structuredResults;
   } catch (error) {
     throw error;
   }
 };
+
 
 
 const getAllfaq = async(req,res)=>{
@@ -1246,21 +1310,127 @@ const UpdatevisitedImage = async (req, res, id) => {
   return res.send({ status: 'success', message: " image has updated" });
 };
 
+// const addInstallment = async (req, PKID) => {
+//   let connection;
+//   try {
+//     connection = await pool.getConnection();
+//     const updatedOrInsertedInstallments = [];
+//     const installment = req.body;
+//     const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
+//     const [packageResults] = await connection.execute(packageQuery, [PKID]);
+//     if (packageResults.length === 0) {
+//       throw new Error("Tour package not found.");
+//     }
+
+//     const tour_package_id = packageResults[0].PKID;
+//     console.log(tour_package_id)
+
+//     const {
+//       InstallmentId,
+//       bookingslotid,
+//       FirstInstallmentdueDate,
+//       SecondInstallmentdueDate,
+//       ThirdInstallmentdueDate,
+//       ABookingAmount,
+//       AFirstInstallmentAmount,
+//       ASecondInstallmentAmount,
+//       CBookingAmount,
+//       CFirstInstallmentAmount,
+//       CSecondInstallmentAmount,
+//       IBookingAmount,
+//       IFirstInstallmentAmount,
+//       ISecondInstallmentAmount
+//     } = installment;
+
+//     if (InstallmentId) {
+//       const updateQuery = `UPDATE installment SET 
+//                             FirstInstallmentdueDate = ?,
+//                             SecondInstallmentdueDate = ?,
+//                             ThirdInstallmentdueDate = ?,
+//                             ABookingAmount = ?,
+//                             AFirstInstallmentAmount = ?,
+//                             ASecondInstallmentAmount = ?,
+//                             CBookingAmount = ?,
+//                             CFirstInstallmentAmount = ?,
+//                             CSecondInstallmentAmount = ?,
+//                             IBookingAmount = ?,
+//                             IFirstInstallmentAmount = ?,
+//                             ISecondInstallmentAmount = ?,
+//                             bookingslotid = ?
+//                             WHERE InstallmentId = ?`;
+
+//       await connection.execute(updateQuery, [
+//         FirstInstallmentdueDate,
+//         SecondInstallmentdueDate,
+//         ThirdInstallmentdueDate,
+//         ABookingAmount,
+//         AFirstInstallmentAmount,
+//         ASecondInstallmentAmount,
+//         CBookingAmount,
+//         CFirstInstallmentAmount,
+//         CSecondInstallmentAmount,
+//         IBookingAmount,
+//         IFirstInstallmentAmount,
+//         ISecondInstallmentAmount,
+//         bookingslotid,
+//         InstallmentId
+//       ]);
+
+//       updatedOrInsertedInstallments.push({
+//         InstallmentId,
+//         status: true,
+//         message: "Installment updated successfully"
+//       });
+//     } else {
+//       // Define your function to generate a unique ID for installment
+//       const insertQuery = `INSERT INTO installment (FirstInstallmentdueDate, SecondInstallmentdueDate, 
+//                           ThirdInstallmentdueDate, ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount,
+//                           CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, IBookingAmount,
+//                           IFirstInstallmentAmount, ISecondInstallmentAmount, tourpackageId, bookingslotid) 
+//                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+//       await connection.execute(insertQuery, [
+//         FirstInstallmentdueDate || null,
+//         SecondInstallmentdueDate || null,
+//         ThirdInstallmentdueDate ||null,
+//         ABookingAmount || null,
+//         AFirstInstallmentAmount || null,
+//         ASecondInstallmentAmount || null,
+//         CBookingAmount || null,
+//         CFirstInstallmentAmount || null,
+//         CSecondInstallmentAmount || null,
+//         IBookingAmount || null,
+//         IFirstInstallmentAmount || null,
+//         ISecondInstallmentAmount || null,
+//         tour_package_id,
+//         bookingslotid
+//       ]);
+
+//       updatedOrInsertedInstallments.push({
+//         status: true,
+//         message: "New installment inserted successfully"
+//       });
+//     }
+
+//     return updatedOrInsertedInstallments;
+//   } catch (error) {
+//     console.error(error);
+//     throw new Error(error.message);
+//   } finally {
+//     if (connection) {
+//       connection.release();
+//     }
+//   }
+// };
+
+
 const addInstallment = async (req, PKID) => {
   let connection;
   try {
+    // Get a database connection
     connection = await pool.getConnection();
-    const updatedOrInsertedInstallments = [];
-    const installment = req.body;
-    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
-    const [packageResults] = await connection.execute(packageQuery, [PKID]);
-    if (packageResults.length === 0) {
-      throw new Error("Tour package not found.");
-    }
 
-    const tour_package_id = packageResults[0].PKID;
-    console.log(tour_package_id)
-
+    // Extract installment details from request body
     const {
       InstallmentId,
       bookingslotid,
@@ -1270,30 +1440,40 @@ const addInstallment = async (req, PKID) => {
       ABookingAmount,
       AFirstInstallmentAmount,
       ASecondInstallmentAmount,
-      CBookingAmount,
-      CFirstInstallmentAmount,
-      CSecondInstallmentAmount,
+      childinstalment,
       IBookingAmount,
       IFirstInstallmentAmount,
       ISecondInstallmentAmount
-    } = installment;
+    } = req.body;
 
+    // Verify if the tour package exists
+    const packageQuery = `SELECT PKID FROM tourpackage WHERE PKID = ?`;
+    const [packageResults] = await connection.execute(packageQuery, [PKID]);
+    if (packageResults.length === 0) {
+      throw new Error("Tour package not found.");
+    }
+
+    const tour_package_id = packageResults[0].PKID;
+
+    const updatedOrInsertedInstallments = [];
+
+    // Check if we need to update an existing installment
     if (InstallmentId) {
-      const updateQuery = `UPDATE installment SET 
-                            FirstInstallmentdueDate = ?,
-                            SecondInstallmentdueDate = ?,
-                            ThirdInstallmentdueDate = ?,
-                            ABookingAmount = ?,
-                            AFirstInstallmentAmount = ?,
-                            ASecondInstallmentAmount = ?,
-                            CBookingAmount = ?,
-                            CFirstInstallmentAmount = ?,
-                            CSecondInstallmentAmount = ?,
-                            IBookingAmount = ?,
-                            IFirstInstallmentAmount = ?,
-                            ISecondInstallmentAmount = ?,
-                            bookingslotid = ?
-                            WHERE InstallmentId = ?`;
+      const updateQuery = `
+        UPDATE installment 
+        SET 
+          FirstInstallmentdueDate = ?,
+          SecondInstallmentdueDate = ?,
+          ThirdInstallmentdueDate = ?,
+          ABookingAmount = ?,
+          AFirstInstallmentAmount = ?,
+          ASecondInstallmentAmount = ?,
+          IBookingAmount = ?,
+          IFirstInstallmentAmount = ?,
+          ISecondInstallmentAmount = ?,
+          bookingslotid = ?
+        WHERE InstallmentId = ?
+      `;
 
       await connection.execute(updateQuery, [
         FirstInstallmentdueDate,
@@ -1302,9 +1482,6 @@ const addInstallment = async (req, PKID) => {
         ABookingAmount,
         AFirstInstallmentAmount,
         ASecondInstallmentAmount,
-        CBookingAmount,
-        CFirstInstallmentAmount,
-        CSecondInstallmentAmount,
         IBookingAmount,
         IFirstInstallmentAmount,
         ISecondInstallmentAmount,
@@ -1318,23 +1495,24 @@ const addInstallment = async (req, PKID) => {
         message: "Installment updated successfully"
       });
     } else {
-      // Define your function to generate a unique ID for installment
-      const insertQuery = `INSERT INTO installment (FirstInstallmentdueDate, SecondInstallmentdueDate, 
-                          ThirdInstallmentdueDate, ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount,
-                          CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, IBookingAmount,
-                          IFirstInstallmentAmount, ISecondInstallmentAmount, tourpackageId, bookingslotid) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      // Insert a new installment record
+      const insertQuery = `
+        INSERT INTO installment (
+          FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
+          ABookingAmount, AFirstInstallmentAmount, ASecondInstallmentAmount,
+          IBookingAmount, IFirstInstallmentAmount, ISecondInstallmentAmount,
+          tourpackageId, bookingslotid
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
 
-      await connection.execute(insertQuery, [
+   const [data] =   await connection.execute(insertQuery, [
         FirstInstallmentdueDate || null,
         SecondInstallmentdueDate || null,
-        ThirdInstallmentdueDate ||null,
+        ThirdInstallmentdueDate || null,
         ABookingAmount || null,
         AFirstInstallmentAmount || null,
         ASecondInstallmentAmount || null,
-        CBookingAmount || null,
-        CFirstInstallmentAmount || null,
-        CSecondInstallmentAmount || null,
         IBookingAmount || null,
         IFirstInstallmentAmount || null,
         ISecondInstallmentAmount || null,
@@ -1342,12 +1520,44 @@ const addInstallment = async (req, PKID) => {
         bookingslotid
       ]);
 
+      console.log(data)
+      const installemntid = data.insertId
+
+      if (childinstalment) {
+        if (Array.isArray(childinstalment) && childinstalment.length > 0) {
+          for (const child of childinstalment) {
+            const { childid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
+
+            const value =[  tour_package_id,
+              childid,
+              bookingslotid,
+              installemntid,
+              CBookingAmount || null,
+              CFirstInstallmentAmount || null,
+              CSecondInstallmentAmount || null]
+            const childInsertQuery = `
+              INSERT INTO childinstalment (
+                tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
+                CFirstInstallmentAmount, CSecondInstallmentAmount
+              ) 
+              VALUES (?, ?, ?, ?, ?,?, ?)
+            `;
+
+            console.log(value)
+    
+            await connection.execute(childInsertQuery, value);
+          }
+        }
+        }
+
       updatedOrInsertedInstallments.push({
         status: true,
         message: "New installment inserted successfully"
       });
     }
 
+
+  
     return updatedOrInsertedInstallments;
   } catch (error) {
     console.error(error);
@@ -1358,9 +1568,6 @@ const addInstallment = async (req, PKID) => {
     }
   }
 };
-
-
-
 
 
 const createAlbumImage = async (req, res, PKID) => {
@@ -1376,7 +1583,6 @@ const createAlbumImage = async (req, res, PKID) => {
       albumimageurl.push({ id: imageId, url: imageUrl });
     }
   }
-
 
   let albumcoverimageurl;
   if (req.files.albumcoverimageurl) {
@@ -1814,14 +2020,8 @@ const createCancelationPolicy = async (req, PKID) => {
   let connection;
   try {
     const cancellationPolicies = req.body;
-    if (
-      !cancellationPolicies ||
-      !Array.isArray(cancellationPolicies) ||
-      cancellationPolicies.length === 0
-    ) {
-      throw new Error(
-        "Cancellation policies are required as an array of objects."
-      );
+    if (!cancellationPolicies || !Array.isArray(cancellationPolicies) || cancellationPolicies.length === 0) {
+      throw new Error("Cancellation policies are required as an array of objects.");
     }
 
     connection = await pool.getConnection();
@@ -1844,7 +2044,10 @@ const createCancelationPolicy = async (req, PKID) => {
       if (id) {
         // If ID is provided, update the existing cancellation policy
         const updateQuery = "UPDATE cancellation_policy SET cancellation_policy = ? WHERE id = ? AND tour_package_id = ?";
-        await connection.execute(updateQuery, [cancellation_policy, id, tour_package_id]);
+        const [updateResult] = await connection.execute(updateQuery, [cancellation_policy, id, tour_package_id]);
+        if (updateResult.affectedRows === 0) {
+          throw new Error(`No cancellation policy found with id ${id} for this tour package.`);
+        }
         insertResults.push({
           id,
           status: true,
@@ -1852,8 +2055,8 @@ const createCancelationPolicy = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new cancellation policy to be inserted
-        const insertQuery = "INSERT INTO cancellation_policy ( tour_package_id, cancellation_policy) VALUES (?, ?)";
-        await connection.execute(insertQuery, [tour_package_id, cancellation_policy]);
+        const insertQuery = `INSERT INTO cancellation_policy (tour_package_id, cancellation_policy) VALUES (?, ?)`;
+         await connection.execute(insertQuery, [tour_package_id, cancellation_policy]);
         insertResults.push({
           status: true,
           message: "New cancellation policy inserted successfully"
@@ -1863,7 +2066,9 @@ const createCancelationPolicy = async (req, PKID) => {
     await connection.commit();
     return insertResults;
   } catch (error) {
-    await connection.rollback();
+    if (connection) {
+      await connection.rollback();
+    }
     console.error(error);
     throw new Error(error.message);
   } finally {

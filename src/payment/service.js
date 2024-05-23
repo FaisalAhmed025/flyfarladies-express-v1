@@ -120,9 +120,7 @@ try {
 } catch (error) {
   console.error("Error making payment with wallet:", error);
   throw error;
-  
 }
-
 
 }
 
@@ -223,7 +221,6 @@ const payFirstandSecondInstallment = async (req,res) =>{
 
  
    const updatedwalet =  parseInt(user[0].wallet) - parseInt(totalAmount)
-   console.log(updatedwalet);
 
    const value =[
     updatedwalet,
@@ -233,13 +230,18 @@ const payFirstandSecondInstallment = async (req,res) =>{
    const  updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
    await pool.query(updatequery, value)
 
-
-  const paymentstatus  = payementStatus.UNPAID
+  let paymentstatus  = payementStatus.UNPAID
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const bookingamountpaiddate = new Date()
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
+  
+
+  if(booking[0].second_installment === 0.00){
+    paymentstatus = paymentstatus.PAID
+  }
+
 
   const valuedata =  [
     paymentstatus,
@@ -254,8 +256,9 @@ const payFirstandSecondInstallment = async (req,res) =>{
   console.log(lastbalance);
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ?, wallet = ? WHERE bookingid= ? `
-
   const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
+
+  if(booking[0].thir)
   return updatebooking;
 
 }
