@@ -818,7 +818,6 @@ const addtravler = async (req) => {
     const userid = req.params.id;
     const travelers = req.body.travelers; // Assuming req.body.travelers is an array of traveler objects
     const results = [];
-
     for (const traveler of travelers) {
       const partnerId = TravellerId();
       const {
@@ -866,7 +865,6 @@ const addtravler = async (req) => {
       const [result] = await pool.query(query, values);
       results.push(result);
     }
-
     return results;
   } catch (error) {
     console.log(error);
@@ -917,7 +915,7 @@ const myTravelerList = async (req, res) => {
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
     if (result.length === 0) {
-      throw new HttpException("no traveler list", httpStatus.BAD_REQUEST);
+       return res.send({ message:"No traveler found"});
     }
     return res.status(200).json({
       success: true,

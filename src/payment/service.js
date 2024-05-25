@@ -87,7 +87,6 @@ try {
    const [userwallet] = await pool.query(updateuserbalancequery,walletvalue);
 
    const [updatedwallet]  = await pool.query(userquery, [userid])
-   console.log(userwallet[0]?.wallet)
     const bookingstatus = bookingStatus.CONFIRMED
     const paymentstatus = payementStatus.PAID
 
@@ -107,7 +106,7 @@ try {
     const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
     
 
-  const  lastbalance = parseInt(updatedwallet[0].wallet)
+   const  lastbalance = parseInt(updatedwallet[0].wallet)
     const ledger = await pool.query(ledgerquery, [
       userid,
       totalprice,

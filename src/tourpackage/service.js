@@ -1429,7 +1429,6 @@ const addInstallment = async (req, PKID) => {
   try {
     // Get a database connection
     connection = await pool.getConnection();
-
     // Extract installment details from request body
     const {
       InstallmentId,
@@ -1526,10 +1525,10 @@ const addInstallment = async (req, PKID) => {
       if (childinstalment) {
         if (Array.isArray(childinstalment) && childinstalment.length > 0) {
           for (const child of childinstalment) {
-            const { childid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
+            const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
 
             const value =[  tour_package_id,
-              childid,
+              childfareid,
               bookingslotid,
               installemntid,
               CBookingAmount || null,

@@ -22,6 +22,11 @@ const generatebookingId = () => {
 const Book$Hold = async (req, res) => {
   try {
     const userid = req.params.id;
+    const childfareid = req.body.childfareid;
+    const bookingSlotId = req.body.id;
+    const childid = req.body.childid
+    const packgeId = req.params.PKID;
+
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
     if (user.length ===0) {
@@ -32,7 +37,6 @@ const Book$Hold = async (req, res) => {
     }
 
     const { email, wallet, name, phone } = user[0];
-    const packgeId = req.params.PKID;
     const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
     const [tourpackage] = await pool.query(packgaeQuery, [packgeId]);
     if (tourpackage.length === 0) {
@@ -192,10 +196,15 @@ const totalinfant = parseFloat(infant.length)
 
 const bookingstatus  =  bookingStatus.HOLD
 const adultprice =  tourpackage[0].adult_base_price 
-const childprice=  tourpackage[0].child_base_price
+
+
+const childfareQuery= `SELECT * FROM childfare WHERE packageId =? AND childfareid =?`;
+const [childfaretdata] = await pool.query(childfareQuery, [packgeId, childfareid]);
+console.log(childfaretdata)
+
+const childprice =  childfaretdata[0].price
 const infantprice  = tourpackage[0].infant_base_price
 
-const bookingSlotId = req.body.id;
 const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `;
 const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
 
@@ -206,12 +215,14 @@ const cancellationDate = slot[0].cancellationDate
 const startdate = slot[0].StartDate
 const enddate  = slot[0].EndDate
 
-console.log(slot[0].cancellationDate)
-
 if (!installmentdata.length) {
   console.log('No installment data found');
   // Set default values or handle the case where installment data is not found
 }
+
+
+const childinstallmentQuery= `SELECT * FROM childinstalment WHERE tour_package_id =? AND bookingslotid =? AND childid =?`;
+const [childinstallmentdata] = await pool.query(childinstallmentQuery, [packgeId, bookingSlotId, childid]);
 
 let totalAdultBookingAmount = 0;
 let totalChildBookingAmount = 0;
@@ -232,17 +243,24 @@ const totalInfantprice = infantprice * totalinfant
 
 console.log(totalAdultprice, totalChildprice, totalInfantprice)
 
+
 if (installmentdata.length > 0) {
-  totalAdultBookingAmount = installmentdata[0].ABookingAmount * totaladult;
-  totalChildBookingAmount = installmentdata[0].CBookingAmount * totalchild;
-  totalInfantBookingAmount = installmentdata[0].IBookingAmount * totalinfant;
+
+  console.log(installmentdata)
+console.log(childinstallmentdata)
+
+  totalAdultBookingAmount = installmentdata[0]?.ABookingAmount * totaladult;
+  totalChildBookingAmount = childinstallmentdata[0]?.CBookingAmount * totalchild;
+  console.log()
+  totalInfantBookingAmount = installmentdata[0]?.IBookingAmount * totalinfant;
+  console.log(totalInfantBookingAmount)
   totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
-  totalChildFirstInstallmentAmount = installmentdata[0].CFirstInstallmentAmount * totalchild;
+  totalChildFirstInstallmentAmount = childinstallmentdata[0].CFirstInstallmentAmount * totalchild;
   totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
 
   // Total second installment amount calculation
   totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
-  totalChildSecondInstallmentAmount = installmentdata[0].CSecondInstallmentAmount * totalchild;
+  totalChildSecondInstallmentAmount = childinstallmentdata[0].CSecondInstallmentAmount * totalchild;
   totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
 
   FirstInstallmentdueDate = installmentdata[0].FirstInstallmentdueDate;
@@ -273,7 +291,6 @@ console.log(totalpackageprice)
 const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
 const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
 const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
-
 const paymentstatus = payementStatus.UNPAID;
 const values = [
   bookingid,
