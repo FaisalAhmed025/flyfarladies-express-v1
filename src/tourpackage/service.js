@@ -95,25 +95,55 @@ function logMessage() {
   console.log('Cron job executed at:', new Date().toLocaleString());
  }
 
-const deactivatePackages = async () => {
+ const deactivatePackages = async () => {
+  let connection;
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     const currentDate = new Date().toISOString().split('T')[0]; // Get current date in 'YYYY-MM-DD' format
-    console.log(currentDate)
+    console.log(currentDate);
 
-    const updateQuery = `
-      UPDATE tourpackage
-      SET isActive = 0
-      WHERE StartDate < ? AND isActive = 1
+    // Step 1: Get all tourpackage records that are currently active
+    const activePackagesQuery = `
+      SELECT PKID
+      FROM tourpackage
+      WHERE isActive = 1
     `;
+    const [activePackages] = await connection.execute(activePackagesQuery);
 
-    await connection.execute(updateQuery, [currentDate]);
-    connection.release();
+    // Step 2: Check each active package for future bookingslots
+    for (const packagedata of activePackages) {
+      const { PKID } = packagedata;
+
+      const bookingslotQuery = `
+        SELECT COUNT(*) as count
+        FROM bookingslot
+        WHERE packageId = ? AND StartDate >= ?
+      `;
+
+      const [results] = await connection.execute(bookingslotQuery, [PKID, currentDate]);
+      const { count } = results[0];
+
+      // Step 3: If no future bookingslots found, deactivate the package
+      if (count === 0) {
+        const updateQuery = `
+          UPDATE tourpackage
+          SET isActive = 0
+          WHERE PKID = ?
+        `;
+        await connection.execute(updateQuery, [PKID]);
+      }
+    }
+
     console.log('Packages deactivated successfully');
   } catch (error) {
     console.error('Error deactivating packages:', error);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
+
 
 cron.schedule('0 0 * * *', async () => {
   console.log('Running package deactivation task...');
@@ -278,7 +308,6 @@ const getSingleTourPackages = async (PKID) => {
       MainTitle: tourPackageResults[0].MainTitle,
       SubTitle: tourPackageResults[0].SubTitle,
       TripType: tourPackageResults[0].TripType,
-
       Location: tourPackageResults[0].Location,
       StartDate: tourPackageResults[0].StartDate,
       EndDate: tourPackageResults[0].EndDate,
@@ -289,7 +318,7 @@ const getSingleTourPackages = async (PKID) => {
       MaximumAge: tourPackageResults[0].MaximumAge,
       TotalDuration: tourPackageResults[0].TotalDuration,
       adult_base_price: tourPackageResults[0].adult_base_price,
-      child_base_price: tourPackageResults[0].child_base_price,
+      // child_base_price: tourPackageResults[0].child_base_price,
       infant_base_price: tourPackageResults[0].infant_base_price,
       Discount: tourPackageResults[0].Discount,
       PackageOverview: tourPackageResults[0].PackageOverview,
@@ -359,6 +388,7 @@ const getSingleTourPackages = async (PKID) => {
       Country:
         tourPackageResults[0].Country,
       CancellationDate: tourPackageResults[0].CancellationDate,
+      childfare:[],
       main_image: [],
       tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
@@ -386,7 +416,8 @@ const getSingleTourPackages = async (PKID) => {
       albumImage,
       FAQS,
       add_ons,
-      bookingslot
+      bookingslot,
+      childfaredata
 
       // addOns,
     ] = await Promise.all([
@@ -402,9 +433,9 @@ const getSingleTourPackages = async (PKID) => {
       getalbumImage(tourPackageData.PKID),
       getFAQs(tourPackageData.PKID),
       getAddOns(tourPackageData.PKID),
-      getBookingslot(tourPackageData.PKID)
+      getBookingslot(tourPackageData.PKID),
+      getchildfare(tourPackageData.PKID)
     ]);
-
     tourPackageData.main_image = getmainimg;
     tourPackageData.tour_itinerary = tour_itinerary;
     tourPackageData.place_to_visit = visitedPlaces;
@@ -418,6 +449,7 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.FAQs = FAQS
     tourPackageData.add_ons = add_ons;
     tourPackageData.bookingslot =bookingslot
+    tourPackageData.childfare =childfaredata;
     tourPackagesData.push(tourPackageData);
     return tourPackageData;
   } catch (error) {
@@ -544,6 +576,32 @@ const getbookingslot = async (req, res) => {
     data: data
   })
 }
+
+
+const getchildfare = async (PKID) => {
+  try {
+    // Retrieve tour plan details with order by uId in ascending order
+    const childfare = `
+    SELECT
+    childfare.childfareid,
+    childfare.packageId,
+    childfare.agelimit,
+    childfare.price,
+    childfare.inclusion,
+    childfare.exclusion
+  FROM childfare
+  JOIN tourpackage ON childfare.packageId = tourpackage.PKID
+  WHERE childfare.packageId COLLATE utf8mb4_general_ci = ? 
+  ORDER BY 
+  childfare.childfareid ASC`;
+    const [childfaredata] = await pool.query(childfare, [PKID]);
+    return childfaredata;
+  } catch (error) {
+    throw error;
+  } finally {
+    // Release the database connection
+  }
+};
 
 const getInstallment = async (id,pkid) => {
   try{
@@ -1555,8 +1613,6 @@ const addInstallment = async (req, PKID) => {
       });
     }
 
-
-  
     return updatedOrInsertedInstallments;
   } catch (error) {
     console.error(error);

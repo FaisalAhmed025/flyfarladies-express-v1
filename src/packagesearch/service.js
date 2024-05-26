@@ -233,6 +233,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
         AND bs.StartDate >= ? 
         AND bs.EndDate <= ? 
         AND tp.isActive=1
+        ORDER BY bs.StartDate ASC
       `;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, `%${City}%`, startOfMonth, endOfMonth]);
@@ -259,6 +260,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
         AND bs.StartDate >= ? 
         AND bs.EndDate <= ? 
         AND tp.isActive=1
+        ORDER BY bs.StartDate ASC
       `;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`, startOfMonth, endOfMonth]);
@@ -277,7 +279,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
       const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
-      const packagequery = `
+      const packagequery = `     
         SELECT * 
         FROM tourpackage tp
         INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
@@ -286,6 +288,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
         AND bs.StartDate >= ? 
         AND bs.EndDate <= ? 
         AND tp.isActive=1
+        ORDER BY bs.StartDate ASC
       `;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${City}%`, startOfMonth, endOfMonth]);
@@ -311,6 +314,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
         AND bs.StartDate >= ? 
         AND bs.EndDate <= ? 
         AND tp.isActive=1
+        ORDER BY bs.StartDate ASC
       `;
       try {
         const [data] = await pool.query(packagequery, [TripType, startOfMonth, endOfMonth]);
@@ -327,10 +331,12 @@ const getTourPackagesByDifferentField = async (req, res) => {
     else if(City && Country){
       const packagequery = `
         SELECT * 
-        FROM tourpackage
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
         WHERE City LIKE ? 
         AND Country = ? 
         AND isActive=1
+        ORDER BY bs.StartDate ASC
       ` ;
       try {
         const [data] = await pool.query(packagequery, [`%${City}%`, Country])
@@ -348,10 +354,12 @@ const getTourPackagesByDifferentField = async (req, res) => {
    else if(TripType && Country){
       const packagequery = `
         SELECT * 
-        FROM tourpackage
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
         WHERE TripType = ? 
         AND Country LIKE ? 
         AND isActive=1
+        ORDER BY bs.StartDate ASC
       ` ;
       try {
         const [data] = await pool.query(packagequery, [TripType, `%${Country}%`])
@@ -368,10 +376,13 @@ const getTourPackagesByDifferentField = async (req, res) => {
     else if(City && TripType){
       const packagequery = `
         SELECT * 
-        FROM tourpackage
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
         WHERE City LIKE ? 
         AND TripType = ? 
         AND isActive=1
+        ORDER BY bs.StartDate ASC
+
       ` ;
       try {
         const [data] = await pool.query(packagequery, [`%${City}%`, TripType])
@@ -388,9 +399,11 @@ const getTourPackagesByDifferentField = async (req, res) => {
     else if(City){
       const packagequery = `
         SELECT * 
-        FROM tourpackage
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
         WHERE City LIKE ? 
         AND isActive=1
+        ORDER BY bs.StartDate ASC
       ` ;
       try {
         const [data] = await pool.query(packagequery, [`%${City}%`])
@@ -408,9 +421,11 @@ const getTourPackagesByDifferentField = async (req, res) => {
     else if(TripType){
       const packagequery = `
         SELECT * 
-        FROM tourpackage
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
         WHERE TripType = ? 
         AND isActive=1
+        ORDER BY bs.StartDate ASC
       ` ;
       try {
         const [data] = await pool.query(packagequery, [TripType])

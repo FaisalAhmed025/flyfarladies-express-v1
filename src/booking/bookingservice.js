@@ -166,7 +166,7 @@ const Book$Hold = async (req, res) => {
           userid
         ]);
       }
-
+      
       const addInfantPassengerQuery  = `
       INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
       VALUES ?
@@ -245,15 +245,9 @@ console.log(totalAdultprice, totalChildprice, totalInfantprice)
 
 
 if (installmentdata.length > 0) {
-
-  console.log(installmentdata)
-console.log(childinstallmentdata)
-
   totalAdultBookingAmount = installmentdata[0]?.ABookingAmount * totaladult;
   totalChildBookingAmount = childinstallmentdata[0]?.CBookingAmount * totalchild;
-  console.log()
   totalInfantBookingAmount = installmentdata[0]?.IBookingAmount * totalinfant;
-  console.log(totalInfantBookingAmount)
   totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
   totalChildFirstInstallmentAmount = childinstallmentdata[0].CFirstInstallmentAmount * totalchild;
   totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;

@@ -388,10 +388,14 @@ const paySecondInstallment = async (req,res) =>{
   const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
   await pool.query(updatequery, value)
 
-  const paymentstatus  = payementStatus.FIRSTINSTALLMENT
+  let paymentstatus  = payementStatus.FIRSTINSTALLMENT
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const firstinstallmentpaiddate = new Date()
+
+  if(booking[0].second_installment === 0.00){
+    paymentstatus = paymentstatus.PAID
+  }
 
   const valuedata =  [
     paymentstatus,
@@ -400,6 +404,7 @@ const paySecondInstallment = async (req,res) =>{
     lastbalance,
     bookingid
   ]
+
   console.log(valuedata)
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? `
@@ -917,7 +922,11 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   const secondinstallemnttstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
-  const paymentstatus = payementStatus.PAID
+  const paymentstatus = payementStatus.SECONDINSTALLMENT
+
+  
+
+
 
   const value = [
     paymentstatus,
@@ -950,9 +959,6 @@ const initwithssl1stAnd2ndinstallment = async(req,res) =>{
 
   const userquery =  `SELECT * FROM user WHERE id=?`
   const [user] =  await pool.query(userquery, [userid])
-
-  console.log(user)
-
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
