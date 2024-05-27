@@ -686,6 +686,7 @@ const deletTourItenerary = async (req, res) => {
 }
 
 
+
 const getTourPlan = async (PKID) => {
   try {
     // Retrieve tour plan details with order by uId in ascending order
@@ -1102,15 +1103,15 @@ const getAllTourPackages = async () => {
 //   }
 // };
 
-
-
 const updateTourPackage = async (req, res) => {
+  let connection;
   try {
+    connection = await pool.getConnection();
+
     const packageId = req.params.PKID; // Assuming packageId is passed in the request parameters
-    // Extract tour package details from request body
 
     const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
-    const [tourpackage] = await pool.query(packageQuery, [packageId]);
+    const [tourpackage] = await connection.query(packageQuery, [packageId]);
 
     if (tourpackage.length === 0) {
       return res.status(404).json({ message: 'Tour package not found' });
@@ -1148,17 +1149,12 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      accommodation 
-      // Assuming coverImage is coming from request body
+      accommodation,
+      child // Assuming child fares are coming from request body
     } = req.body;
 
+    const coverimage = req.publicImageLink;
 
-    const coverimage = req.publicImageLink
-
-
-    // Check if cover image is present
-
-    // Execute raw SQL UPDATE query to update tour package details in the database
     const values = [
       MainTitle,
       SubTitle,
@@ -1196,7 +1192,7 @@ const updateTourPackage = async (req, res) => {
       packageId // Add packageId for WHERE clause
     ];
 
-    const [result] = await pool.query(
+    const [result] = await connection.query(
       `UPDATE tourpackage SET 
         MainTitle = COALESCE(?, MainTitle), 
         SubTitle = COALESCE(?, SubTitle), 
@@ -1234,12 +1230,47 @@ const updateTourPackage = async (req, res) => {
       WHERE PKID = ?`,
       values
     );
+
+    if (child) {
+      const childArray = JSON.parse(child);
+      if (Array.isArray(childArray) && childArray.length > 0) {
+        for (const fare of childArray) {
+          const { childfareid, agelimit, price, inclusion, exclusion } = fare;
+
+          console.log(childArray);
+
+          // Check if the child fare exists
+          const childFareQuery = `SELECT childfareid FROM childfare WHERE childfareid = ? AND packageId = ?`;
+          const [childFareResult] = await connection.query(childFareQuery, [childfareid, packageId]);
+
+          if (childFareResult.length > 0) {
+            // Update existing child fare
+            const updateChildFareQuery = `
+              UPDATE childfare
+              SET agelimit = ?, price = ?, inclusion = ?, exclusion = ?
+              WHERE childfareid = ? AND packageId = ?
+            `;
+            await connection.query(updateChildFareQuery, [agelimit, price, inclusion, exclusion, childfareid, packageId]);
+          }
+        }
+      }
+    }
+
+    console.log(child)
+
     return res.status(200).json({ status: 'success', message: 'Tour package updated successfully', Id: packageId });
   } catch (error) {
     console.error("Error updating travel package:", error);
     return res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 };
+
+
+
 
 
 const MainImage = async (req, PKID) => {
