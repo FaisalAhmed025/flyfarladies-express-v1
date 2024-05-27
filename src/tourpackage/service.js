@@ -93,9 +93,9 @@ const customHighlight = () => {
 
 function logMessage() {
   console.log('Cron job executed at:', new Date().toLocaleString());
- }
+}
 
- const deactivatePackages = async () => {
+const deactivatePackages = async () => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -129,7 +129,7 @@ function logMessage() {
           UPDATE tourpackage
           SET isActive = 0
           WHERE PKID = ?
-        `; 
+        `;
         await connection.execute(updateQuery, [PKID]);
       }
     }
@@ -234,7 +234,7 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      accommodation 
+      accommodation
     ];
 
     const insertPackageQuery = `
@@ -363,7 +363,7 @@ const getSingleTourPackages = async (PKID) => {
       guide: tourPackageResults[0].guide,
       Availability: tourPackageResults[0].Availability,
       show_on_this_on_home_page:
-      tourPackageResults[0].show_on_this_on_home_page,
+        tourPackageResults[0].show_on_this_on_home_page,
       popular_destination: tourPackageResults[0].popular_destination,
       day_trip: tourPackageResults[0].day_trip,
       night_out_trip: tourPackageResults[0].night_out_trip,
@@ -388,11 +388,11 @@ const getSingleTourPackages = async (PKID) => {
       Country:
         tourPackageResults[0].Country,
       CancellationDate: tourPackageResults[0].CancellationDate,
-      childfare:[],
+      childfare: [],
       main_image: [],
       tour_itinerary: [], // Change here from tour_itinerary to tour_plan
       booking_policy: [],
-      installment:[],
+      installment: [],
       place_to_visit: [],
       inclusion: [],
       exclusion: [],
@@ -400,8 +400,8 @@ const getSingleTourPackages = async (PKID) => {
       cancellation_policy: [],
       albumImage: [],
       FAQs: [],
-      add_ons:[],
-      bookingslot:[]
+      add_ons: [],
+      bookingslot: []
     };
     const [
       getmainimg,
@@ -448,8 +448,8 @@ const getSingleTourPackages = async (PKID) => {
     tourPackageData.albumImage = albumImage;
     tourPackageData.FAQs = FAQS
     tourPackageData.add_ons = add_ons;
-    tourPackageData.bookingslot =bookingslot
-    tourPackageData.childfare =childfaredata;
+    tourPackageData.bookingslot = bookingslot
+    tourPackageData.childfare = childfaredata;
     tourPackagesData.push(tourPackageData);
     return tourPackageData;
   } catch (error) {
@@ -527,9 +527,9 @@ const getinstallment = async (PKID) => {
 
 
 
-const getAllfaq = async(req,res)=>{
+const getAllfaq = async (req, res) => {
   const getquery = `SELECT * FROM FAQs`
-  const [data] =  await pool.query(getquery)
+  const [data] = await pool.query(getquery)
   return res.status(200).json({
     status: true,
     data: data
@@ -577,9 +577,9 @@ const getbookingslot = async (req, res) => {
   })
 }
 
-const updateChildfare = async(req,res)=>{
+const updateChildfare = async (req, res) => {
   const childfareid = req.params.childfareid
-  const { agelimit, price, inclusion, exclusion} =req.body
+  const { agelimit, price, inclusion, exclusion } = req.body
 
   try {
     // SQL query to update the childfare details
@@ -602,7 +602,7 @@ const updateChildfare = async(req,res)=>{
     }
     return res.status(200).json({
       status: true,
-      message:'updated successfully',
+      message: 'updated successfully',
       data: result
     })
   } catch (error) {
@@ -638,16 +638,16 @@ const getchildfare = async (PKID) => {
   }
 };
 
-const getInstallment = async (id,pkid) => {
-  try{
-  const tourplanquery = `SELECT * FROM installment WHERE tourpackageId=? AND  bookingslotid= ?`
-  const [data] = await pool.query(tourplanquery, [pkid,id])
-  console.log(data)
-  return data
-}
-catch(error){
-  throw new Error(error)
-}
+const getInstallment = async (id, pkid) => {
+  try {
+    const tourplanquery = `SELECT * FROM installment WHERE tourpackageId=? AND  bookingslotid= ?`
+    const [data] = await pool.query(tourplanquery, [pkid, id])
+    console.log(data)
+    return data
+  }
+  catch (error) {
+    throw new Error(error)
+  }
 }
 
 
@@ -785,7 +785,7 @@ export const getExclusion = async (PKID) => {
   }
 };
 
- const getAddOns = async (PKID) => {
+const getAddOns = async (PKID) => {
   try {
     const getAddOns = `
     SELECT
@@ -805,14 +805,14 @@ export const getExclusion = async (PKID) => {
   }
 };
 
-const getAAlladdOns = async (req,res) => {
+const getAAlladdOns = async (req, res) => {
   try {
     const getAddOns = `
     SELECT *
   FROM add_ons
 `;
     const [results] = await pool.execute(getAddOns);
-    return res.send({data:results});
+    return res.send({ data: results });
   } catch (error) {
     throw error;
   }
@@ -950,7 +950,7 @@ const Allpackages = async (res) => {
     `;
     const [allpckages] = await pool.execute(tourPackageQuery);
     // Parse JSON strings to objects for booking_slots
-    return res.send({ tourPackageResults: allpckages})
+    return res.send({ tourPackageResults: allpckages })
   } catch (error) {
     throw error;
   }
@@ -1360,7 +1360,7 @@ const deleteBOOKINGSLOT = async (req, res) => {
   const id = req.params.id
   const deletequery = `DELETE FROM bookingslot WHERE  id= ?`
   await pool.query(deletequery, [id])
-  const deleteinstallmentQuery =`DELETE FROM bookingslot WHERE bookingslotid= ?`
+  const deleteinstallmentQuery = `DELETE FROM bookingslot WHERE bookingslotid= ?`
   await pool.query(deleteinstallmentQuery, [id])
 
   return res.status(200).json({
@@ -1569,6 +1569,7 @@ const addInstallment = async (req, PKID) => {
   try {
     // Get a database connection
     connection = await pool.getConnection();
+
     // Extract installment details from request body
     const {
       InstallmentId,
@@ -1615,18 +1616,73 @@ const addInstallment = async (req, PKID) => {
       `;
 
       await connection.execute(updateQuery, [
-        FirstInstallmentdueDate,
-        SecondInstallmentdueDate,
-        ThirdInstallmentdueDate,
-        ABookingAmount,
-        AFirstInstallmentAmount,
-        ASecondInstallmentAmount,
-        IBookingAmount,
-        IFirstInstallmentAmount,
-        ISecondInstallmentAmount,
-        bookingslotid,
+        FirstInstallmentdueDate || null,
+        SecondInstallmentdueDate || null,
+        ThirdInstallmentdueDate || null,
+        ABookingAmount || null,
+        AFirstInstallmentAmount || null,
+        ASecondInstallmentAmount || null,
+        IBookingAmount || null,
+        IFirstInstallmentAmount || null,
+        ISecondInstallmentAmount || null,
+        bookingslotid || null,
         InstallmentId
       ]);
+
+      // Update child installments if provided
+      if (childinstalment) {
+        if (Array.isArray(childinstalment) && childinstalment.length > 0) {
+          for (const child of childinstalment) {
+            const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, childInstallmentId } = child;
+
+            const value = [
+              CBookingAmount || null,
+              CFirstInstallmentAmount || null,
+              CSecondInstallmentAmount || null,
+              childInstallmentId || null,
+              childfareid || null,
+              bookingslotid || null,
+              InstallmentId || null
+            ];
+
+            const childUpdateQuery = `
+              UPDATE childinstalment 
+              SET 
+                CBookingAmount = ?, 
+                CFirstInstallmentAmount = ?, 
+                CSecondInstallmentAmount = ?
+              WHERE 
+                childInstallmentId = ? AND
+                childid = ? AND 
+                bookingslotid = ? AND 
+                installmentid = ?
+            `;
+
+            const [result] = await connection.execute(childUpdateQuery, value);
+
+            if (result.affectedRows === 0) {
+              // If no row was updated, insert a new record
+              const childInsertQuery = `
+                INSERT INTO childinstalment (
+                  tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
+                  CFirstInstallmentAmount, CSecondInstallmentAmount
+                ) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+              `;
+
+              await connection.execute(childInsertQuery, [
+                tour_package_id,
+                childfareid || null,
+                bookingslotid || null,
+                InstallmentId || null,
+                CBookingAmount || null,
+                CFirstInstallmentAmount || null,
+                CSecondInstallmentAmount || null
+              ]);
+            }
+          }
+        }
+      }
 
       updatedOrInsertedInstallments.push({
         InstallmentId,
@@ -1645,7 +1701,7 @@ const addInstallment = async (req, PKID) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
-   const [data] =   await connection.execute(insertQuery, [
+      const [data] = await connection.execute(insertQuery, [
         FirstInstallmentdueDate || null,
         SecondInstallmentdueDate || null,
         ThirdInstallmentdueDate || null,
@@ -1659,35 +1715,34 @@ const addInstallment = async (req, PKID) => {
         bookingslotid
       ]);
 
-      console.log(data)
-      const installemntid = data.insertId
+      const installemntid = data.insertId;
 
       if (childinstalment) {
         if (Array.isArray(childinstalment) && childinstalment.length > 0) {
           for (const child of childinstalment) {
             const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
 
-            const value =[  tour_package_id,
+            const value = [
+              tour_package_id,
               childfareid,
               bookingslotid,
               installemntid,
               CBookingAmount || null,
               CFirstInstallmentAmount || null,
-              CSecondInstallmentAmount || null]
+              CSecondInstallmentAmount || null
+            ];
             const childInsertQuery = `
               INSERT INTO childinstalment (
                 tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
                 CFirstInstallmentAmount, CSecondInstallmentAmount
               ) 
-              VALUES (?, ?, ?, ?, ?,?, ?)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
 
-            console.log(value)
-    
             await connection.execute(childInsertQuery, value);
           }
         }
-        }
+      }
 
       updatedOrInsertedInstallments.push({
         status: true,
@@ -1705,6 +1760,8 @@ const addInstallment = async (req, PKID) => {
     }
   }
 };
+
+
 
 
 const createAlbumImage = async (req, res, PKID) => {
@@ -1839,7 +1896,7 @@ const createTourPlan = async (req) => {
   try {
     connection = await pool.getConnection();
     // Iterate over the array of tour plan data
-   const updatedOrInsertedTourPlans =[]
+    const updatedOrInsertedTourPlans = []
     for (const tourPlanData of req.body.tourplanData) {
       const { day_title, day_plan, stayingPlace, breakFast, meal, dinner, id } = tourPlanData; // Extract ID from tourPlanData
       // Retrieve tour package ID from the database
@@ -1924,7 +1981,7 @@ const createInclusion = async (req, PKID) => {
       } else {
         // If ID is not provided, it's a new inclusion to be inserted
         const insertQuery = "INSERT INTO inclusion ( tour_package_id, inclusion) VALUES ( ?, ?)";
-        await connection.execute(insertQuery, [ tourPackageId, inclusionText]);
+        await connection.execute(insertQuery, [tourPackageId, inclusionText]);
         updatedOrInsertedInclusions.push({
           status: "success",
           message: "New inclusion inserted successfully"
@@ -1951,7 +2008,7 @@ const createBookingSlot = async (req, res, PKID) => {
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
     if (packageResults.length === 0) {
-      return res.send({message:"Tour package not found."});
+      return res.send({ message: "Tour package not found." });
     }
     const tourPackageId = packageResults[0].PKID;
     for (const slotData of bookingSlotData) {
@@ -1967,7 +2024,7 @@ const createBookingSlot = async (req, res, PKID) => {
         // Insert new booking slot into the database
         await connection.query(
           `INSERT INTO bookingslot (tour_package_id, StartDate, EndDate, cancellationDate, available_seat, soldOut) VALUES (?,?, ?,?,?,?)`,
-          [ tourPackageId, StartDate, EndDate, cancellationDate,available_seat, soldOut]
+          [tourPackageId, StartDate, EndDate, cancellationDate, available_seat, soldOut]
         );
       }
     }
@@ -2033,7 +2090,7 @@ const createExclusion = async (req, PKID) => {
         });
       } else {
         // If ID is not provided, it's a new inclusion to be inserted
-  
+
         const insertQuery = "INSERT INTO exclusion ( tour_package_id, exclusion) VALUES (?, ?)";
         await connection.execute(insertQuery, [tourPackageId, exclusionText]);
         updatedOrInsertedExclusions.push({
@@ -2113,9 +2170,9 @@ const createBookingPolicy = async (req, PKID) => {
           message: "Booking policy updated successfully"
         });
       } else {
-    
+
         const insertQuery = "INSERT INTO booking_policy ( tour_package_id, booking_policy) VALUES (?, ?)";
-        await connection.execute(insertQuery, [ tour_package_id, booking_policy]);
+        await connection.execute(insertQuery, [tour_package_id, booking_policy]);
         updatedOrInsertedPolicies.push({
           status: true,
           message: "New booking policy inserted successfully"
@@ -2193,7 +2250,7 @@ const createCancelationPolicy = async (req, PKID) => {
       } else {
         // If ID is not provided, it's a new cancellation policy to be inserted
         const insertQuery = `INSERT INTO cancellation_policy (tour_package_id, cancellation_policy) VALUES (?, ?)`;
-         await connection.execute(insertQuery, [tour_package_id, cancellation_policy]);
+        await connection.execute(insertQuery, [tour_package_id, cancellation_policy]);
         insertResults.push({
           status: true,
           message: "New cancellation policy inserted successfully"
@@ -2316,7 +2373,7 @@ const createAddOns = async (tour_package_id, req) => {
     const updatedOrInsertedAddOns = [];
 
     for (const addOn of addOns) {
-      const { id, service, description, cost} = addOn;
+      const { id, service, description, cost } = addOn;
       if (!service || !description || !cost) { // Corrected !title to !cost
         throw new Error("Service, description, and cost are required for each add-on object.");
       }
@@ -2335,7 +2392,7 @@ const createAddOns = async (tour_package_id, req) => {
         });
       } else {
         // If ID is not provided, it's a new add-on to be inserted// Assuming Addonservice generates a new ID
-        const [result] = await connection.execute(insertQuery, [ service, description, tour_package_id, cost]);
+        const [result] = await connection.execute(insertQuery, [service, description, tour_package_id, cost]);
         updatedOrInsertedAddOns.push({
           status: true,
           message: "New add-on inserted successfully"
@@ -2417,7 +2474,7 @@ const AddFAQs = async (req, res) => {
         await pool.query(insertQuery, [pkid, question, answer]);
       }
     }
-    return res.status(200).json({status:true, message: "FAQs added successfully to tour packages." });
+    return res.status(200).json({ status: true, message: "FAQs added successfully to tour packages." });
   } catch (error) {
     console.error("Error adding FAQs:", error);
     return res.status(500).json({ message: "Internal server error." });
