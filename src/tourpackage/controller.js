@@ -102,6 +102,11 @@ const  deletePAckage = async(req,res) =>{
 
 }
 
+const  allPackages = async(req,res) =>{
+  return await tourpackageService.Allpackages(res)
+
+}
+
 const  deleteaddons = async(req,res) =>{
   return await tourpackageService.deleteAddons(req,res)
 
@@ -113,16 +118,18 @@ const  deleteMainimage = async(req,res) =>{
 }
 
 
-
-
-
 const updatePackage = async (req,res)=>{
   // const PkID = req.params.PKID;
  await tourpackageService.updateTourPackage(req, res)
 
-
-  
 }
+
+const updatechidfare = async (req,res)=>{
+  // const PkID = req.params.PKID;
+ await tourpackageService.updateChildfare(req, res)
+
+}
+
 
 
 
@@ -156,7 +163,6 @@ const updateMainImageController = async (req, res) => {
   try {
     const imageId = req.params.imageId;
     const result = await tourpackageService.UpdateMainImage(req, imageId);
-
     // Check if the result is an error
     if (result instanceof Error) {
       res.status(500).json({
@@ -269,9 +275,6 @@ const createTourPlan = async (req, res) => {
 
 const getalladdons = async (req,res) => {
     const result = await tourpackageService.getAAlladdOns(req, res);
-
-    // Check if the result is an error
-   
 };
 
 
@@ -635,6 +638,7 @@ export const tourpackageController = {
   getInstallment,
   getAllTourPackages,
   getalladdons,
+  allPackages,
   getAllFAQS,
   deleteFAQ,
   Addinstallemnt,
@@ -666,6 +670,7 @@ export const tourpackageController = {
   updateMainImageController,
   updateviistedController,
   deleteMainimage,
+  updatechidfare,
   addFAQs,
   deleteaddons,
   createbookingSlot,

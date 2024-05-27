@@ -129,7 +129,7 @@ function logMessage() {
           UPDATE tourpackage
           SET isActive = 0
           WHERE PKID = ?
-        `;
+        `; 
         await connection.execute(updateQuery, [PKID]);
       }
     }
@@ -577,6 +577,41 @@ const getbookingslot = async (req, res) => {
   })
 }
 
+const updateChildfare = async(req,res)=>{
+  const childfareid = req.params.childfareid
+  const { agelimit, price, inclusion, exclusion} =req.body
+
+  try {
+    // SQL query to update the childfare details
+    const updateQuery = `
+      UPDATE childfare
+      SET 
+        agelimit = ?,
+        price = ?,
+        inclusion = ?,
+        exclusion = ?
+      WHERE 
+        childfareid = ?`;
+
+    // Execute the query with the provided details
+    const [result] = await pool.query(updateQuery, [agelimit, price, inclusion, exclusion, childfareid]);
+
+    // Check if any row was updated
+    if (result.affectedRows === 0) {
+      throw new Error('No record found with the provided childfareid');
+    }
+    return res.status(200).json({
+      status: true,
+      message:'updated successfully',
+      data: result
+    })
+  } catch (error) {
+    throw error;
+  } finally {
+    console.log("realese data")
+  }
+}
+
 
 const getchildfare = async (PKID) => {
   try {
@@ -904,6 +939,22 @@ const getBookingPolicy = async (PKID) => {
     throw error;
   }
 };
+
+
+const Allpackages = async (res) => {
+  try {
+    const tourPackageQuery = `
+      SELECT *
+        FROM tourpackage
+    `;
+    const [allpckages] = await pool.execute(tourPackageQuery);
+    // Parse JSON strings to objects for booking_slots
+    return res.send({ tourPackageResults: allpckages})
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const getAllTourPackages = async () => {
   try {
@@ -2345,6 +2396,7 @@ const AddFAQs = async (req, res) => {
 
 export const tourpackageService = {
   getbookingslot,
+  Allpackages,
   getInstallment,
   deleteinclusion,
   getSingleTourPackages,
@@ -2383,6 +2435,7 @@ export const tourpackageService = {
   cancellationPolicy,
   UpdateMainImage,
   deleteBOOKINGSLOT,
+  updateChildfare,
   updatealbumIinnermage,
   UpdatevisitedImage,
   createBookingSlot

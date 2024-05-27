@@ -11,6 +11,7 @@ router.get('/get-tour-package/:PKID', tourpackageController.getSingleTourPackage
 router.get('/get-bookingslot/:id', tourpackageController.getbookingslot)
 router.post('/get-installement/:bookingslotid', tourpackageController.getInstallment)
 router.get('/get-all-tour', tourpackageController.getAllTourPackages)
+router.get('/allpackages', tourpackageController.allPackages)
 router.delete('/delete/:PKID', tourpackageController.deletePAckage)
 
 //mainimage
@@ -38,6 +39,11 @@ router.patch(
   '/albumimage/:AlbumId/inner/:id',
   upload.single('image'),imageHandlerUpdate,
   tourpackageController.updateinneralbumiamge
+);
+
+router.patch(
+  '/updatechildfare/:childfareid',
+  tourpackageController.updatechidfare
 );
 
 
