@@ -187,6 +187,8 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      infantinclusion,
+      infantexclusion,
       accommodation,
       child // Extract child array from request body
     } = req.body;
@@ -234,12 +236,15 @@ const addtourpackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
-      accommodation
+      infantinclusion,
+      infantexclusion,
+      accommodation,
+    
     ];
 
     const insertPackageQuery = `
-      INSERT INTO tourpackage (PKID, MainTitle, Price, City, Discount, Location, Availability, TripType, TotalDuration, MinimumAge, MaximumAge, PackageOverview, Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips, Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage, adult_base_price, child_base_price, infant_base_price, accommodation)
-      VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO tourpackage (PKID, MainTitle, Price, City, Discount, Location, Availability, TripType, TotalDuration, MinimumAge, MaximumAge, PackageOverview, Showpackage, Flight, Transport, Food, Hotel, Country, GirlsTrip, FamilyTrips, Adventure, FullyGuided, SelfGuided, Guide, CancellationDate, coverImage, adult_base_price, child_base_price, infant_base_price,  infantinclusion,infantexclusion, accommodation)
+      VALUES (?, ?, ?, ?, ?, ?,?, ?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     await connection.query(insertPackageQuery, tourPackageValues);
 
@@ -475,13 +480,15 @@ const getinstallment = async (PKID) => {
         i.IBookingAmount,
         i.IFirstInstallmentAmount,
         i.ISecondInstallmentAmount,
+        ci.id,
         ci.childid,
+        ci.installmentid,
         ci.CBookingAmount AS ChildBookingAmount,
         ci.CFirstInstallmentAmount AS ChildFirstInstallmentAmount,
         ci.CSecondInstallmentAmount AS ChildSecondInstallmentAmount
       FROM installment i
       LEFT JOIN childinstalment ci ON i.InstallmentId = ci.InstallmentId
-      WHERE i.tourpackageId = ? ORDER BY childid ASC;
+      WHERE i.tourpackageId = ? ORDER BY id ASC;
     `;
     const [results] = await pool.execute(installmentQuery, [PKID]);
 
@@ -506,9 +513,11 @@ const getinstallment = async (PKID) => {
           childinstallments: []
         };
       }
-      if (row.childid) {
+      if (row.id) {
         installmentMap[row.InstallmentId].childinstallments.push({
+          id:row.id,
           childid: row.childid,
+          installmentid: row.installmentid,
           bookingslotid: row.bookingslotid,
           CBookingAmount: row.ChildBookingAmount,
           CFirstInstallmentAmount: row.ChildFirstInstallmentAmount,
@@ -580,7 +589,6 @@ const getbookingslot = async (req, res) => {
 const updateChildfare = async (req, res) => {
   const childfareid = req.params.childfareid
   const { agelimit, price, inclusion, exclusion } = req.body
-
   try {
     // SQL query to update the childfare details
     const updateQuery = `
@@ -1149,6 +1157,8 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      infantinclusion,
+      infantexclusion,
       accommodation,
       child // Assuming child fares are coming from request body
     } = req.body;
@@ -1188,6 +1198,8 @@ const updateTourPackage = async (req, res) => {
       adult_base_price,
       child_base_price,
       infant_base_price,
+      infantinclusion,
+      infantexclusion,
       accommodation,
       packageId // Add packageId for WHERE clause
     ];
@@ -1226,8 +1238,10 @@ const updateTourPackage = async (req, res) => {
         adult_base_price = COALESCE(?, adult_base_price),
         child_base_price = COALESCE(?, child_base_price),
         infant_base_price = COALESCE(?, infant_base_price),
+        infantinclusion = COALESCE(?, infantinclusion),
+        infantexclusion = COALESCE(?, infantexclusion),
         accommodation  =  COALESCE(?, accommodation)
-      WHERE PKID = ?`,
+        WHERE PKID = ?`,
       values
     );
 
@@ -1594,10 +1608,8 @@ const addInstallment = async (req, PKID) => {
     }
 
     const tour_package_id = packageResults[0].PKID;
+    const updatedOrInsertedInstallments = []; 
 
-    const updatedOrInsertedInstallments = [];
-
-    // Check if we need to update an existing installment
     if (InstallmentId) {
       const updateQuery = `
         UPDATE installment 
@@ -1612,7 +1624,7 @@ const addInstallment = async (req, PKID) => {
           IFirstInstallmentAmount = ?,
           ISecondInstallmentAmount = ?,
           bookingslotid = ?
-        WHERE InstallmentId = ?
+          WHERE InstallmentId = ?
       `;
 
       await connection.execute(updateQuery, [
@@ -1629,21 +1641,28 @@ const addInstallment = async (req, PKID) => {
         InstallmentId
       ]);
 
-      // Update child installments if provided
-      if (childinstalment) {
+      if (childinstalment[0]?.id) {
         if (Array.isArray(childinstalment) && childinstalment.length > 0) {
           for (const child of childinstalment) {
-            const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount, childInstallmentId } = child;
+            const {
+              id,
+              childid,
+              bookingslotid,
+              CBookingAmount,
+              CFirstInstallmentAmount,
+              CSecondInstallmentAmount
+            } = child;
 
             const value = [
-              CBookingAmount || null,
-              CFirstInstallmentAmount || null,
-              CSecondInstallmentAmount || null,
-              childInstallmentId || null,
-              childfareid || null,
-              bookingslotid || null,
-              InstallmentId || null
+              CBookingAmount ?? null,
+              CFirstInstallmentAmount ?? null,
+              CSecondInstallmentAmount ?? null,
+              childid ?? null,
+              bookingslotid ?? null,
+              id ?? null
             ];
+
+            console.log('Executing update with values:', value); // Debugging statement
 
             const childUpdateQuery = `
               UPDATE childinstalment 
@@ -1651,46 +1670,26 @@ const addInstallment = async (req, PKID) => {
                 CBookingAmount = ?, 
                 CFirstInstallmentAmount = ?, 
                 CSecondInstallmentAmount = ?
-              WHERE 
-                childInstallmentId = ? AND
+              WHERE
                 childid = ? AND 
                 bookingslotid = ? AND 
-                installmentid = ?
+                id = ?
             `;
-
             const [result] = await connection.execute(childUpdateQuery, value);
 
             if (result.affectedRows === 0) {
-              // If no row was updated, insert a new record
-              const childInsertQuery = `
-                INSERT INTO childinstalment (
-                  tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
-                  CFirstInstallmentAmount, CSecondInstallmentAmount
-                ) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-              `;
-
-              await connection.execute(childInsertQuery, [
-                tour_package_id,
-                childfareid || null,
-                bookingslotid || null,
-                InstallmentId || null,
-                CBookingAmount || null,
-                CFirstInstallmentAmount || null,
-                CSecondInstallmentAmount || null
-              ]);
+              console.log('No rows affected for childinstalment with id:', id);
             }
           }
         }
       }
 
       updatedOrInsertedInstallments.push({
-        InstallmentId,
         status: true,
         message: "Installment updated successfully"
       });
+
     } else {
-      // Insert a new installment record
       const insertQuery = `
         INSERT INTO installment (
           FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
@@ -1721,16 +1720,18 @@ const addInstallment = async (req, PKID) => {
         if (Array.isArray(childinstalment) && childinstalment.length > 0) {
           for (const child of childinstalment) {
             const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
-
             const value = [
               tour_package_id,
               childfareid,
               bookingslotid,
               installemntid,
-              CBookingAmount || null,
-              CFirstInstallmentAmount || null,
-              CSecondInstallmentAmount || null
+              CBookingAmount  ?? null,
+              CFirstInstallmentAmount ?? null,
+              CSecondInstallmentAmount  ?? null
             ];
+
+            console.log('Inserting childinstalment with values:', value); // Debugging statement
+
             const childInsertQuery = `
               INSERT INTO childinstalment (
                 tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
@@ -1738,7 +1739,6 @@ const addInstallment = async (req, PKID) => {
               ) 
               VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
-
             await connection.execute(childInsertQuery, value);
           }
         }
@@ -1751,6 +1751,7 @@ const addInstallment = async (req, PKID) => {
     }
 
     return updatedOrInsertedInstallments;
+
   } catch (error) {
     console.error(error);
     throw new Error(error.message);
@@ -1760,6 +1761,8 @@ const addInstallment = async (req, PKID) => {
     }
   }
 };
+
+
 
 
 
@@ -1827,7 +1830,6 @@ const UpdateAlbumImage = async (req, AlbumId) => {
   const values = [imageUrl, albumtitle, Id];
   const [result] = await pool.query(updateQuery, values);
   return result;
-
 };
 
 

@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import {HttpException} from "express-sharp";
+import { HttpException } from "express-sharp";
 import pool from "../database/db";
 import { payementStatus } from "../payment/service";
 import nodemailer from 'nodemailer'
@@ -9,7 +9,7 @@ export const bookingStatus = {
   HOLD: "hold",
   PAID: "paid",
   ISSUE_IN_PROCESS: "issue_in_process",
-  CONFIRMED:'confirmed',
+  CONFIRMED: 'confirmed',
   CANCELLED: "cancelled"
 };
 
@@ -26,10 +26,13 @@ const Book$Hold = async (req, res) => {
     const bookingSlotId = req.body.id;
     const childid = req.body.childid
     const packgeId = req.params.PKID;
+    const couponCode = req.body.couponCode
+    const validCouponCode = 'FFL2024';
+
 
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
-    if (user.length ===0) {
+    if (user.length === 0) {
       throw new HttpException(
         `User not found with this id=${userid}`,
         httpStatus.BAD_REQUEST
@@ -65,7 +68,7 @@ const Book$Hold = async (req, res) => {
           aPaxType,
         } = adulttraveler;
         const passportDateValue = passDate ? passDate : null;
-        const passportNumber = PassportNumber ? PassportNumber:null;
+        const passportNumber = PassportNumber ? PassportNumber : null;
         // Add current adult traveler's values to the array
         adultTravelersValues.push([
           aPaxType,
@@ -86,15 +89,15 @@ const Book$Hold = async (req, res) => {
           VALUES ?
       `;
       // Execute the SQL query to insert all adult travelers
-       await pool.query(addpassenger, [adultTravelersValues]);
+      await pool.query(addpassenger, [adultTravelersValues]);
     }
 
-    
-    
+
+
     if (Array.isArray(child) && child.length > 0) {
       // Prepare an array to hold all adult traveler values
       const childTravelersValues = [];
-      
+
       for (const childtraveler of child) {
         const {
           cfName,
@@ -108,7 +111,7 @@ const Book$Hold = async (req, res) => {
         } = childtraveler;
 
         const passportDateValue = cpassDate ? cpassDate : null;
-        const passportNumber = cpassportNumber ? cpassportNumber:null;
+        const passportNumber = cpassportNumber ? cpassportNumber : null;
 
         // Add current adult traveler's values to the array
         childTravelersValues.push([
@@ -125,18 +128,18 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      const addChildPassengerQuery  = `
+      const addChildPassengerQuery = `
       INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
       VALUES ?
   `;
       // Execute the SQL query to insert all adult travelers
-      const newTravelerResult = await pool.query(addChildPassengerQuery , [childTravelersValues]);
+      const newTravelerResult = await pool.query(addChildPassengerQuery, [childTravelersValues]);
     }
 
     if (Array.isArray(infant) && infant.length > 0) {
       // Prepare an array to hold all adult traveler values
       const infantTravelersValues = [];
-    
+
       for (const infanttraveler of infant) {
         const {
           ipaxType,
@@ -149,8 +152,8 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
-       const passportDateValue =ipassDate? ipassDate:null
-       const passportNumber = ipassportNumber ? ipassportNumber:null
+        const passportDateValue = ipassDate ? ipassDate : null
+        const passportNumber = ipassportNumber ? ipassportNumber : null
 
         // Add current adult traveler's values to the array
         infantTravelersValues.push([
@@ -166,171 +169,260 @@ const Book$Hold = async (req, res) => {
           userid
         ]);
       }
-      
-      const addInfantPassengerQuery  = `
+
+      const addInfantPassengerQuery = `
       INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
       VALUES ?
   `;
       // Execute the SQL query to insert all adult travelers
-    await pool.query(addInfantPassengerQuery , [infantTravelersValues]);
-  }
+      await pool.query(addInfantPassengerQuery, [infantTravelersValues]);
+    }
 
-  const date = new Date()
-  const options = { 
-    weekday: 'long',
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true,
-    timeZone: 'Asia/Dhaka' 
-  };
+    const date = new Date()
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
 
-const bookingAt = date.toLocaleString('en-BD', options);
+    const bookingAt = date.toLocaleString('en-BD', options);
 
-const totaladult = parseFloat(adult.length)
-const totalchild = parseFloat(child.length)
-const totalinfant = parseFloat(infant.length)
+    const totaladult = parseFloat(adult.length)
+    const totalchild = parseFloat(child.length)
+    const totalinfant = parseFloat(infant.length)
 
-const bookingstatus  =  bookingStatus.HOLD
-const adultprice =  tourpackage[0].adult_base_price 
-
-
-const childfareQuery= `SELECT * FROM childfare WHERE packageId =? AND childfareid =?`;
-const [childfaretdata] = await pool.query(childfareQuery, [packgeId, childfareid]);
-console.log(childfaretdata)
-
-const childprice =  childfaretdata[0].price
-const infantprice  = tourpackage[0].infant_base_price
-
-const installmentQuery= `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `;
-const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
-
-const bookingslot = `SELECT * FROM bookingslot WHERE  id=?`
-const [slot] = await pool.query(bookingslot, [bookingSlotId])
-
-const cancellationDate = slot[0].cancellationDate
-const startdate = slot[0].StartDate
-const enddate  = slot[0].EndDate
-
-if (!installmentdata.length) {
-  console.log('No installment data found');
-  // Set default values or handle the case where installment data is not found
-}
+    const bookingstatus = bookingStatus.HOLD
+    const adultprice = tourpackage[0].adult_base_price
 
 
-const childinstallmentQuery= `SELECT * FROM childinstalment WHERE tour_package_id =? AND bookingslotid =? AND childid =?`;
-const [childinstallmentdata] = await pool.query(childinstallmentQuery, [packgeId, bookingSlotId, childid]);
+    const childfareQuery = `SELECT * FROM childfare WHERE packageId =? AND childfareid =?`;
+    const [childfaretdata] = await pool.query(childfareQuery, [packgeId, childfareid]);
+    console.log(childfaretdata)
 
-let totalAdultBookingAmount = 0;
-let totalChildBookingAmount = 0;
-let totalInfantBookingAmount = 0;
-let totalAdultFirstInstallmentAmount = 0;
-let totalChildFirstInstallmentAmount = 0;
-let totalInfantFirstInstallmentAmount = 0;
-let totalAdultSecondInstallmentAmount = 0;
-let totalChildSecondInstallmentAmount = 0;
-let totalInfantSecondInstallmentAmount = 0;
-let FirstInstallmentdueDate = null;
-let SecondInstallmentdueDate = null;
-let ThirdInstallmentdueDate = null;
+    const childprice = childfaretdata[0].price
+    const infantprice = tourpackage[0].infant_base_price
 
-const totalAdultprice = adultprice* totaladult
-const totalChildprice = childprice * totalchild
-const totalInfantprice = infantprice * totalinfant
+    const installmentQuery = `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =? `;
+    const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
 
-console.log(totalAdultprice, totalChildprice, totalInfantprice)
+    const bookingslot = `SELECT * FROM bookingslot WHERE  id=?`
+    const [slot] = await pool.query(bookingslot, [bookingSlotId])
+
+    const cancellationDate = slot[0].cancellationDate
+    const startdate = slot[0].StartDate
+    const enddate = slot[0].EndDate
+
+    if (!installmentdata.length) {
+      console.log('No installment data found');
+      // Set default values or handle the case where installment data is not found
+    }
 
 
-if (installmentdata.length > 0) {
-  totalAdultBookingAmount = installmentdata[0]?.ABookingAmount * totaladult;
-  totalChildBookingAmount = childinstallmentdata[0]?.CBookingAmount * totalchild;
-  totalInfantBookingAmount = installmentdata[0]?.IBookingAmount * totalinfant;
-  totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
-  totalChildFirstInstallmentAmount = childinstallmentdata[0].CFirstInstallmentAmount * totalchild;
-  totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
+    const childinstallmentQuery = `SELECT * FROM childinstalment WHERE tour_package_id =? AND bookingslotid =? AND childid =?`;
+    const [childinstallmentdata] = await pool.query(childinstallmentQuery, [packgeId, bookingSlotId, childid]);
 
-  // Total second installment amount calculation
-  totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
-  totalChildSecondInstallmentAmount = childinstallmentdata[0].CSecondInstallmentAmount * totalchild;
-  totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
+    let totalAdultBookingAmount = 0;
+    let totalChildBookingAmount = 0;
+    let totalInfantBookingAmount = 0;
+    let totalAdultFirstInstallmentAmount = 0;
+    let totalChildFirstInstallmentAmount = 0;
+    let totalInfantFirstInstallmentAmount = 0;
+    let totalAdultSecondInstallmentAmount = 0;
+    let totalChildSecondInstallmentAmount = 0;
+    let totalInfantSecondInstallmentAmount = 0;
+    let FirstInstallmentdueDate = null;
+    let SecondInstallmentdueDate = null;
+    let ThirdInstallmentdueDate = null;
 
-  FirstInstallmentdueDate = installmentdata[0].FirstInstallmentdueDate;
-  SecondInstallmentdueDate = installmentdata[0].SecondInstallmentdueDate;
-  ThirdInstallmentdueDate = installmentdata[0].ThirdInstallmentdueDate;
-}
+    const totalAdultprice = adultprice * totaladult
+    const totalChildprice = childprice * totalchild
+    const totalInfantprice = infantprice * totalinfant
 
-const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId]);
 
-const selectedAddonsFromRequest = req.body.selectedAddons || [];
-let addonTotal = 0;
 
-if (addonServices && addonServices.length > 0) {
-  for (const selectaddn of selectedAddonsFromRequest) {
-    const { service, description, cost } = selectaddn;
-    // Save addon booking
-    const insertAddonQuery = `
+    if (installmentdata.length > 0) {
+      totalAdultBookingAmount = installmentdata[0]?.ABookingAmount * totaladult;
+      totalChildBookingAmount = childinstallmentdata[0]?.CBookingAmount * totalchild;
+      totalInfantBookingAmount = installmentdata[0]?.IBookingAmount * totalinfant;
+      totalAdultFirstInstallmentAmount = installmentdata[0].AFirstInstallmentAmount * totaladult;
+      totalChildFirstInstallmentAmount = childinstallmentdata[0].CFirstInstallmentAmount * totalchild;
+      totalInfantFirstInstallmentAmount = installmentdata[0].IFirstInstallmentAmount * totalinfant;
+
+      // Total second installment amount calculation
+      totalAdultSecondInstallmentAmount = installmentdata[0].ASecondInstallmentAmount * totaladult;
+      totalChildSecondInstallmentAmount = childinstallmentdata[0].CSecondInstallmentAmount * totalchild;
+      totalInfantSecondInstallmentAmount = installmentdata[0].ISecondInstallmentAmount * totalinfant;
+
+      FirstInstallmentdueDate = installmentdata[0].FirstInstallmentdueDate;
+      SecondInstallmentdueDate = installmentdata[0].SecondInstallmentdueDate;
+      ThirdInstallmentdueDate = installmentdata[0].ThirdInstallmentdueDate;
+    }
+
+    const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId]);
+
+    const selectedAddonsFromRequest = req.body.selectedAddons || [];
+    let addonTotal = 0;
+
+    if (addonServices && addonServices.length > 0) {
+      for (const selectaddn of selectedAddonsFromRequest) {
+        const { service, description, cost } = selectaddn;
+        // Save addon booking
+        const insertAddonQuery = `
       INSERT INTO addon_booking (service, description, cost, packageId, userid, bookingId) 
       VALUES (?, ?, ?, ?, ?, ?)
     `;
-    await pool.query(insertAddonQuery, [service, description, cost, packgeId, userid, bookingid]);
-    addonTotal += cost;
-  }
-}
+        await pool.query(insertAddonQuery, [service, description, cost, packgeId, userid, bookingid]);
+        addonTotal += cost;
+      }
+    }
 
-const totalpackageprice = totalAdultprice + totalChildprice + totalInfantprice + addonTotal;
-console.log(totalpackageprice)
-const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
-const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
-const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
-const paymentstatus = payementStatus.UNPAID;
-const values = [
-  bookingid,
-  userid,
-  email,
-  name,
-  wallet,
-  tourpackage[0].PKID,
-  tourpackage[0].MainTitle,
-  startdate,
-  enddate,
-  tourpackage[0].TripType,
-  tourpackage[0].TotalDuration,
-  adultprice,
-  childprice,
-  infantprice,
-  tourpackage[0].City,
-  tourpackage[0].Flight,
-  tourpackage[0].Food,
-  tourpackage[0].Transport,
-  tourpackage[0].Hotel,
-  bookingamount,
-  firstinstallement,
-  secondinstalemnt,
-  FirstInstallmentdueDate,
-  SecondInstallmentdueDate,
-  ThirdInstallmentdueDate,
-  totaladult,
-  totalchild,
-  totalinfant,
-  totalAdultprice,
-  totalChildprice,
-  totalInfantprice,
-  phone,
-  totalpackageprice,
-  paymentstatus,
-  bookingstatus,
-  bookingAt,
-  cancellationDate,
-  tourpackage[0].coverImage
-  
-];
+    let totalpackageprice = totalAdultprice + totalChildprice + totalInfantprice + addonTotal;
 
 
-const [result] = await pool.query(
-  `INSERT INTO booking (
+    let bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
+
+    console.log(totalpackageprice, bookingamount)
+
+    if (couponCode !== null) {
+      let discountAmount;
+      if (tourpackage[0].TripType === 'International') {
+        discountAmount = 2000.00
+        const values = [
+          discountAmount,
+          userid
+        ]
+        const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+        const [updateduserwallet] = await pool.query(userQuery, values)
+
+        const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+        const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
+
+        const date = new Date()
+        const options = { 
+          weekday: 'long',
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: true,
+          timeZone: 'Asia/Dhaka' 
+        };
+      
+        const approvedAt = date.toLocaleString('en-BD', options);
+        const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${packgeId}.you have claimed as a bonus ${discountAmount} TK`;
+        const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+        
+    
+       const  lastbalance = parseInt(lastbalancedata[0].wallet)
+        const ledger = await pool.query(ledgerquery, [
+          userid,
+          discountAmount,
+          lastbalance,
+          remarks,
+          approvedAt
+        ]);
+    
+        console.log(updateduserwallet)
+      } else if (tourpackage[0].TripType === 'Domestic') {
+        discountAmount = totalpackageprice * 0.10;
+        const values = [
+          discountAmount,
+          userid
+        ]
+        const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+        const [updateduserwallet] = await pool.query(userQuery, values)
+        const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+        const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
+
+        const date = new Date()
+        const options = { 
+          weekday: 'long',
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: true,
+          timeZone: 'Asia/Dhaka' 
+        };
+        const approvedAt = date.toLocaleString('en-BD', options);
+        const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${packgeId}.you have claimed as a bonus ${discountAmount} TK`;
+        const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+        
+       const  lastbalance = parseInt(lastbalancedata[0].wallet)
+        const ledger = await pool.query(ledgerquery, [
+          userid,
+          discountAmount,
+          lastbalance,
+          remarks,
+          approvedAt
+        ]);
+    
+        console.log(updateduserwallet)
+      }
+
+    }
+
+    const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
+    const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
+
+
+    const paymentstatus = payementStatus.UNPAID;
+    const values = [
+      bookingid,
+      userid,
+      email,
+      name,
+      wallet,
+      tourpackage[0].PKID,
+      tourpackage[0].MainTitle,
+      startdate,
+      enddate,
+      tourpackage[0].TripType,
+      tourpackage[0].TotalDuration,
+      adultprice,
+      childprice,
+      infantprice,
+      tourpackage[0].City,
+      tourpackage[0].Flight,
+      tourpackage[0].Food,
+      tourpackage[0].Transport,
+      tourpackage[0].Hotel,
+      bookingamount,
+      firstinstallement,
+      secondinstalemnt,
+      FirstInstallmentdueDate,
+      SecondInstallmentdueDate,
+      ThirdInstallmentdueDate,
+      totaladult,
+      totalchild,
+      totalinfant,
+      totalAdultprice,
+      totalChildprice,
+      totalInfantprice,
+      phone,
+      totalpackageprice,
+      paymentstatus,
+      bookingstatus,
+      bookingAt,
+      cancellationDate,
+      tourpackage[0].coverImage,
+      couponCode
+
+    ];
+
+
+    const [result] = await pool.query(
+    `INSERT INTO booking (
     bookingid,
     userid,
     email,
@@ -368,12 +460,13 @@ const [result] = await pool.query(
     bookingStatus,
     bookingDate,
     cancellationDate,
-    coverimage
-  ) VALUES (?, ?, ?,?,?, ?,?, ?, ?,?, ?, ?,?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
-  values
-);
+    coverimage,
+    couponcode
+  ) VALUES (?, ?, ?,?,?,?, ?,?, ?, ?,?, ?, ?,?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+      values
+    );
 
- 
+
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
       port: 465, // Replace with your email service provider's SMTP port
@@ -473,13 +566,16 @@ const [result] = await pool.query(
             <td class="title">Total Cost</td>
             <td>${totalpackageprice}</td>
           </tr>
+          <tr>
+        <td class="title">Coupon Code</td>
+          <td>${couponCode ||  'not applicable'}</td>
+        </tr>
         </table>
     
         <div class="bookingItenaryDetails" style="margin-top: 50px">
         <h4 style="background-color: #bc6277; padding: 5px 10px; color: #ffffff">
           TRAVELLER DETAILS
         </h4>
-      
         <table>
           <tr>
             <th>Name</th>
@@ -489,11 +585,10 @@ const [result] = await pool.query(
             <th>Nationality</th>
             <th>NID/ Passport No</th>
           </tr>
-      
               <tr>
               ${adult
-                .map(
-                  (traveler) => `
+        .map(
+          (traveler) => `
                 <td>${traveler.afName} ${traveler.alName}</td>
                 <td>${traveler.aPaxType}</td>
                 <td>${traveler.agender}</td>
@@ -502,26 +597,26 @@ const [result] = await pool.query(
                 <td>${traveler.PassportNumber}</td>
               </tr>
             `
-            ).join('')}
+        ).join('')}
       
           ${child
-            .map(
-              (traveler) => `
+        .map(
+          (traveler) => `
               <tr>
                 <td>${traveler.cfName} ${traveler.clName}</td>
-                <td>${traveler.cpaxType}</td>
+                <td>${traveler.cpaxType}</td>0
                 <td>${traveler.cgender}</td>
                 <td>${traveler.cdob}</td>
                 <td>${traveler.cnationality}</td>
                 <td>${traveler.cpassportNumber}</td>
               </tr>
             `,
-            )
-            .join('')}
+        )
+        .join('')}
             
           ${infant
-            .map(
-              (traveler) => `
+        .map(
+          (traveler) => `
               <tr>
                 <td>${traveler.ifName} ${traveler.ilName}</td>
                 <td>${traveler.ipaxType}</td>
@@ -531,8 +626,8 @@ const [result] = await pool.query(
                 <td>${traveler.ipassportNumber}</td>
               </tr>
             `,
-            )
-            .join('')}
+        )
+        .join('')}
         </table>
       </div>
       
@@ -553,6 +648,7 @@ const [result] = await pool.query(
             >
               ${paymentstatus}
             </h1>
+    
           </div>
         </div>
         <div class="notice" style="border: 1px solid #bc6277">
@@ -566,13 +662,13 @@ const [result] = await pool.query(
         </div>
       </body>
   </html>`;
-    
+
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: 'faisal@flyfar.tech', // Recipient's email address
       subject: 'Booking Details',
       text: 'Please find the attached file.',
-      html:htmlContent
+      html: htmlContent
 
     };
 
@@ -581,7 +677,7 @@ const [result] = await pool.query(
       to: 'support@flyfarladies.com', // Recipient's email address
       subject: 'Booking Details',
       text: 'Please find the attached file.',
-      html:htmlContent
+      html: htmlContent
     };
     await transporter.sendMail(usermail, (error, info) => {
       if (error) {
@@ -606,32 +702,32 @@ const [result] = await pool.query(
     return res.status(200).json({
       status: "success",
       message: "Booking success",
-      data:bookingData[0]
+      data: bookingData[0]
     });
   } catch (error) {
     console.log(error);
   }
 }
 
-const getAllBooking = async (req,res) =>{
+const getAllBooking = async (req, res) => {
   const packagequery = `SELECT * FROM  booking ORDER BY STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') DESC`
   const [bookingresults] = await pool.execute(packagequery);
   console.log(bookingresults);
   return bookingresults;
 }
 
-const getSingleBooking = async (req,res) =>{
-  const  bookingid = req.params.bookingid;
+const getSingleBooking = async (req, res) => {
+  const bookingid = req.params.bookingid;
   const bookingequery = `SELECT * FROM  booking WHERE bookingid =?`
   const [bookingresults] = await pool.execute(bookingequery, [bookingid]);
 
-  const passengerquery =`SELECT * FROM passenger  WHERE bookingid =?`
+  const passengerquery = `SELECT * FROM passenger  WHERE bookingid =?`
   const [passengerresults] = await pool.execute(passengerquery, [bookingid]);
 
-  const addonsquery =`SELECT * FROM addon_booking  WHERE bookingid =?`
+  const addonsquery = `SELECT * FROM addon_booking  WHERE bookingid =?`
   const [addonsrresults] = await pool.execute(addonsquery, [bookingid]);
   console.log(bookingresults);
-  return {bookingresults,passengerresults,addonsrresults};
+  return { bookingresults, passengerresults, addonsrresults };
 }
 
 
@@ -664,12 +760,12 @@ const getBookingsByUserId = async (req, res) => {
 const ApprovedBooking = async (req, res) => {
   try {
     const { bookingid } = req.params;
-    const { action_by} = req.body;
+    const { action_by } = req.body;
 
     const connection = await pool.getConnection();
 
     // Update booking status
-    const status =  bookingStatus.CONFIRMED
+    const status = bookingStatus.CONFIRMED
     const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, action_by =? WHERE Bookingid = ?`;
     await connection.execute(updateBookingQuery, [status, action_by, bookingid]);
     connection.release();
@@ -690,7 +786,7 @@ const CancelledBooking = async (req, res) => {
     const connection = await pool.getConnection();
 
     // Update booking status
-    const status =  bookingStatus.CANCELLED;
+    const status = bookingStatus.CANCELLED;
     const updateBookingQuery = `UPDATE booking SET bookingStatus = ?, rejected_reason=?, action_by =? WHERE Bookingid = ?`;
     await connection.execute(updateBookingQuery, [status, rejected_reason, action_by, bookingid]);
     connection.release();
@@ -705,11 +801,11 @@ const CancelledBooking = async (req, res) => {
 const CancelledBookingByuser = async (req, res) => {
   try {
     const { bookingid } = req.params;
-    const {id} =req.body
+    const { id } = req.body
     const connection = await pool.getConnection();
-    const bookingQuery =`SELECT * FROM booking WHERE bookingid=? AND userid=? `
+    const bookingQuery = `SELECT * FROM booking WHERE bookingid=? AND userid=? `
     const [data] = await pool.query(bookingQuery, [bookingid, id])
-    
+
     const cancellation_date = data[0].cancellationDate
 
     // Check if cancellation date has passed
@@ -720,7 +816,7 @@ const CancelledBookingByuser = async (req, res) => {
     }
 
     // Update booking status
-    const status =  bookingStatus.CANCELLED;
+    const status = bookingStatus.CANCELLED;
     const updateBookingQuery = `UPDATE booking SET bookingStatus = ? WHERE Bookingid = ?`;
     await connection.execute(updateBookingQuery, [status, bookingid]);
     connection.release();
