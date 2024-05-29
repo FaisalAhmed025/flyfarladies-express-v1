@@ -964,7 +964,6 @@ const Allpackages = async (res) => {
   }
 };
 
-
 const getAllTourPackages = async () => {
   try {
     const tourPackageQuery = `
@@ -1111,6 +1110,32 @@ const getAllTourPackages = async () => {
 //   }
 // };
 
+// Function to update or add child fare
+async function updateOrAddChildFare(connection, childFare) {
+  const { childfareid, agelimit, price, inclusion, exclusion, packageId } = childFare;
+  
+  // Check if the child fare exists
+  const childFareQuery = `SELECT childfareid FROM childfare WHERE childfareid = ? AND packageId = ?`;
+  const [childFareResult] = await connection.query(childFareQuery, [childfareid, packageId]);
+
+  if (childFareResult.length > 0) {
+    // Update existing child fare
+    const updateChildFareQuery = `
+      UPDATE childfare
+      SET agelimit = ?, price = ?, inclusion = ?, exclusion = ?
+      WHERE childfareid = ? AND packageId = ?
+    `;
+    await connection.query(updateChildFareQuery, [agelimit, price, inclusion, exclusion, childfareid, packageId]);
+  } else {
+    // Add new child fare
+    const addChildFareQuery = `
+      INSERT INTO childfare (agelimit, price, inclusion, exclusion, packageId)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    await connection.query(addChildFareQuery, [ agelimit, price, inclusion, exclusion, packageId]);
+  }
+}
+
 const updateTourPackage = async (req, res) => {
   let connection;
   try {
@@ -1249,23 +1274,7 @@ const updateTourPackage = async (req, res) => {
       const childArray = JSON.parse(child);
       if (Array.isArray(childArray) && childArray.length > 0) {
         for (const fare of childArray) {
-          const { childfareid, agelimit, price, inclusion, exclusion } = fare;
-
-          console.log(childArray);
-
-          // Check if the child fare exists
-          const childFareQuery = `SELECT childfareid FROM childfare WHERE childfareid = ? AND packageId = ?`;
-          const [childFareResult] = await connection.query(childFareQuery, [childfareid, packageId]);
-
-          if (childFareResult.length > 0) {
-            // Update existing child fare
-            const updateChildFareQuery = `
-              UPDATE childfare
-              SET agelimit = ?, price = ?, inclusion = ?, exclusion = ?
-              WHERE childfareid = ? AND packageId = ?
-            `;
-            await connection.query(updateChildFareQuery, [agelimit, price, inclusion, exclusion, childfareid, packageId]);
-          }
+          await updateOrAddChildFare(connection, fare);
         }
       }
     }
