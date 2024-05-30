@@ -480,15 +480,15 @@ const getinstallment = async (PKID) => {
         i.IBookingAmount,
         i.IFirstInstallmentAmount,
         i.ISecondInstallmentAmount,
-        ci.id,
-        ci.childid,
+        ci.childinstallmentid,
+        ci.childfareid,
         ci.installmentid,
         ci.CBookingAmount AS ChildBookingAmount,
         ci.CFirstInstallmentAmount AS ChildFirstInstallmentAmount,
         ci.CSecondInstallmentAmount AS ChildSecondInstallmentAmount
       FROM installment i
       LEFT JOIN childinstalment ci ON i.InstallmentId = ci.InstallmentId
-      WHERE i.tourpackageId = ? ORDER BY id ASC;
+      WHERE i.tourpackageId = ? ORDER BY childinstallmentid ASC;
     `;
     const [results] = await pool.execute(installmentQuery, [PKID]);
 
@@ -513,10 +513,10 @@ const getinstallment = async (PKID) => {
           childinstallments: []
         };
       }
-      if (row.id) {
+      if (row.childinstallmentid) {
         installmentMap[row.InstallmentId].childinstallments.push({
-          id:row.id,
-          childid: row.childid,
+          childinstallmentid:row.childinstallmentid,
+          childfareid: row.childfareid,
           installmentid: row.installmentid,
           bookingslotid: row.bookingslotid,
           CBookingAmount: row.ChildBookingAmount,
@@ -563,7 +563,6 @@ const getmainimage = async (PKID) => {
     throw error;
   }
 };
-
 
 
 const gettouritenerary = async (req, res) => {
@@ -751,7 +750,7 @@ const getBookingslot = async (PKID) => {
     const currentDate = new Date().toISOString().split('T')[0];
     const inclusionQuery = `
         SELECT
-        bookingslot.id,
+        bookingslot.bookingslotid,
         bookingslot.tour_package_id,
         bookingslot.StartDate,
         bookingslot.EndDate,
@@ -761,7 +760,7 @@ const getBookingslot = async (PKID) => {
       FROM bookingslot
       JOIN tourpackage ON bookingslot.tour_package_id = tourpackage.PKID
       WHERE bookingslot.tour_package_id = ? AND bookingslot.StartDate > ?
-      ORDER BY bookingslot.id ASC
+      ORDER BY bookingslot.bookingslotid ASC
     `;
 
     console.log(currentDate)
