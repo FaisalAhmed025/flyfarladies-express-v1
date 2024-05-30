@@ -1016,7 +1016,7 @@ const getAllTourPackages = async () => {
         tourpackage.accommodation,
         GROUP_CONCAT(
           JSON_OBJECT(
-            'id', bookingslot.id,
+            'bookingslotid', bookingslot.bookingslotid,
             'StartDate', bookingslot.StartDate,
             'EndDate', bookingslot.EndDate,
             'available_seat', bookingslot.available_seat
