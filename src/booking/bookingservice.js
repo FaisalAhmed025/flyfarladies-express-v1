@@ -245,6 +245,7 @@ for (let i = 0; i < child.length; i++) {
   const childfareId = childfareids[i % childfareids.length];
   if (childfarePriceMap[childfareId]) {
     totalChildPrice += childfarePriceMap[childfareId];
+    console.log(totalChildPrice)
   } else {
     throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
   }
@@ -353,11 +354,9 @@ for (let i = 0; i < child.length; i++) {
       }
     }
 
-    // Calculate total package price and booking amount
+    // Calculate total package price and Total installment
     const totalpackageprice = totalAdultprice + totalChildPrice + totalInfantprice + addonTotal;
     const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
-
-
     const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
     const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
 
@@ -390,7 +389,7 @@ for (let i = 0; i < child.length; i++) {
       totalchild,
       totalinfant,
       totalAdultprice,
-      null,
+      totalChildPrice,
       totalInfantprice,
       phone,
       totalpackageprice,

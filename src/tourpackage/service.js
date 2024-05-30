@@ -1128,10 +1128,10 @@ async function updateOrAddChildFare(connection, childFare) {
   } else {
     // Add new child fare
     const addChildFareQuery = `
-      INSERT INTO childfare (packageId, agelimit, price, inclusion, exclusion, packageId)
-      VALUES (?, ?, ?,?, ?, ?)
+      INSERT INTO childfare ( agelimit, price, inclusion, exclusion, packageId)
+      VALUES (?, ?,?, ?, ?)
     `;
-    await connection.query(addChildFareQuery, [packageId, agelimit, price, inclusion, exclusion, packageId]);
+    await connection.query(addChildFareQuery, [ agelimit, price, inclusion, exclusion, packageId]);
   }
 }
 
