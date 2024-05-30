@@ -137,7 +137,7 @@ const paywithwallet = async (req, res) => {
         timeZone: 'Asia/Dhaka'
       };
       const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-      const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
+      const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
       const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
 
       const lastbalancew = parseInt(lastbalancedata[0].wallet)
@@ -390,12 +390,14 @@ const paySecondandthirdInstallment = async (req, res) => {
       timeZone: 'Asia/Dhaka'
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id, transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?,?, ?)`;
+    const deposit ='Purchase'
 
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       userid,
+      deposit,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -489,7 +491,6 @@ const paySecondInstallment = async (req, res) => {
 }
 
 
-
 const paythiredInstallment = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
@@ -533,7 +534,6 @@ const paythiredInstallment = async (req, res) => {
     return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
-
   const updatedwalet = parseInt(user[0].wallet) - parseInt(second_installment)
   console.log(updatedwalet);
 
@@ -562,6 +562,45 @@ const paythiredInstallment = async (req, res) => {
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, secondInstallmentStatus = ? ,secondinstallmentpaidate =?, bookingStatus = ?,  wallet = ? WHERE bookingid= ? `
   const [updatebooing] = await pool.query(updateBookingquery, valuedata)
+
+  
+  if (booking[0].cashbackamount !== null) {
+    const values = [
+      booking[0].cashbackamount,
+      userid
+    ]
+    const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+    const [updateduserwallet] = await pool.query(userQuery, values)
+    const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+    const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
+    const cashbackdate = new Date()
+    const options2 = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
+    const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+
+    const lastbalancew = parseInt(lastbalancedata[0].wallet)
+    const ledgerw = await pool.query(ledgerqueryw, [
+      userid,
+      booking[0].cashbackamount,
+      lastbalancew,
+      remarksw,
+      approvedAtw
+    ]);
+
+    console.log(updateduserwallet)
+
+  }
   return updatebooing;
 
 }
