@@ -1139,7 +1139,6 @@ const updateTourPackage = async (req, res) => {
   let connection;
   try {
     connection = await pool.getConnection();
-
     const packageId = req.params.PKID; // Assuming packageId is passed in the request parameters
 
     const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
@@ -1589,6 +1588,24 @@ const UpdatevisitedImage = async (req, res, id) => {
 // };
 
 
+const updateQuery = `
+  UPDATE installment 
+  SET 
+    FirstInstallmentdueDate = ?,
+    SecondInstallmentdueDate = ?,
+    ThirdInstallmentdueDate = ?,
+    ABookingAmount = ?,
+    AFirstInstallmentAmount = ?,
+    ASecondInstallmentAmount = ?,
+    IBookingAmount = ?,
+    IFirstInstallmentAmount = ?,
+    ISecondInstallmentAmount = ?,
+    bookingslotid = ?
+    WHERE InstallmentId = ?
+`;
+
+
+
 const addInstallment = async (req, PKID) => {
   let connection;
   try {
@@ -1622,22 +1639,6 @@ const addInstallment = async (req, PKID) => {
     const updatedOrInsertedInstallments = []; 
 
     if (InstallmentId) {
-      const updateQuery = `
-        UPDATE installment 
-        SET 
-          FirstInstallmentdueDate = ?,
-          SecondInstallmentdueDate = ?,
-          ThirdInstallmentdueDate = ?,
-          ABookingAmount = ?,
-          AFirstInstallmentAmount = ?,
-          ASecondInstallmentAmount = ?,
-          IBookingAmount = ?,
-          IFirstInstallmentAmount = ?,
-          ISecondInstallmentAmount = ?,
-          bookingslotid = ?
-          WHERE InstallmentId = ?
-      `;
-
       await connection.execute(updateQuery, [
         FirstInstallmentdueDate || null,
         SecondInstallmentdueDate || null,
@@ -1657,7 +1658,7 @@ const addInstallment = async (req, PKID) => {
           for (const child of childinstalment) {
             const {
               id,
-              childid,
+              childfareid,
               bookingslotid,
               CBookingAmount,
               CFirstInstallmentAmount,
@@ -1668,7 +1669,7 @@ const addInstallment = async (req, PKID) => {
               CBookingAmount ?? null,
               CFirstInstallmentAmount ?? null,
               CSecondInstallmentAmount ?? null,
-              childid ?? null,
+              childfareid ?? null,
               bookingslotid ?? null,
               id ?? null
             ];
@@ -1710,20 +1711,22 @@ const addInstallment = async (req, PKID) => {
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
+      
 
-      const [data] = await connection.execute(insertQuery, [
-        FirstInstallmentdueDate || null,
-        SecondInstallmentdueDate || null,
-        ThirdInstallmentdueDate || null,
-        ABookingAmount || null,
-        AFirstInstallmentAmount || null,
-        ASecondInstallmentAmount || null,
-        IBookingAmount || null,
-        IFirstInstallmentAmount || null,
-        ISecondInstallmentAmount || null,
-        tour_package_id,
-        bookingslotid
-      ]);
+      const [data] =await connection.execute(updateQuery, [
+  FirstInstallmentdueDate !== undefined ? FirstInstallmentdueDate : null,
+  SecondInstallmentdueDate !== undefined ? SecondInstallmentdueDate : null,
+  ThirdInstallmentdueDate !== undefined ? ThirdInstallmentdueDate : null,
+  ABookingAmount !== undefined ? ABookingAmount : null,
+  AFirstInstallmentAmount !== undefined ? AFirstInstallmentAmount : null,
+  ASecondInstallmentAmount !== undefined ? ASecondInstallmentAmount : null,
+  IBookingAmount !== undefined ? IBookingAmount : null,
+  IFirstInstallmentAmount !== undefined ? IFirstInstallmentAmount : null,
+  ISecondInstallmentAmount !== undefined ? ISecondInstallmentAmount : null,
+  bookingslotid !== undefined ? bookingslotid : null,
+  InstallmentId !== undefined ? InstallmentId : null
+]);
+
 
       const installemntid = data.insertId;
 
@@ -1736,16 +1739,18 @@ const addInstallment = async (req, PKID) => {
               childfareid,
               bookingslotid,
               installemntid,
-              CBookingAmount  ?? null,
-              CFirstInstallmentAmount ?? null,
-              CSecondInstallmentAmount  ?? null
+              parseFloat(CBookingAmount)  ?? null,
+              parseFloat(CFirstInstallmentAmount )?? null,
+              parseFloat (CSecondInstallmentAmount)  ?? null
             ];
+
+            console.log(value)
 
             console.log('Inserting childinstalment with values:', value); // Debugging statement
 
             const childInsertQuery = `
               INSERT INTO childinstalment (
-                tour_package_id, childid, bookingslotid, installmentid, CBookingAmount,
+                tour_package_id, childfareid, bookingslotid, installmentid, CBookingAmount,
                 CFirstInstallmentAmount, CSecondInstallmentAmount
               ) 
               VALUES (?, ?, ?, ?, ?, ?, ?)
