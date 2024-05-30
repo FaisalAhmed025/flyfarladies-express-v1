@@ -103,12 +103,13 @@ const paywithwallet = async (req, res) => {
 
     const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}. Total Amount  is ${totalprice}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?,?, ?)`;
 
 
     const lastbalance = parseInt(updatedwallet[0].wallet)
     const ledger = await pool.query(ledgerquery, [
       userid,
+      bookingid,
       totalprice,
       lastbalance,
       remarks,
@@ -138,11 +139,12 @@ const paywithwallet = async (req, res) => {
       };
       const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
       const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
-      const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+      const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
 
       const lastbalancew = parseInt(lastbalancedata[0].wallet)
       const ledgerw = await pool.query(ledgerqueryw, [
         userid,
+        bookingid,
         booking[0].cashbackamount,
         lastbalancew,
         remarksw,
@@ -391,13 +393,12 @@ const paySecondandthirdInstallment = async (req, res) => {
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id, transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?,?, ?)`;
-    const deposit ='Purchase'
+    const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?,?, ?)`;
 
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       userid,
-      deposit,
+      bookingid,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -587,11 +588,12 @@ const paythiredInstallment = async (req, res) => {
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
-
+    const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+    
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       userid,
+      bookingid,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
