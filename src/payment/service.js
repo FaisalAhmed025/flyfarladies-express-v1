@@ -5,11 +5,11 @@ import { HttpException, NotFoundException } from "express-sharp"
 import { createHash } from 'crypto';
 import SSLCommerzPayment from 'sslcommerz-lts';
 
-export const payementStatus ={
+export const payementStatus = {
   PAID: 'paid',
   UNPAID: 'unpaid',
   BOOKINGSTATUS: 'bookingamount paid',
-  FIRSTINSTALLMENT:'first installment paid',
+  FIRSTINSTALLMENT: 'first installment paid',
   SECONDINSTALLMENT: 'second installment paid'
 }
 
@@ -19,63 +19,63 @@ export const installmentStatus = {
 }
 
 
-const generateCustomTransactionId = ()=> {
+const generateCustomTransactionId = () => {
   const timestamp = Date.now().toString();
-  const randomString = Math.random().toString(36).substr(2,6); // Generate a random alphanumeric string
+  const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
   const hash = createHash('sha256').update(`${timestamp}${randomString}`).digest('hex');
   const shortenedHash = hash.substr(0, 16).toUpperCase();
   return shortenedHash;
 }
 
 
-const paywithwallet = async(req,res)=>{
-try {
-  const  userid = req.body.id
-  const bookingid = req.body.bookingid
-  const  bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
-  const [booking] = await pool.query(bookingquery, [bookingid])
+const paywithwallet = async (req, res) => {
+  try {
+    const userid = req.body.id
+    const bookingid = req.body.bookingid
+    const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
+    const [booking] = await pool.query(bookingquery, [bookingid])
 
-  const date = new Date()
-  const options = { 
-    weekday: 'long',
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: true,
-    timeZone: 'Asia/Dhaka' 
-  };
+    const date = new Date()
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
 
-  const approvedAt = date.toLocaleString('en-BD', options);
+    const approvedAt = date.toLocaleString('en-BD', options);
 
-  if (!booking || booking.length === 0) {
-    throw new NotFoundException('Booking not found');
-  }
+    if (!booking || booking.length === 0) {
+      throw new NotFoundException('Booking not found');
+    }
 
-  if (booking[0].bookingStatus !== 'hold') {
-    return res.send({status: "error", message:"Booking request already approved or Rejected"});
-  }
-  const userquery =  `SELECT * FROM user WHERE id = ?`
+    if (booking[0].bookingStatus !== 'hold') {
+      return res.send({ status: "error", message: "Booking request already approved or Rejected" });
+    }
+    const userquery = `SELECT * FROM user WHERE id = ?`
 
-  const [user] = await pool.query(userquery, [userid]);
+    const [user] = await pool.query(userquery, [userid]);
 
-  if (!user || user.length === 0) {
-    throw new NotFoundException('User not found');
-  }
+    if (!user || user.length === 0) {
+      throw new NotFoundException('User not found');
+    }
 
-  const totalprice = booking[0].totalAmount;
-  console.log(user[0].wallet)
+    const totalprice = booking[0].totalAmount;
+    console.log(user[0].wallet)
 
-  const data = parseInt(totalprice)
-  const wallet = parseInt(user[0].wallet)
+    const data = parseInt(totalprice)
+    const wallet = parseInt(user[0].wallet)
 
     // Check wallet balance
     if (wallet < data) {
-       return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+      return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
     }
-    
+
     const newWalletBalance = user[0].wallet - totalprice;
     console.log(newWalletBalance)
 
@@ -83,10 +83,10 @@ try {
       newWalletBalance,
       userid
     ]
-   const updateuserbalancequery =`UPDATE user SET wallet = ? WHERE id = ?`
-   const [userwallet] = await pool.query(updateuserbalancequery,walletvalue);
+    const updateuserbalancequery = `UPDATE user SET wallet = ? WHERE id = ?`
+    const [userwallet] = await pool.query(updateuserbalancequery, walletvalue);
 
-   const [updatedwallet]  = await pool.query(userquery, [userid])
+    const [updatedwallet] = await pool.query(userquery, [userid])
     const bookingstatus = bookingStatus.CONFIRMED
     const paymentstatus = payementStatus.PAID
 
@@ -104,9 +104,9 @@ try {
     const remarks = `The user ${user[0].name} has booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}. Total Amount  is ${totalprice}`;
 
     const ledgerquery = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
-    
 
-   const  lastbalance = parseInt(updatedwallet[0].wallet)
+
+    const lastbalance = parseInt(updatedwallet[0].wallet)
     const ledger = await pool.query(ledgerquery, [
       userid,
       totalprice,
@@ -115,51 +115,53 @@ try {
       approvedAt
     ]);
 
-     const values = [
-          booking[0].cashbackamount,
-          userid
-        ]
-        const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
-        const [updateduserwallet] = await pool.query(userQuery, values)
-        const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
-        const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
-        const cashbackdate = new Date()
-        const options2 = {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          second: 'numeric',
-          hour12: true,
-          timeZone: 'Asia/Dhaka'
-        };
-        const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-        const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
-        const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+    if (booking[0].cashbackamount !== null) {
+      const values = [
+        booking[0].cashbackamount,
+        userid
+      ]
+      const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+      const [updateduserwallet] = await pool.query(userQuery, values)
+      const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+      const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
+      const cashbackdate = new Date()
+      const options2 = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+        timeZone: 'Asia/Dhaka'
+      };
+      const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+      const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
+      const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
 
-        const lastbalancew = parseInt(lastbalancedata[0].wallet)
-        const ledgerw = await pool.query(ledgerqueryw, [
-          userid,
-          booking[0].cashbackamount,
-          lastbalancew,
-          remarksw,
-          approvedAtw
-        ]);
+      const lastbalancew = parseInt(lastbalancedata[0].wallet)
+      const ledgerw = await pool.query(ledgerqueryw, [
+        userid,
+        booking[0].cashbackamount,
+        lastbalancew,
+        remarksw,
+        approvedAtw
+      ]);
 
-        console.log(updateduserwallet)
+      console.log(updateduserwallet)
 
-  
-} catch (error) {
-  console.error("Error making payment with wallet:", error);
-  throw error;
+    }
+
+  } catch (error) {
+    console.error("Error making payment with wallet:", error);
+    throw error;
+  }
+
 }
 
-}
 
-
-const paybookingamount = async (req,res) =>{
+const paybookingamount = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
   const packagequery = `SELECT * FROM booking WHERE bookingid =?`
@@ -172,7 +174,7 @@ const paybookingamount = async (req,res) =>{
   if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
-  const userquery =  `SELECT * FROM user WHERE id = ?`
+  const userquery = `SELECT * FROM user WHERE id = ?`
 
   const [user] = await pool.query(userquery, [userid]);
 
@@ -190,30 +192,30 @@ const paybookingamount = async (req,res) =>{
     );
   }
 
-    // Check wallet balance
-    console.log(parseInt(user[0].wallet))
-    console.log(parseInt(bookingamount))
-    if (parseInt(user[0].wallet) < parseInt(bookingamount)) {
-      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+  // Check wallet balance
+  console.log(parseInt(user[0].wallet))
+  console.log(parseInt(bookingamount))
+  if (parseInt(user[0].wallet) < parseInt(bookingamount)) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
-   const updatedwalet =  user[0].wallet - bookingamount
-   console.log(updatedwalet);
+  const updatedwalet = user[0].wallet - bookingamount
+  console.log(updatedwalet);
 
-   const value =[
+  const value = [
     updatedwalet,
     userid
-   ]
+  ]
 
-  const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
+  const updatequery = `UPDATE user SET wallet = ? WHERE id =? `
   await pool.query(updatequery, value)
-  const paymentstatus  = payementStatus.BOOKINGSTATUS
+  const paymentstatus = payementStatus.BOOKINGSTATUS
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const bookingamountpaiddate = new Date()
 
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     bookingamountstatus,
     bookingamountpaiddate,
@@ -221,11 +223,11 @@ const paybookingamount = async (req,res) =>{
     bookingid
   ]
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
-  const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
+  const [updatebooing] = await pool.query(updateBookingquery, valuedata)
   return updatebooing;
 }
 
-const payFirstandSecondInstallment = async (req,res) =>{
+const payFirstandSecondInstallment = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
   const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
@@ -238,7 +240,7 @@ const payFirstandSecondInstallment = async (req,res) =>{
   if (booking[0].bookingStatus !== 'hold') {
     throw new NotFoundException('Booking request already approved or Rejected');
   }
-  const userquery =  `SELECT * FROM user WHERE id = ?`
+  const userquery = `SELECT * FROM user WHERE id = ?`
 
   const [user] = await pool.query(userquery, [userid]);
 
@@ -247,37 +249,37 @@ const payFirstandSecondInstallment = async (req,res) =>{
   }
 
   const bookingamount = booking[0].booking_money;
-  const firstinstalmentAmount =  booking[0].firstinstalmentAmount
-  const  totalAmount = bookingamount + firstinstalmentAmount
-    if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
-      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+  const firstinstalmentAmount = booking[0].firstinstalmentAmount
+  const totalAmount = bookingamount + firstinstalmentAmount
+  if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
- 
-   const updatedwalet =  parseInt(user[0].wallet) - parseInt(totalAmount)
 
-   const value =[
+  const updatedwalet = parseInt(user[0].wallet) - parseInt(totalAmount)
+
+  const value = [
     updatedwalet,
     userid
-   ]
+  ]
 
-   const  updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
-   await pool.query(updatequery, value)
+  const updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
+  await pool.query(updatequery, value)
 
-  let paymentstatus  = payementStatus.UNPAID
+  let paymentstatus = payementStatus.UNPAID
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const bookingamountpaiddate = new Date()
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
-  
 
-  if(booking[0].second_installment === 0.00){
+
+  if (booking[0].second_installment === 0.00) {
     paymentstatus = paymentstatus.PAID
   }
 
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     bookingamountstatus,
     bookingamountpaiddate,
@@ -290,13 +292,13 @@ const payFirstandSecondInstallment = async (req,res) =>{
   console.log(lastbalance);
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ?, wallet = ? WHERE bookingid= ? `
-  const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
+  const [updatebooking] = await pool.query(updateBookingquery, valuedata)
 
-  if(booking[0].thir)
-  return updatebooking;
+  if (booking[0].thir)
+    return updatebooking;
 
 }
-const paySecondandthirdInstallment = async (req,res) =>{
+const paySecondandthirdInstallment = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
   const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
@@ -307,41 +309,41 @@ const paySecondandthirdInstallment = async (req,res) =>{
   }
 
   if (booking[0].bookingStatus !== 'hold') {
-    return res.send({ message: 'Booking request already approved or Rejected'});
+    return res.send({ message: 'Booking request already approved or Rejected' });
   }
 
   if (booking[0].bookingAmountStatus !== 'completed') {
-    return res.send({message:'please pay your previous installemnt first'});
+    return res.send({ message: 'please pay your previous installemnt first' });
   }
-  const userquery =  `SELECT * FROM user WHERE id = ?`
-  
+  const userquery = `SELECT * FROM user WHERE id = ?`
+
   const [user] = await pool.query(userquery, [userid]);
 
   if (!user || user.length === 0) {
     throw new NotFoundException('User not found');
   }
 
-  const firstinstalmentAmount =  booking[0].first_installment
-  const secondinstalmentAmount =  booking[0].second_installment
+  const firstinstalmentAmount = booking[0].first_installment
+  const secondinstalmentAmount = booking[0].second_installment
 
-  const  totalAmount = secondinstalmentAmount + firstinstalmentAmount
-    if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
-      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+  const totalAmount = secondinstalmentAmount + firstinstalmentAmount
+  if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
-  
-  console.log(totalAmount)
-   const updatedwalet =  parseInt(user[0].wallet) - parseInt(totalAmount)
 
-   const value =[
+  console.log(totalAmount)
+  const updatedwalet = parseInt(user[0].wallet) - parseInt(totalAmount)
+
+  const value = [
     updatedwalet,
     userid
-   ]
+  ]
 
-   const  updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
-   await pool.query(updatequery, value)
+  const updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
+  await pool.query(updatequery, value)
 
-  const paymentstatus  = payementStatus.PAID
+  const paymentstatus = payementStatus.PAID
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
 
@@ -349,7 +351,7 @@ const paySecondandthirdInstallment = async (req,res) =>{
   const secondinstallmentpaiddate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     firstInstallmentStatus,
     firstinstallmentpaiddate,
@@ -359,18 +361,56 @@ const paySecondandthirdInstallment = async (req,res) =>{
     updatedwalet,
     bookingid
   ]
-  
+
   console.log(valuedata)
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=?, wallet = ? WHERE bookingid= ? `
 
-  const [updatebooking] =  await pool.query(updateBookingquery,valuedata)
+  const [updatebooking] = await pool.query(updateBookingquery, valuedata)
+
+  if (booking[0].cashbackamount !== null) {
+    const values = [
+      booking[0].cashbackamount,
+      userid
+    ]
+    const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+    const [updateduserwallet] = await pool.query(userQuery, values)
+    const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+    const [lastbalancedata] = await pool.query(userQuerylastbalance, [userid]);
+    const cashbackdate = new Date()
+    const options2 = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
+    const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+
+    const lastbalancew = parseInt(lastbalancedata[0].wallet)
+    const ledgerw = await pool.query(ledgerqueryw, [
+      userid,
+      booking[0].cashbackamount,
+      lastbalancew,
+      remarksw,
+      approvedAtw
+    ]);
+
+    console.log(updateduserwallet)
+
+  }
   return updatebooking;
-  
+
 }
 
 
-const paySecondInstallment = async (req,res) =>{
+const paySecondInstallment = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
@@ -383,11 +423,11 @@ const paySecondInstallment = async (req,res) =>{
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
-  if(booking[0].bookingAmountStatus !== 'completed' || null) {
+  if (booking[0].bookingAmountStatus !== 'completed' || null) {
     throw new NotFoundException('booking amount is not paid yet');
   }
 
-  const userquery =  `SELECT * FROM user WHERE id = ?`
+  const userquery = `SELECT * FROM user WHERE id = ?`
 
   const [user] = await pool.query(userquery, [userid]);
 
@@ -407,32 +447,32 @@ const paySecondInstallment = async (req,res) =>{
     );
   }
 
-    // Check wallet balance
-    if (parseInt(user[0].wallet) < parseInt(first_installment)) {
-      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+  // Check wallet balance
+  if (parseInt(user[0].wallet) < parseInt(first_installment)) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
-   const updatedwalet =  user[0].wallet - first_installment
-   console.log(updatedwalet);
+  const updatedwalet = user[0].wallet - first_installment
+  console.log(updatedwalet);
 
-   const value =[
+  const value = [
     updatedwalet,
     userid
-   ]
+  ]
 
-  const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
+  const updatequery = `UPDATE user SET wallet = ? WHERE id =? `
   await pool.query(updatequery, value)
 
-  let paymentstatus  = payementStatus.FIRSTINSTALLMENT
+  let paymentstatus = payementStatus.FIRSTINSTALLMENT
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const firstinstallmentpaiddate = new Date()
 
-  if(booking[0].second_installment === 0.00){
+  if (booking[0].second_installment === 0.00) {
     paymentstatus = paymentstatus.PAID
   }
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     firstInstallmentStatus,
     firstinstallmentpaiddate,
@@ -444,13 +484,13 @@ const paySecondInstallment = async (req,res) =>{
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
-  const [updatebooing] =  await pool.query(updateBookingquery,valuedata)
+  const [updatebooing] = await pool.query(updateBookingquery, valuedata)
   return updatebooing;
 }
 
 
 
-const paythiredInstallment = async (req,res) =>{
+const paythiredInstallment = async (req, res) => {
   const bookingid = req.body.bookingid
   const userid = req.body.id
   const packagequery = `SELECT *  FROM booking WHERE bookingid =?`
@@ -463,11 +503,11 @@ const paythiredInstallment = async (req,res) =>{
     throw new NotFoundException('Booking request already approved or Rejected');
   }
 
-  if( booking[0].firstInstallmentStatus !=='completed' &&  booking[0].bookingAmountStatus !=='completed'){
-   return res.send({ message:"please pay your early installment"})
+  if (booking[0].firstInstallmentStatus !== 'completed' && booking[0].bookingAmountStatus !== 'completed') {
+    return res.send({ message: "please pay your early installment" })
   }
 
-  const userquery =  `SELECT * FROM user WHERE id = ?`
+  const userquery = `SELECT * FROM user WHERE id = ?`
   const [user] = await pool.query(userquery, [userid]);
   if (!user || user.length === 0) {
     throw new NotFoundException('User not found');
@@ -488,30 +528,30 @@ const paythiredInstallment = async (req,res) =>{
 
   console.log()
 
-    // Check wallet balance
-    if (parseFloat(user[0].wallet) < parseFloat(second_installment)) {
-      return res.send({status: "error", message:"Insufficient balance! please deposit to your wallet"});
+  // Check wallet balance
+  if (parseFloat(user[0].wallet) < parseFloat(second_installment)) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
 
- 
-   const updatedwalet =  parseInt(user[0].wallet) - parseInt(second_installment)
-   console.log(updatedwalet);
 
-   const value =[
+  const updatedwalet = parseInt(user[0].wallet) - parseInt(second_installment)
+  console.log(updatedwalet);
+
+  const value = [
     updatedwalet,
     userid
-   ]
+  ]
 
-  const  updatequery = `UPDATE user SET wallet = ? WHERE id =? `
+  const updatequery = `UPDATE user SET wallet = ? WHERE id =? `
   await pool.query(updatequery, value)
 
-  const paymentstatus  = payementStatus.PAID
+  const paymentstatus = payementStatus.PAID
   const InstallmentStatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const installmentpaidate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     InstallmentStatus,
     installmentpaidate,
@@ -521,23 +561,23 @@ const paythiredInstallment = async (req,res) =>{
   ]
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, secondInstallmentStatus = ? ,secondinstallmentpaidate =?, bookingStatus = ?,  wallet = ? WHERE bookingid= ? `
-  const [updatebooing] =  await pool.query(updateBookingquery, valuedata)
+  const [updatebooing] = await pool.query(updateBookingquery, valuedata)
   return updatebooing;
 
 }
 
 
-const initwithsslfullamount = async(req,res) =>{
+const initwithsslfullamount = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body?.bookingid
-  const userid  = req.body?.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
+  const bookingid = req.body?.bookingid
+  const userid = req.body?.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].totalAmount
   console.log(amount);
 
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
@@ -551,8 +591,8 @@ const initwithsslfullamount = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email,
-    cus_phone:  user[0].phone,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -574,29 +614,29 @@ const initwithsslfullamount = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    // Execute the SQL query
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    
-    ]);
- 
+  const paymentstatus = "unpaid"
+  // Execute the SQL query
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
+
+  ]);
+
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    res.send(apiResponse)
- 
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  res.send(apiResponse)
+
 }
 
 
-const sucesssslfullamount = async (req,res)=>{
+const sucesssslfullamount = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -610,25 +650,25 @@ const sucesssslfullamount = async (req,res)=>{
     return res.status(404).json({ message: 'Transaction ID not found', error: true });
   }
 
-  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
-  const paymentstatus  = payementStatus.PAID
+  const paymentstatus = payementStatus.PAID
 
   const value = [
     paymentstatus,
     bookingstatus,
     bookingid
   ]
-  const updatequery  = `UPDATE booking SET paymentStatus=?,  bookingStatus = ? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET paymentStatus=?,  bookingStatus = ? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
-} 
+}
 
 
-const cancelledfullamount = async (req,res)=>{
+const cancelledfullamount = async (req, res) => {
   const tran_id = req.params.tran_id;
   // const uuid = req.params.id;
   const data = req.body;
@@ -640,22 +680,22 @@ const cancelledfullamount = async (req,res)=>{
     return res.status(404).json({ message: 'Transaction ID not found', error: true });
   }
 
-  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   return res.redirect(`https://flyfarladies.com/dashboard/mybookings`);
 
 
-} 
+}
 
-const initwithsslbookingmoney = async(req,res) =>{
+const initwithsslbookingmoney = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].booking_money
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
 
   const data = {
@@ -670,8 +710,8 @@ const initwithsslbookingmoney = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email ,
-    cus_phone:  user[0].phone ,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -693,30 +733,30 @@ const initwithsslbookingmoney = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    // Execute the SQL query
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    
-    ]);
+  const paymentstatus = "unpaid"
+  // Execute the SQL query
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
+
+  ]);
 
 
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
-    res.send(apiResponse)
- 
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  // await this.sslcommerzRepository.save(data)
+  res.send(apiResponse)
+
 }
 
 
-const sucess_ssl_bookingAmount = async (req,res)=>{
+const sucess_ssl_bookingAmount = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -731,7 +771,7 @@ const sucess_ssl_bookingAmount = async (req,res)=>{
   }
 
 
-await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   const bookingamountstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
@@ -742,30 +782,30 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     bookingid
   ]
 
-  const updatequery  = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
-} 
+}
 
 
 
 
-const initwithssl1stinstallemnt = async(req,res) =>{
+const initwithssl1stinstallemnt = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].first_installment
 
-  if(booking.length ===0){
-    return res.send({message:"booking not found"})
+  if (booking.length === 0) {
+    return res.send({ message: "booking not found" })
   }
 
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
 
   const data = {
@@ -780,8 +820,8 @@ const initwithssl1stinstallemnt = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email ,
-    cus_phone:  user[0].phone ,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -803,31 +843,31 @@ const initwithssl1stinstallemnt = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    // Execute the SQL query
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    
-    ]);
+  const paymentstatus = "unpaid"
+  // Execute the SQL query
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
 
- 
+  ]);
+
+
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
-    res.send(apiResponse)
- 
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  // await this.sslcommerzRepository.save(data)
+  res.send(apiResponse)
+
 }
 
 
-const success_ssl_1stinstallemnt = async (req,res)=>{
+const success_ssl_1stinstallemnt = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -842,7 +882,7 @@ const success_ssl_1stinstallemnt = async (req,res)=>{
   }
 
 
-await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   const firstinstallemnttstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
@@ -853,28 +893,28 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     bookingid
   ]
 
-  const updatequery  = `UPDATE booking SET firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
-} 
+}
 
 
-const initwithssl2ndinstallemnt = async(req,res) =>{
+const initwithssl2ndinstallemnt = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid=?`
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const amount = booking[0].second_installment
 
-  if(booking.length ===0){
-    return res.send({message:"booking not found"})
+  if (booking.length === 0) {
+    return res.send({ message: "booking not found" })
   }
 
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
   console.log(user)
 
@@ -891,8 +931,8 @@ const initwithssl2ndinstallemnt = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email ,
-    cus_phone:  user[0].phone ,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -914,31 +954,31 @@ const initwithssl2ndinstallemnt = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    // Execute the SQL query
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    
-    ]);
+  const paymentstatus = "unpaid"
+  // Execute the SQL query
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
 
- 
+  ]);
+
+
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
-    res.send(apiResponse)
- 
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  // await this.sslcommerzRepository.save(data)
+  res.send(apiResponse)
+
 }
 
 
-const success_ssl_2ndinstallemnt = async (req,res)=>{
+const success_ssl_2ndinstallemnt = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -952,14 +992,14 @@ const success_ssl_2ndinstallemnt = async (req,res)=>{
     return res.status(404).json({ message: 'Transaction ID not found', error: true });
   }
 
-await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   const secondinstallemnttstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
   const paymentstatus = payementStatus.SECONDINSTALLMENT
 
-  
+
 
 
 
@@ -970,30 +1010,30 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     paiddate,
     bookingid
   ]
-  const updatequery  = `UPDATE booking SET paymentStatus=?,bookingStatus=?,  secondInstallmentStatus=?,  second_installment_due_date=? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET paymentStatus=?,bookingStatus=?,  secondInstallmentStatus=?,  second_installment_due_date=? WHERE bookingid = ?`
   await pool.query(updatequery, value)
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
-} 
+}
 
-const initwithssl1stAnd2ndinstallment = async(req,res) =>{
+const initwithssl1stAnd2ndinstallment = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid = ?`
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const firstamount = booking[0].first_installment
-  const bookingAmount   = booking[0].booking_money
+  const bookingAmount = booking[0].booking_money
 
-  const totalAmount = firstamount+bookingAmount
+  const totalAmount = firstamount + bookingAmount
 
-  if(booking.length ===0){
-    return res.send({message:"booking not found"})
+  if (booking.length === 0) {
+    return res.send({ message: "booking not found" })
   }
 
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
@@ -1007,8 +1047,8 @@ const initwithssl1stAnd2ndinstallment = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email ,
-    cus_phone:  user[0].phone ,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -1030,31 +1070,31 @@ const initwithssl1stAnd2ndinstallment = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    // Execute the SQL query
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    
-    ]);
+  const paymentstatus = "unpaid"
+  // Execute the SQL query
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
 
- 
+  ]);
+
+
   console.log(data)
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
-    res.send(apiResponse)
- 
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  // await this.sslcommerzRepository.save(data)
+  res.send(apiResponse)
+
 }
 
 
-const sucess_ssl_1st_and_2nd_booking_Amount = async (req,res)=>{
+const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   const data = req.body;
@@ -1066,50 +1106,50 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req,res)=>{
     return res.status(404).json({ message: 'Transaction ID not found', error: true });
   }
 
-await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-const paymentstatus  = payementStatus.UNPAID
-const bookingamountstatus = installmentStatus.COMPLETED
-const bookingamountpaiddate = new Date()
-const firstInstallmentStatus = installmentStatus.COMPLETED
-const firstinstallmentpaiddate = new Date()
+  const paymentstatus = payementStatus.UNPAID
+  const bookingamountstatus = installmentStatus.COMPLETED
+  const bookingamountpaiddate = new Date()
+  const firstInstallmentStatus = installmentStatus.COMPLETED
+  const firstinstallmentpaiddate = new Date()
 
-const valuedata =  [
-  paymentstatus,
-  bookingamountstatus,
-  bookingamountpaiddate,
-  firstInstallmentStatus,
-  firstinstallmentpaiddate,
-  bookingid
-]
+  const valuedata = [
+    paymentstatus,
+    bookingamountstatus,
+    bookingamountpaiddate,
+    firstInstallmentStatus,
+    firstinstallmentpaiddate,
+    bookingid
+  ]
 
-const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ? WHERE bookingid= ? `
-await pool.query(updateBookingquery,valuedata)
-return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+  const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ? WHERE bookingid= ? `
+  await pool.query(updateBookingquery, valuedata)
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
-} 
+}
 
 
-const initwithssl2ndand3rdinstallment = async(req,res) =>{
+const initwithssl2ndand3rdinstallment = async (req, res) => {
   const transactionId = generateCustomTransactionId();
-  const bookingid  = req.body.bookingid
-  const userid  = req.body.id
-  const bookingquery =  `SELECT * FROM booking WHERE bookingid = ?`
+  const bookingid = req.body.bookingid
+  const userid = req.body.id
+  const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
   const firstamount = booking[0].first_installment
-  const secondAmount   = booking[0].secondAmount
-  const totalAmount = firstamount+secondAmount
+  const secondAmount = booking[0].secondAmount
+  const totalAmount = firstamount + secondAmount
 
-  if(booking.length ===0){
-    return res.send({message:"booking not found"})
+  if (booking.length === 0) {
+    return res.send({ message: "booking not found" })
   }
 
   if (booking[0].bookingAmountStatus !== 'completed') {
-    return res.send({message:'please pay your previous installemnt first'});
+    return res.send({ message: 'please pay your previous installemnt first' });
   }
 
-  const userquery =  `SELECT * FROM user WHERE id=?`
-  const [user] =  await pool.query(userquery, [userid])
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [userid])
 
   console.log(user)
 
@@ -1126,8 +1166,8 @@ const initwithssl2ndand3rdinstallment = async(req,res) =>{
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
-    cus_email:  user[0].email ,
-    cus_phone:  user[0].phone ,
+    cus_email: user[0].email,
+    cus_phone: user[0].phone,
     cus_add1: "Dhaka",
     cus_city: "Dhaka",
     cus_country: "Bangladesh",
@@ -1149,26 +1189,26 @@ const initwithssl2ndand3rdinstallment = async(req,res) =>{
     ?, ?
 )
 `
-const paymentstatus = "unpaid"
-    await pool.query(insertQuery, [
-      transactionId,
-      userid,
-      data.cus_name,
-      data.cus_email,
-      data.cus_phone,
-      data.total_amount,
-      data.currency,
-      paymentstatus
-    ]);
-    
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
-    const apiResponse = await sslcz.init(data);
-    // await this.sslcommerzRepository.save(data)
-    res.send(apiResponse)
- 
+  const paymentstatus = "unpaid"
+  await pool.query(insertQuery, [
+    transactionId,
+    userid,
+    data.cus_name,
+    data.cus_email,
+    data.cus_phone,
+    data.total_amount,
+    data.currency,
+    paymentstatus
+  ]);
+
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const apiResponse = await sslcz.init(data);
+  // await this.sslcommerzRepository.save(data)
+  res.send(apiResponse)
+
 }
 
-const sucess_ssl_2nd_3rd_installemntAmount = async (req,res)=>{
+const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
   const tran_id = req.params.tran_id;
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
@@ -1183,9 +1223,9 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req,res)=>{
   }
 
 
-await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount,  data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
+  await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
-  const paymentstatus  = payementStatus.PAID
+  const paymentstatus = payementStatus.PAID
   const firstInstallmentStatus = installmentStatus.COMPLETED
   const firstinstallmentpaiddate = new Date()
 
@@ -1193,7 +1233,7 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
   const secondinstallmentpaiddate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
 
-  const valuedata =  [
+  const valuedata = [
     paymentstatus,
     firstInstallmentStatus,
     firstinstallmentpaiddate,
@@ -1202,12 +1242,12 @@ await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount 
     bookingstatus,
     bookingid
   ]
-  
+
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?,  secondInstallmentStatus =?, 
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=? WHERE bookingid= ? `
-   await pool.query(updateBookingquery,valuedata)
-   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
-} 
+  await pool.query(updateBookingquery, valuedata)
+  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+}
 
 
 export const payemntService = {

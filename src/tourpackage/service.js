@@ -1128,10 +1128,10 @@ async function updateOrAddChildFare(connection, childFare) {
   } else {
     // Add new child fare
     const addChildFareQuery = `
-      INSERT INTO childfare (agelimit, price, inclusion, exclusion, packageId)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO childfare (packageId, agelimit, price, inclusion, exclusion, packageId)
+      VALUES (?, ?, ?,?, ?, ?)
     `;
-    await connection.query(addChildFareQuery, [ agelimit, price, inclusion, exclusion, packageId]);
+    await connection.query(addChildFareQuery, [packageId, agelimit, price, inclusion, exclusion, packageId]);
   }
 }
 
@@ -1389,6 +1389,9 @@ const deleteBOOKINGSLOT = async (req, res) => {
     status: true,
     message: 'slot has removed'
   })
+
+
+
 }
 
 
@@ -2013,7 +2016,6 @@ const createBookingSlot = async (req, res, PKID) => {
   try {
     connection = await pool.getConnection();
     const bookingSlotData = req.body.bookingSlotData;
-
     const packageQuery = "SELECT PKID FROM tourpackage WHERE PKID = ?";
     const [packageResults] = await connection.execute(packageQuery, [PKID]);
 
