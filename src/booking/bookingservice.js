@@ -227,7 +227,8 @@ const Book$Hold = async (req, res) => {
       if (tourpackage[0].TripType === 'International') {
         discountAmount = 2000.00 * totaladult
       } else if (tourpackage[0].TripType === 'Domestic') {
-        discountAmount = totalpackageprice * 0.10 * totaladult;
+        discountAmount = adultprice * 0.10 * totaladult;
+        console.log(discountAmount)
 
       }
 
