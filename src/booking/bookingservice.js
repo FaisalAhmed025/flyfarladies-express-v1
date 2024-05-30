@@ -29,6 +29,8 @@ const Book$Hold = async (req, res) => {
     const couponCode = req.body.couponCode;
     const validCouponCode = 'FFL2024';
 
+    console.log(packgeId, bookingSlotId)
+
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
     if (user.length === 0) {
@@ -199,89 +201,6 @@ const Book$Hold = async (req, res) => {
     const childfareQuery = `SELECT * FROM childfare WHERE packageId = ?`;
     const [childfareData] = await pool.query(childfareQuery, [packgeId]);
 
-    // Create a map for childfare prices
-    const childfarePriceMap = {};
-    childfareData.forEach(cf => {
-      childfarePriceMap[cf.childfareid] = cf.price;
-    });
-
-    // Calculate total child price
-    let totalChildPrice = 0;
-    for (const childfareId of childfareids) {
-      if (childfarePriceMap[childfareId]) {
-        totalChildPrice += childfarePriceMap[childfareId];
-      } else {
-        throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
-      }
-    }
-    const infantprice = tourpackage[0].infant_base_price
-
-    const bookingslot = `SELECT * FROM bookingslot WHERE  bookingslotid=?`
-    const [slot] = await pool.query(bookingslot, [bookingSlotId])
-    const cancellationDate = slot[0]?.cancellationDate
-    const startdate = slot[0]?.StartDate
-    const enddate = slot[0]?.EndDate
-
-
-    const totalAdultprice = adultprice * totaladult;
-    const totalInfantprice = infantprice * totalinfant;
-    const installmentQuery = `SELECT * FROM installment WHERE tourpackageId =? AND bookingslotid =?`;
-    const [installmentdata] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
-    console.log(installmentdata)
-
-  //  if(installmentdata.length>0){
-    let totalAdultBookingAmount = installmentdata[0]?.ABookingAmount * totaladult;
-    let totalInfantBookingAmount = installmentdata[0]?.IBookingAmount * totalinfant;
-    let totalAdultFirstInstallmentAmount = installmentdata[0]?.AFirstInstallmentAmount * totaladult;
-    let totalInfantFirstInstallmentAmount = installmentdata[0]?.IFirstInstallmentAmount * totalinfant;
-    let totalAdultSecondInstallmentAmount = installmentdata[0]?.ASecondInstallmentAmount * totaladult;
-    let totalInfantSecondInstallmentAmount = installmentdata[0]?.ISecondInstallmentAmount * totalinfant;
-    let FirstInstallmentdueDate = installmentdata[0]?.FirstInstallmentdueDate;
-    let SecondInstallmentdueDate = installmentdata[0]?.SecondInstallmentdueDate;
-    let ThirdInstallmentdueDate = installmentdata[0]?.ThirdInstallmentdueDate;
-
-    // Calculate total child installment amounts
-    const childInstallments = installmentdata[0]?.childinstallments;
-    let totalChildBookingAmount = 0.00;
-    let totalChildFirstInstallmentAmount = 0.00;
-    let totalChildSecondInstallmentAmount = 0.00;
-    
-    // Ensure childid is an array of numbers or strings
-    // if (!Array.isArray(childinstallmentid)) {
-    //   console.log(childinstallmentid)
-    //   console.error("childid should be an array");
-    // } else {
-    //   console.log("childid array: ", childid);
-    // }
-
-
-    console.log(childInstallments)
-    
-    if (Array.isArray(childInstallments) && childInstallments.length > 0) {
-
-      console.log(childInstallments)
-      childInstallments.forEach(childInstallment => {
-        console.log("Checking childInstallment: ", childInstallment);
-        if (childinstallmentid.includes(childInstallment.childinstallmentid)) {
-          if (childInstallment.CBookingAmount && childInstallment.CFirstInstallmentAmount && childInstallment.CSecondInstallmentAmount) {
-            totalChildBookingAmount += childInstallment.CBookingAmount;
-            totalChildFirstInstallmentAmount += childInstallment.CFirstInstallmentAmount;
-            totalChildSecondInstallmentAmount += childInstallment.CSecondInstallmentAmount;
-            console.log("totalChildBookingAmount: ", totalChildBookingAmount);
-            console.log("totalChildFirstInstallmentAmount: ", totalChildFirstInstallmentAmount);
-            console.log("totalChildSecondInstallmentAmount: ", totalChildSecondInstallmentAmount);
-          } else {
-            console.error(`Invalid installment amounts for childid: ${childInstallment.childid}`);
-          }
-        } else {
-          console.log(`No match for childid: ${childInstallment.childid}`);
-        }
-      });
-    }
-    
-
-    
-   
 
     const [addonServices] = await pool.query('SELECT * FROM add_ons WHERE tour_package_id = ?', [packgeId]);
 
@@ -301,11 +220,136 @@ const Book$Hold = async (req, res) => {
       }
     }
 
-    const totalpackageprice = totalAdultprice + totalChildPrice + totalInfantprice + addonTotal;
+    // Create a map for childfare prices
+    const childfarePriceMap = {};
+    childfareData.forEach(cf => {
+      childfarePriceMap[cf.childfareid] = cf.price;
+    });
+    // Calculate total child price
+    let totalChildPrice = 0;
+    for (const childfareId of childfareids) {
+      if (childfarePriceMap[childfareId]) {
+        totalChildPrice += childfarePriceMap[childfareId];
+      } else {
+        throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
+      }
+    }
+    
+    const infantprice = tourpackage[0].infant_base_price
 
-    const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
+    const bookingslot = `SELECT * FROM bookingslot WHERE  bookingslotid=?`
+    const [slot] = await pool.query(bookingslot, [bookingSlotId])
+    const cancellationDate = slot[0]?.cancellationDate
+    const startdate = slot[0]?.StartDate
+    const enddate = slot[0]?.EndDate
 
-    console.log(totalpackageprice, bookingamount)
+    const totalAdultprice = adultprice * totaladult;
+    const totalInfantprice = infantprice * totalinfant;
+
+    // Fetch installment details based on tourpackageId and bookingslotid
+    const installmentQuery = `
+    SELECT 
+        i.InstallmentId, i.bookingslotid, i.tourpackageId,
+        i.FirstInstallmentdueDate, i.SecondInstallmentdueDate, i.ThirdInstallmentdueDate,
+        i.ABookingAmount, i.AFirstInstallmentAmount, i.ASecondInstallmentAmount,
+        i.IBookingAmount, i.IFirstInstallmentAmount, i.ISecondInstallmentAmount,
+        ci.childinstallmentid, ci.childfareid, ci.CBookingAmount, ci.CFirstInstallmentAmount, ci.CSecondInstallmentAmount
+    FROM installment i
+    LEFT JOIN childinstalment ci ON i.InstallmentId = ci.installmentid
+    WHERE i.tourpackageId = ? AND i.bookingslotid = ?
+`;
+
+const [rows] = await pool.query(installmentQuery, [packgeId, bookingSlotId]);
+
+
+
+const installmentdata = [];
+const installmentMap = {};
+
+rows.forEach(row => {
+    if (!installmentMap[row.InstallmentId]) {
+        installmentMap[row.InstallmentId] = {
+            InstallmentId: row.InstallmentId,
+            bookingslotid: row.bookingslotid,
+            tourpackageId: row.tourpackageId,
+            FirstInstallmentdueDate: row.FirstInstallmentdueDate,
+            SecondInstallmentdueDate: row.SecondInstallmentdueDate,
+            ThirdInstallmentdueDate: row.ThirdInstallmentdueDate,
+            ABookingAmount: row.ABookingAmount,
+            AFirstInstallmentAmount: row.AFirstInstallmentAmount,
+            ASecondInstallmentAmount: row.ASecondInstallmentAmount,
+            IBookingAmount: row.IBookingAmount,
+            IFirstInstallmentAmount: row.IFirstInstallmentAmount,
+            ISecondInstallmentAmount: row.ISecondInstallmentAmount,
+            childinstallments: []
+        };
+        
+        installmentdata.push(installmentMap[row.InstallmentId]);
+    }
+    if (row.childinstallmentid) {
+        installmentMap[row.InstallmentId].childinstallments.push({
+            childinstallmentid: row.childinstallmentid,
+            childfareid: row.childfareid,
+            CBookingAmount: row.CBookingAmount,
+            CFirstInstallmentAmount: row.CFirstInstallmentAmount,
+            CSecondInstallmentAmount: row.CSecondInstallmentAmount
+
+          
+        });
+    }
+    
+});
+
+
+
+let totalAdultBookingAmount = 0;
+let totalInfantBookingAmount = 0;
+let totalAdultFirstInstallmentAmount = 0;
+let totalInfantFirstInstallmentAmount = 0;
+let totalAdultSecondInstallmentAmount = 0;
+let totalInfantSecondInstallmentAmount = 0;
+
+let totalChildBookingAmount = 0;
+let totalChildFirstInstallmentAmount = 0;
+let totalChildSecondInstallmentAmount = 0;
+
+
+let FirstInstallmentdueDate = installmentdata[0]?.FirstInstallmentdueDate;
+let SecondInstallmentdueDate = installmentdata[0]?.SecondInstallmentdueDate;
+let ThirdInstallmentdueDate = installmentdata[0]?.ThirdInstallmentdueDate;
+
+
+  const installment = installmentdata[0];
+
+  console.log(installmentdata);
+  totalAdultBookingAmount = installment?.ABookingAmount * totaladult;
+
+  console.log(installment?.ABookingAmount)
+  totalInfantBookingAmount = installment.IBookingAmount * totalinfant;
+  totalAdultFirstInstallmentAmount = installment.AFirstInstallmentAmount * totaladult;
+  totalInfantFirstInstallmentAmount = installment.IFirstInstallmentAmount * totalinfant;
+  totalAdultSecondInstallmentAmount = installment.ASecondInstallmentAmount * totaladult;
+  totalInfantSecondInstallmentAmount = installment.ISecondInstallmentAmount * totalinfant;
+
+  // Calculate child installment amounts
+  const childInstallments = installment.childinstallments;
+ // Iterate through child installments
+installment.childinstallments.forEach(childInstallment => {
+  // Check if the child fare ID of the installment is included in the provided childfareids
+  if (childfareids.includes(childInstallment.childfareid)) {
+      // Add child installment amounts to totals
+      totalChildBookingAmount += parseFloat(childInstallment.CBookingAmount);
+      console.log("totalChildBookingAmount", totalChildBookingAmount)
+      totalChildFirstInstallmentAmount += parseFloat(childInstallment.CFirstInstallmentAmount);
+      totalChildSecondInstallmentAmount += parseFloat(childInstallment.CSecondInstallmentAmount);
+  }
+});
+
+ // Calculate total package price and booking amount
+const totalpackageprice = totalAdultprice + totalChildPrice + totalInfantprice + addonTotal;
+const bookingamount = totalAdultBookingAmount + totalChildBookingAmount + totalInfantBookingAmount + addonTotal;
+
+
 
     let discountAmount;
     if (couponCode !== null) {
@@ -355,7 +399,7 @@ const Book$Hold = async (req, res) => {
       }
 
     }
-    console.log("totalChildFirstInstallmentAmount",totalChildFirstInstallmentAmount)
+
 
     const firstinstallement = totalAdultFirstInstallmentAmount + totalChildFirstInstallmentAmount + totalInfantFirstInstallmentAmount;
     const secondinstalemnt = totalAdultSecondInstallmentAmount + totalChildSecondInstallmentAmount + totalInfantSecondInstallmentAmount;
