@@ -1639,62 +1639,36 @@ const addInstallment = async (req, PKID) => {
     const updatedOrInsertedInstallments = []; 
 
     if (InstallmentId) {
+      // Update the existing installment
+      const updateQuery = `
+        UPDATE installment 
+        SET 
+          FirstInstallmentdueDate = ?,
+          SecondInstallmentdueDate = ?,
+          ThirdInstallmentdueDate = ?,
+          ABookingAmount = ?,
+          AFirstInstallmentAmount = ?,
+          ASecondInstallmentAmount = ?,
+          IBookingAmount = ?,
+          IFirstInstallmentAmount = ?,
+          ISecondInstallmentAmount = ?,
+          bookingslotid = ?
+        WHERE 
+          InstallmentId = ?
+      `;
       await connection.execute(updateQuery, [
-        FirstInstallmentdueDate || null,
-        SecondInstallmentdueDate || null,
-        ThirdInstallmentdueDate || null,
-        ABookingAmount || null,
-        AFirstInstallmentAmount || null,
-        ASecondInstallmentAmount || null,
-        IBookingAmount || null,
-        IFirstInstallmentAmount || null,
-        ISecondInstallmentAmount || null,
-        bookingslotid || null,
+        FirstInstallmentdueDate !== undefined ? FirstInstallmentdueDate : null,
+        SecondInstallmentdueDate !== undefined ? SecondInstallmentdueDate : null,
+        ThirdInstallmentdueDate !== undefined ? ThirdInstallmentdueDate : null,
+        ABookingAmount !== undefined ? ABookingAmount : null,
+        AFirstInstallmentAmount !== undefined ? AFirstInstallmentAmount : null,
+        ASecondInstallmentAmount !== undefined ? ASecondInstallmentAmount : null,
+        IBookingAmount !== undefined ? IBookingAmount : null,
+        IFirstInstallmentAmount !== undefined ? IFirstInstallmentAmount : null,
+        ISecondInstallmentAmount !== undefined ? ISecondInstallmentAmount : null,
+        bookingslotid !== undefined ? bookingslotid : null,
         InstallmentId
       ]);
-
-      if (childinstalment[0]?.id) {
-        if (Array.isArray(childinstalment) && childinstalment.length > 0) {
-          for (const child of childinstalment) {
-            const {
-              id,
-              childfareid,
-              bookingslotid,
-              CBookingAmount,
-              CFirstInstallmentAmount,
-              CSecondInstallmentAmount
-            } = child;
-
-            const value = [
-              CBookingAmount ?? null,
-              CFirstInstallmentAmount ?? null,
-              CSecondInstallmentAmount ?? null,
-              childfareid ?? null,
-              bookingslotid ?? null,
-              id ?? null
-            ];
-
-            console.log('Executing update with values:', value); // Debugging statement
-
-            const childUpdateQuery = `
-              UPDATE childinstalment 
-              SET 
-                CBookingAmount = ?, 
-                CFirstInstallmentAmount = ?, 
-                CSecondInstallmentAmount = ?
-              WHERE
-                childid = ? AND 
-                bookingslotid = ? AND 
-                id = ?
-            `;
-            const [result] = await connection.execute(childUpdateQuery, value);
-
-            if (result.affectedRows === 0) {
-              console.log('No rows affected for childinstalment with id:', id);
-            }
-          }
-        }
-      }
 
       updatedOrInsertedInstallments.push({
         status: true,
@@ -1702,6 +1676,7 @@ const addInstallment = async (req, PKID) => {
       });
 
     } else {
+      // Insert a new installment
       const insertQuery = `
         INSERT INTO installment (
           FirstInstallmentdueDate, SecondInstallmentdueDate, ThirdInstallmentdueDate,
@@ -1711,61 +1686,121 @@ const addInstallment = async (req, PKID) => {
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
-      
-
-      const [data] =await connection.execute(updateQuery, [
-  FirstInstallmentdueDate !== undefined ? FirstInstallmentdueDate : null,
-  SecondInstallmentdueDate !== undefined ? SecondInstallmentdueDate : null,
-  ThirdInstallmentdueDate !== undefined ? ThirdInstallmentdueDate : null,
-  ABookingAmount !== undefined ? ABookingAmount : null,
-  AFirstInstallmentAmount !== undefined ? AFirstInstallmentAmount : null,
-  ASecondInstallmentAmount !== undefined ? ASecondInstallmentAmount : null,
-  IBookingAmount !== undefined ? IBookingAmount : null,
-  IFirstInstallmentAmount !== undefined ? IFirstInstallmentAmount : null,
-  ISecondInstallmentAmount !== undefined ? ISecondInstallmentAmount : null,
-  bookingslotid !== undefined ? bookingslotid : null,
-  InstallmentId !== undefined ? InstallmentId : null
-]);
-
+      const [data] = await connection.execute(insertQuery, [
+        FirstInstallmentdueDate !== undefined ? FirstInstallmentdueDate : null,
+        SecondInstallmentdueDate !== undefined ? SecondInstallmentdueDate : null,
+        ThirdInstallmentdueDate !== undefined ? ThirdInstallmentdueDate : null,
+        ABookingAmount !== undefined ? ABookingAmount : null,
+        AFirstInstallmentAmount !== undefined ? AFirstInstallmentAmount : null,
+        ASecondInstallmentAmount !== undefined ? ASecondInstallmentAmount : null,
+        IBookingAmount !== undefined ? IBookingAmount : null,
+        IFirstInstallmentAmount !== undefined ? IFirstInstallmentAmount : null,
+        ISecondInstallmentAmount !== undefined ? ISecondInstallmentAmount : null,
+        tour_package_id,
+        bookingslotid !== undefined ? bookingslotid : null
+      ]);
 
       const installemntid = data.insertId;
 
-      if (childinstalment) {
-        if (Array.isArray(childinstalment) && childinstalment.length > 0) {
-          for (const child of childinstalment) {
-            const { childfareid, bookingslotid, CBookingAmount, CFirstInstallmentAmount, CSecondInstallmentAmount } = child;
-            const value = [
-              tour_package_id,
-              childfareid,
-              bookingslotid,
-              installemntid,
-              parseFloat(CBookingAmount)  ?? null,
-              parseFloat(CFirstInstallmentAmount )?? null,
-              parseFloat (CSecondInstallmentAmount)  ?? null
-            ];
-
-            console.log(value)
-
-            console.log('Inserting childinstalment with values:', value); // Debugging statement
-
-            const childInsertQuery = `
-              INSERT INTO childinstalment (
-                tour_package_id, childfareid, bookingslotid, installmentid, CBookingAmount,
-                CFirstInstallmentAmount, CSecondInstallmentAmount
-              ) 
-              VALUES (?, ?, ?, ?, ?, ?, ?)
-            `;
-            await connection.execute(childInsertQuery, value);
-          }
-        }
+      if (Array.isArray(childinstalment) && childinstalment.length > 0) {
+        for (const child of childinstalment) {
+          const {
+            childfareid,
+            bookingslotid,
+            CBookingAmount,
+            CFirstInstallmentAmount,
+            CSecondInstallmentAmount
+          } = child;
+  
+  
+          // Insert new child installment
+          const childInsertQuery = `
+            INSERT INTO childinstalment (
+              tour_package_id, childfareid, bookingslotid, installmentid, CBookingAmount,
+              CFirstInstallmentAmount, CSecondInstallmentAmount
+            ) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `;
+          let values =[
+            tour_package_id,
+            childfareid,
+            bookingslotid,
+            installemntid,  // Assumes InstallmentId is set if updating; else, use `installemntid` from new insert
+            CBookingAmount|| null,
+            CFirstInstallmentAmount || null,
+            CSecondInstallmentAmount || null
+          ]
+  
+          console.log(values)
+          await connection.execute(childInsertQuery, values);
+          updatedOrInsertedInstallments.push({
+            status: true,
+            message: "New child installment inserted successfully"
+          });
+      
+        
       }
+
+
 
       updatedOrInsertedInstallments.push({
         status: true,
         message: "New installment inserted successfully"
       });
     }
+  }
 
+
+
+    // Handle child installments
+    if (Array.isArray(childinstalment) && childinstalment.length > 0) {
+      for (const child of childinstalment) {
+        const {
+          childinstallmentid,
+          childfareid,
+          bookingslotid,
+          CBookingAmount,
+          CFirstInstallmentAmount,
+          CSecondInstallmentAmount
+        } = child;
+
+        const childinstallQuery =`SELECT * FROM childinstalment WHERE childinstallmentid =?`
+        const [childinstallmentdata] = await pool.query(childinstallQuery, [childinstallmentid])
+        console.log("childinstallmentdata",childinstallmentdata)
+
+        if (childinstallmentid) {
+          // Update existing child installment
+          const childUpdateQuery = `
+            UPDATE childinstalment 
+            SET 
+              CBookingAmount = ?, 
+              CFirstInstallmentAmount = ?, 
+              CSecondInstallmentAmount = ?
+            WHERE
+              childinstallmentid = ? AND 
+              childfareid = ? AND 
+              bookingslotid = ?
+          `;
+          const [result] = await connection.execute(childUpdateQuery, [
+            CBookingAmount || null,
+            CFirstInstallmentAmount || null,
+            CSecondInstallmentAmount  || null,
+            childinstallmentid,
+            childfareid,
+            bookingslotid
+          ]);
+
+          if (result.affectedRows === 0) {
+            console.log('No rows affected for childinstalment with id:', childinstallmentid);
+          } else {
+            updatedOrInsertedInstallments.push({
+              status: true,
+              message: `Child installment with id ${childinstallmentid} updated successfully`
+            });
+          }
+        }
+      }
+    }
     return updatedOrInsertedInstallments;
 
   } catch (error) {
