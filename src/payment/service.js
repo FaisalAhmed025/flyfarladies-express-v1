@@ -847,7 +847,7 @@ const sucesssslfullamount = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
@@ -1039,12 +1039,11 @@ const sucess_ssl_bookingAmount = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
   ]);
-
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
@@ -1183,7 +1182,7 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
@@ -1330,7 +1329,7 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
@@ -1519,7 +1518,7 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
@@ -1713,7 +1712,7 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    data.store_amount,
+    data?.amount,
     lastbalancew,
     remarksw,
     approvedAtw
