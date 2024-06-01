@@ -4,6 +4,7 @@ import { bookingStatus } from "../booking/bookingservice"
 import { HttpException, NotFoundException } from "express-sharp"
 import { createHash } from 'crypto';
 import SSLCommerzPayment from 'sslcommerz-lts';
+import { totalmem } from "os";
 
 export const payementStatus = {
   PAID: 'paid',
@@ -328,8 +329,6 @@ const payFirstandSecondInstallment = async (req, res) => {
 
   const updateduserquery = `SELECT * FROM user WHERE id=?`
   const [userdata] = await pool.query(updateduserquery, [userid])
-
-
   const cashbackdate = new Date()
   const options2 = {
     weekday: 'long',
@@ -343,14 +342,14 @@ const payFirstandSecondInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${totalAmount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
 
   const lastbalancew = parseInt(userdata[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     userid,
     bookingid,
-    data.store_amount,
+    totalAmount,
     lastbalancew,
     remarksw,
     approvedAtw
@@ -427,6 +426,35 @@ const paySecondandthirdInstallment = async (req, res) => {
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=?, wallet = ? WHERE bookingid= ? `
 
   const [updatebooking] = await pool.query(updateBookingquery, valuedata)
+
+  
+  const updateduserquery = `SELECT * FROM user WHERE id=?`
+  const [userdata] = await pool.query(updateduserquery, [userid])
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${totalAmount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(userdata[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    bookingid,
+    totalAmount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
 
   if (booking[0].cashbackamount !== null) {
     const values = [
@@ -668,14 +696,14 @@ const paythiredInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the third installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the third installemnt paid amount is ${second_installment}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
 
   const lastbalancew = parseInt(userdata[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     userid,
     bookingid,
-    data.store_amount,
+    second_installment,
     lastbalancew,
     remarksw,
     approvedAtw
