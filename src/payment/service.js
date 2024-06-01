@@ -591,14 +591,14 @@ const paySecondInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where the bookingid ${bookingid} and the Second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where the bookingid ${bookingid} and the Second installemnt paid amount is ${first_installment}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
 
   const lastbalancew = parseInt(userdata[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     userid,
     bookingid,
-    data.store_amount,
+    first_installment,
     lastbalancew,
     remarksw,
     approvedAtw
