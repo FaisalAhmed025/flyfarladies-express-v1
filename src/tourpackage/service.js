@@ -33,7 +33,6 @@ export const upload = multer({
 });
 
 
-
 const generatePackageId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLPK" + Math.floor(Math.random() * 10000);
@@ -119,7 +118,6 @@ const deactivatePackages = async () => {
         FROM bookingslot
         WHERE packageId = ? AND StartDate >= ?
       `;
-
       const [results] = await connection.execute(bookingslotQuery, [PKID, currentDate]);
       const { count } = results[0];
 

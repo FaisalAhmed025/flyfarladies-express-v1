@@ -75,7 +75,8 @@ const paymentstatus = "unpaid"
     
     ]);
 
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true
+    );
     const apiResponse = await sslcz.init(data);
     // await this.sslcommerzRepository.save(data)
     res.send(apiResponse)
@@ -148,7 +149,7 @@ const sucesss = async (req, res) => {
     const data = {
       val_id: val_id
     }
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
     const validationData = await sslcz.validate(data);
     return res.send (validationData);
   }
@@ -162,7 +163,7 @@ const sucesss = async (req, res) => {
       refe_id: refe_id,
     };
 
-    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+    const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
 
     const apiresponse = await sslcz.initiateRefund(data);
     return res.send(apiresponse)
@@ -177,7 +178,7 @@ const sucesss = async (req, res) => {
   };
 
 
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   sslcz.refundQuery(data).then(data => {
       //process the response that got from sslcommerz
       //https://developer.sslcommerz.com/doc/v4/#initiate-the-refund
@@ -190,7 +191,7 @@ const sucesss = async (req, res) => {
     const data = {
       tran_id:tran_id,
   };
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   sslcz.transactionQueryByTransactionId(data).then(data => {
       //process the response that got from sslcommerz
       //https://developer.sslcommerz.com/doc/v4/#by-session-id

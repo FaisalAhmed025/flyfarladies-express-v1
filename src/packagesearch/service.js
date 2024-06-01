@@ -337,7 +337,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
         AND Country = ? 
         AND isActive=1
         ORDER BY bs.StartDate ASC
-      ` ;
+      `;
       try {
         const [data] = await pool.query(packagequery, [`%${City}%`, Country])
         if(data.length === 0){

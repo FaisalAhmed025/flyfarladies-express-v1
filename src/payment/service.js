@@ -201,7 +201,6 @@ const paybookingamount = async (req, res) => {
   if (parseInt(user[0].wallet) < parseInt(bookingamount)) {
     return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
-
   const updatedwalet = user[0].wallet - bookingamount
   console.log(updatedwalet);
 
@@ -227,6 +226,35 @@ const paybookingamount = async (req, res) => {
   ]
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  wallet = ? WHERE bookingid= ? `
   const [updatebooing] = await pool.query(updateBookingquery, valuedata)
+
+  const updateduserquery = `SELECT * FROM user WHERE id=?`
+  const [userdata] = await pool.query(updateduserquery, [userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(userdata[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
   return updatebooing;
 }
 
@@ -297,8 +325,37 @@ const payFirstandSecondInstallment = async (req, res) => {
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ?, wallet = ? WHERE bookingid= ? `
   const [updatebooking] = await pool.query(updateBookingquery, valuedata)
 
-  if (booking[0].thir)
-    return updatebooking;
+
+  const updateduserquery = `SELECT * FROM user WHERE id=?`
+  const [userdata] = await pool.query(updateduserquery, [userid])
+
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(userdata[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+return updatebooking;
 
 }
 const paySecondandthirdInstallment = async (req, res) => {
@@ -489,6 +546,35 @@ const paySecondInstallment = async (req, res) => {
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
   const [updatebooing] = await pool.query(updateBookingquery, valuedata)
+
+  const updateduserquery = `SELECT * FROM user WHERE id=?`
+  const [userdata] = await pool.query(updateduserquery, [userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where the bookingid ${bookingid} and the Second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(userdata[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
   return updatebooing;
 }
 
@@ -565,6 +651,36 @@ const paythiredInstallment = async (req, res) => {
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, secondInstallmentStatus = ? ,secondinstallmentpaidate =?, bookingStatus = ?,  wallet = ? WHERE bookingid= ? `
   const [updatebooing] = await pool.query(updateBookingquery, valuedata)
 
+  const updateduserquery = `SELECT * FROM user WHERE id=?`
+  const [userdata] = await pool.query(updateduserquery, [userid])
+
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the third installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(userdata[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+
   
   if (booking[0].cashbackamount !== null) {
     const values = [
@@ -589,7 +705,7 @@ const paythiredInstallment = async (req, res) => {
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you have claimed as a bonus ${booking[0].cashbackamount} TK by using this ${booking[0].couponcode}`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, lastBalance, remarks, createdAt) VALUES (?,?, ?, ?, ?)`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
     
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
@@ -674,7 +790,6 @@ const initwithsslfullamount = async (req, res) => {
   const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
   const apiResponse = await sslcz.init(data);
   res.send(apiResponse)
-
 }
 
 
@@ -707,6 +822,37 @@ const sucesssslfullamount = async (req, res) => {
 
   const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] =await pool.query (bookingQuery, [bookingid])
+
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+
 
   if (booking[0].cashbackamount !== null) {
     const values = [
@@ -866,6 +1012,39 @@ const sucess_ssl_bookingAmount = async (req, res) => {
 
   const updatequery = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
+
+  const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
+  const [booking] =await pool.query (bookingQuery, [bookingid])
+
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
@@ -977,6 +1156,38 @@ const success_ssl_1stinstallemnt = async (req, res) => {
 
   const updatequery = `UPDATE booking SET firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
+
+  const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
+  const [booking] =await pool.query (bookingQuery, [bookingid])
+
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 
@@ -997,8 +1208,6 @@ const initwithssl2ndinstallemnt = async (req, res) => {
 
   const userquery = `SELECT * FROM user WHERE id=?`
   const [user] = await pool.query(userquery, [userid])
-
-  console.log(user)
 
 
   const data = {
@@ -1049,8 +1258,6 @@ const initwithssl2ndinstallemnt = async (req, res) => {
     paymentstatus
 
   ]);
-
-
   console.log(data)
   const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
   const apiResponse = await sslcz.init(data);
@@ -1079,9 +1286,11 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
   const secondinstallemnttstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
   const bookingstatus = bookingStatus.ISSUE_IN_PROCESS
-  const paymentstatus = payementStatus.SECONDINSTALLMENT
+  let  paymentstatus = payementStatus.SECONDINSTALLMENT
 
-
+  if(booking[0].second_installment ===0.00){
+    paymentstatus = payementStatus.PAID
+  }
   const bookingquery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
 
@@ -1094,6 +1303,38 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
   ]
   const updatequery = `UPDATE booking SET paymentStatus=?,bookingStatus=?,  secondInstallmentStatus=?,  second_installment_due_date=? WHERE bookingid = ?`
   await pool.query(updatequery, value)
+
+  // const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
+  // const [booking] =await pool.query (bookingQuery, [bookingid])
+
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
 
   if (booking[0].cashbackamount !== null) {
     const values = [
@@ -1249,9 +1490,81 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
     firstinstallmentpaiddate,
     bookingid
   ]
-
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingAmountStatus = ? ,bookingamountpaiddate =?,  firstInstallmentStatus = ?,  firstinstallmentpaiddate = ? WHERE bookingid= ? `
   await pool.query(updateBookingquery, valuedata)
+
+  // const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
+  // const [booking] =await pool.query (bookingQuery, [bookingid])
+
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+
+  if(booking[0].paymentStatus ==='paid'){
+    
+  if (booking[0].cashbackamount !== null) {
+    const values = [
+      booking[0].cashbackamount,
+      booking[0].userid
+    ]
+    const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
+    const [updateduserwallet] = await pool.query(userQuery, values)
+    const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
+    const [lastbalancedata] = await pool.query(userQuerylastbalance, [booking[0].userid]);
+    const cashbackdate = new Date()
+    const options2 = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
+    const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+    const lastbalancew = parseInt(lastbalancedata[0].wallet)
+    const ledgerw = await pool.query(ledgerqueryw, [
+      booking[0].userid,
+      bookingid,
+      booking[0].cashbackamount,
+      lastbalancew,
+      remarksw,
+      approvedAtw
+    ]);
+
+  }
+  }
+
   return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
 
 }
@@ -1374,10 +1687,40 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
   secondinstallmentpaidate=?, firstInstallmentStatus = ?,   firstinstallmentpaiddate = ?, bookingStatus=? WHERE bookingid= ? `
   await pool.query(updateBookingquery, valuedata)
 
-  
+  //user ledger
   const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
   const [booking] = await pool.query(bookingquery, [bookingid]);
-  
+  const userquery = `SELECT * FROM user WHERE id=?`
+  const [user] = await pool.query(userquery, [booking[0].userid])
+
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    booking[0].userid,
+    bookingid,
+    data.store_amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
+
+
+
   if (booking[0].cashbackamount !== null) {
     const values = [
       booking[0].cashbackamount,
