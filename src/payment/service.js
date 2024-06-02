@@ -883,7 +883,8 @@ const initwithsslfullamount = async (req, res) => {
   ]);
 
   console.log(data)
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true
+  );
   const apiResponse = await sslcz.init(data);
   res.send(apiResponse)
 }
@@ -1076,7 +1077,7 @@ const initwithsslbookingmoney = async (req, res) => {
   ]);
 
 
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   const apiResponse = await sslcz.init(data);
   // await this.sslcommerzRepository.save(data)
   res.send(apiResponse)
@@ -1222,7 +1223,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
 
 
   console.log(data)
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   const apiResponse = await sslcz.init(data);
   // await this.sslcommerzRepository.save(data)
   res.send(apiResponse)
@@ -1416,7 +1417,7 @@ const initwithssl2ndinstallemnt = async (req, res) => {
 
   ]);
   console.log(data)
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   const apiResponse = await sslcz.init(data);
   // await this.sslcommerzRepository.save(data)
   res.send(apiResponse)
@@ -1606,7 +1607,7 @@ const initwithssl1stAnd2ndinstallment = async (req, res) => {
 
 
   console.log(data)
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   const apiResponse = await sslcz.init(data);
   // await this.sslcommerzRepository.save(data)
   res.send(apiResponse)
@@ -1808,7 +1809,7 @@ const initwithssl2ndand3rdinstallment = async (req, res) => {
     paymentstatus
   ]);
 
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false);
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true);
   const apiResponse = await sslcz.init(data);
   // await this.sslcommerzRepository.save(data)
   res.send(apiResponse)
