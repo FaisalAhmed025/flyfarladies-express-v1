@@ -356,7 +356,7 @@ const payFirstandSecondInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${totalAmount}.`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the booking And first installment  paid amount is ${totalAmount}.`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?,?,?,?, ?, ?)`;
 
   const transactionId = generateTransactionId()
@@ -459,7 +459,7 @@ const paySecondandthirdInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the Second And third installment  paid amount is ${totalAmount}`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the first And second installment  paid amount is ${totalAmount}`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
 
   const transactionId = generateTransactionId()
@@ -1177,7 +1177,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `http://localhost:4004/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
+    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
