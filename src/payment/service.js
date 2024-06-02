@@ -1267,7 +1267,7 @@ const success_ssl_1stinstallemnt = async (req, res) => {
     bookingid
   ]
 
-  const updatequery = `UPDATE booking SET paymentStatus=?, paymentStatus=?, firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET paymentStatus=?, bookingStatus=?, firstInstallmentStatus=?,  firstinstallmentpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
   const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
   const [booking] = await pool.query(bookingQuery, [bookingid])
