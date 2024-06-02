@@ -336,15 +336,14 @@ for (let i = 0; i < child.length; i++) {
     const installment = installmentdata[0];
     console.log(installmentdata);
     totalAdultBookingAmount = installment?.ABookingAmount * totaladult;
-
-    totalInfantBookingAmount = installment.IBookingAmount * totalinfant;
-    totalAdultFirstInstallmentAmount = installment.AFirstInstallmentAmount * totaladult;
-    totalInfantFirstInstallmentAmount = installment.IFirstInstallmentAmount * totalinfant;
-    totalAdultSecondInstallmentAmount = installment.ASecondInstallmentAmount * totaladult;
-    totalInfantSecondInstallmentAmount = installment.ISecondInstallmentAmount * totalinfant;
+    totalInfantBookingAmount = installment?.IBookingAmount * totalinfant || 0.00;
+    totalAdultFirstInstallmentAmount = installment?.AFirstInstallmentAmount * totaladult || 0.00;
+    totalInfantFirstInstallmentAmount = installment?.IFirstInstallmentAmount * totalinfant || 0.00;
+    totalAdultSecondInstallmentAmount = installment?.ASecondInstallmentAmount * totaladult || 0.00;
+    totalInfantSecondInstallmentAmount = installment?.ISecondInstallmentAmount * totalinfant || 0.00;
 
     // Calculate child installment amounts
-    const childInstallments = installment.childinstallments;
+    const childInstallments = installment?.childinstallments;
     // Add the installment amounts
     for (let i = 0; i < child.length; i++) {
       const childInstallmentId = childInstallments[i % childInstallments.length];
@@ -380,9 +379,9 @@ for (let i = 0; i < child.length; i++) {
       tourpackage[0].Food,
       tourpackage[0].Transport,
       tourpackage[0].Hotel,
-      bookingamount,
-      firstinstallement,
-      secondinstalemnt,
+      bookingamount || 0,
+      firstinstallement ||0,
+      secondinstalemnt || 0,
       FirstInstallmentdueDate,
       SecondInstallmentdueDate,
       ThirdInstallmentdueDate,
