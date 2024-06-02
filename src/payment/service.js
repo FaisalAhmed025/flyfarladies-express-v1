@@ -590,7 +590,6 @@ const paySecondInstallment = async (req, res) => {
     bookingid
   ]
 
-  console.log(valuedata)
 
   const updateBookingquery = `UPDATE booking SET paymentStatus = ?, bookingStatus=?, firstInstallmentStatus = ? ,firstinstallmentpaiddate =?,  wallet = ? WHERE bookingid= ? `
 
@@ -628,7 +627,9 @@ const paySecondInstallment = async (req, res) => {
   ]);
 
 
-  if (booking[0].cashbackamount !== null && booking[0].paymentStatus === 'paid') {
+
+
+  if (booking[0].cashbackamount !== null && booking[0].second_installment === '0.00') {
     const values = [
       booking[0].cashbackamount,
       booking[0].userid
