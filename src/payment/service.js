@@ -973,7 +973,7 @@ const sucesssslfullamount = async (req, res) => {
       timeZone: 'Asia/Dhaka'
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
     const transactionid = generateTransactionId()
@@ -1325,7 +1325,7 @@ const success_ssl_1stinstallemnt = async (req, res) => {
       timeZone: 'Asia/Dhaka'
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
     const transactionid = generateTransactionId()
@@ -1907,7 +1907,7 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
       timeZone: 'Asia/Dhaka'
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid,  purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
     const transactionid = generateTransactionId()
