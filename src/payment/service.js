@@ -1177,7 +1177,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `http://localhost:4004/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
+    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
