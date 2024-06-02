@@ -1177,7 +1177,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
+    success_url: `http://localhost:4004/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
@@ -1303,11 +1303,15 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   ]);
 
 
-  if (booking[0].cashbackamount !== null && booking[0].second_installment === '0.00') {
+  console.log(bookings[0].second_installment )
+
+  if (bookings[0].cashbackamount !== null && bookings[0].second_installment === '0.00') {
     const values = [
       booking[0].cashbackamount,
       booking[0].userid
     ]
+
+    console.log(values)
     const userQuery = `UPDATE user SET wallet = COALESCE(wallet, 0) + ? WHERE id = ?`;
     const [updateduserwallet] = await pool.query(userQuery, values)
     const userQuerylastbalance = `SELECT * FROM user WHERE id = ?`;
