@@ -309,7 +309,7 @@ const payFirstandSecondInstallment = async (req, res) => {
   const updatequery = `UPDATE user SET wallet = ? WHERE id = ? `
   await pool.query(updatequery, value)
 
-  let paymentstatus = payementStatus.UNPAID
+  let paymentstatus = payementStatus.FIRSTINSTALLMENT
   const bookingamountstatus = installmentStatus.COMPLETED
   const lastbalance = user[0].wallet
   const bookingamountpaiddate = new Date()
@@ -1247,12 +1247,10 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   const firstinstallemnttstatus = installmentStatus.COMPLETED
   const paiddate = new Date()
   let bookingstatus = bookingStatus.HOLD
-  let paymentstatus = payementStatus.SECONDINSTALLMENT
+  let paymentstatus = payementStatus.FIRSTINSTALLMENT
 
   const bookingQuerys = `SELECT * FROM booking WHERE bookingid=?`
   const [bookings] = await pool.query(bookingQuerys, [bookingid])
-
-  console.log(bookings)
 
   if (bookings[0].second_installment === '0.00' || undefined) {
     paymentstatus = payementStatus.PAID
