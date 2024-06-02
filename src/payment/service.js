@@ -1132,7 +1132,7 @@ const sucess_ssl_bookingAmount = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
 
   const transactionid = generateTransactionId()
   const lastbalancew = parseInt(user[0].wallet)
