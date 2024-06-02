@@ -935,7 +935,7 @@ const sucesssslfullamount = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
   const transactionid = generateTransactionId()
@@ -1131,7 +1131,7 @@ const sucess_ssl_bookingAmount = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
 
   const transactionid = generateTransactionId()
@@ -1176,7 +1176,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
+    success_url: `http://localhost:4004/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
@@ -1234,7 +1234,6 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   // const uuid = req.params.id;
   const data = req.body;
 
-
   // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
   const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);
   const transaction = transactionRows[0];
@@ -1288,7 +1287,7 @@ const success_ssl_1stinstallemnt = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
 
@@ -1305,7 +1304,7 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   ]);
 
 
-  if (booking[0].cashbackamount !== null && booking[0].paymentStatus === 'paid') {
+  if (booking[0].cashbackamount !== null && booking[0].second_installment === '0.00') {
     const values = [
       booking[0].cashbackamount,
       booking[0].userid
@@ -1475,7 +1474,7 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the second installemnt paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
   const transactionid = generateTransactionId()
@@ -1671,7 +1670,7 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
   const transactionid = generateTransactionId()
@@ -1867,7 +1866,7 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.store_amount}.The payment has executed by  sslcommerz`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and the amount is ${data.amount}.The payment has executed by  sslcommerz`;
   const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
 
   const transactionid = generateTransactionId()
