@@ -1101,15 +1101,16 @@ const sucess_ssl_bookingAmount = async (req, res) => {
   await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
 
   const bookingamountstatus = installmentStatus.COMPLETED
+  const paymentstatus = payementStatus.BOOKINGSTATUS
   const paiddate = new Date()
-
   const value = [
+    paymentstatus,
     bookingamountstatus,
     paiddate,
     bookingid
   ]
 
-  const updatequery = `UPDATE booking SET bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
+  const updatequery = `UPDATE booking SET paymentStatus=?, bookingAmountStatus=?,  bookingamountpaiddate=? WHERE bookingid = ?`
   const updatebooking = await pool.query(updatequery, value)
 
   const bookingQuery = `SELECT * FROM booking WHERE bookingid=?`
