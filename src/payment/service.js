@@ -1512,13 +1512,16 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
       timeZone: 'Asia/Dhaka'
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?, ?)`;
+    const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK.`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
 
+
+    const transactionid = generateTransactionId()
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
+      transactionid,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
