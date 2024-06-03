@@ -196,7 +196,6 @@ const paybookingamount = async (req, res) => {
     throw new NotFoundException('User not found');
   }
   const bookingamount = booking[0].booking_money;
-
   const currentDate = new Date(); // Use JavaScript Date objects
   const dueDate = booking.booking_money_due_date;
   if (currentDate > dueDate) {
@@ -254,7 +253,7 @@ const paybookingamount = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${bookingamount}`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid} and booking Amount paid  is ${bookingamount} TK`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
 
   const transactionId = generateTransactionId()
@@ -356,7 +355,7 @@ const payFirstandSecondInstallment = async (req, res) => {
     timeZone: 'Asia/Dhaka'
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
-  const remarksw = `You have paid a package where th bookingid ${bookingid} and the booking And first installment  paid amount is ${totalAmount}.`;
+  const remarksw = `You have paid a package where th bookingid ${bookingid}, the booking Amount And first installment  paid amount is ${totalAmount}.`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?,?,?,?, ?, ?)`;
 
   const transactionId = generateTransactionId()
@@ -842,7 +841,7 @@ const initwithsslfullamount = async (req, res) => {
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}/${bookingid}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email: user[0].email,
@@ -991,7 +990,7 @@ const sucesssslfullamount = async (req, res) => {
     ]);
 
   }
-  return res.redirect(`https://flyfarladies.com/dashboard/congratulationmessage`);
+  return res.redirect(`https://flyfarladies.com/dashboard/tourbookingconfirm/${bookingid}`);
 
 
 }
@@ -999,6 +998,7 @@ const sucesssslfullamount = async (req, res) => {
 
 const cancelledfullamount = async (req, res) => {
   const tran_id = req.params.tran_id;
+  const bookingid = req.params.bookingid
   // const uuid = req.params.id;
   const data = req.body;
   console.log(req.body)
@@ -1010,9 +1010,7 @@ const cancelledfullamount = async (req, res) => {
   }
 
   await pool.query('UPDATE ssl_commerz_entity SET paymentstatus = ?, store_amount = ?,  status =?, tran_date = ?, val_id = ?, bank_tran_id = ? WHERE tran_id = ?', ['VALIDATED', data.store_amount, data.status, data.tran_date, data.val_id, data.bank_tran_id, tran_id]);
-
-  return res.redirect(`https://flyfarladies.com/dashboard/mybookings`);
-
+  return res.redirect(`https://flyfarladies.com/dashboard/tourbookingconfirm/${bookingid}`);
 
 }
 
