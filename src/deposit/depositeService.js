@@ -2803,13 +2803,14 @@ const ApprovedCheckDeposit = async (req) => {
 
     const remarks = `Cheque Deposit request from ${result[0].cheque_number},Reference ${result[0].reference}, On ${result[0].created_at} and  Transaction ID is ${result[0].deposit_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, trancationid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?, ?)`;
 
     const deposit ='Deposit'
-    
+    const transcationid = generateTransactionId()
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
       deposit_id,
+      transcationid,
       deposit,
       result[0].amount,
       user[0].wallet,
@@ -5527,13 +5528,14 @@ const ApprovedCashDeposit = async (req) => {
 
     const remarks = `Cash Deposit request from ${result[0].depositor_name}, Receiver ${result[0].receiver_name}, On ${result[0].transaction_date} and  TRXID is ${result[0].transaction_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, referenceid,transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?,?,?,?, ?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?,?,?,?,?, ?, ?, ?)`;
 
     const deposit ='Deposit'
-    
+    const transactionid = generateTransactionId()
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
       deposit_id,
+      transactionid,
       deposit,
       result[0].amount,
       user[0].wallet,
