@@ -18,6 +18,13 @@ const deleteUser = async (req, res) => {
 };
 
 
+const getplatform = async (req, res) => {
+  await UserService.getplatform(req,res)
+
+};
+
+
+
 const loginwithGoogle = async (req, res) => {
   await UserService.loginwithGoogle(req,res)
 
@@ -27,9 +34,6 @@ const loginwithfacebook = async (req, res) => {
   await UserService.loginwithfacebook(req,res)
 
 };
-
-
-
 
 
 const addtravlercontroller = async (req, res) => {
@@ -157,7 +161,8 @@ export const userController = {
   myTravelerList,
   deleteTraveller,
   loginwithGoogle,
-  alluserdata
+  alluserdata,
+  getplatform
 
 }
 

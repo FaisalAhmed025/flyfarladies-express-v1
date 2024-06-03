@@ -23,5 +23,6 @@ router.delete('/mytraveller/:partnerId', userController.deleteTraveller)
 router.delete('/deleteuser/:id', userController.deleteUser)
 router.get('/alltraveler/test/:user_id', userController.myTravelerList)
 router.get('/ledger/:user_id', userController.userLedger)
+router.get('/platform', userController.getplatform)
 
 export default router;

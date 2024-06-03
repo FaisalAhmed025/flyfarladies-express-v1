@@ -19,7 +19,7 @@ const TravellerId = () => {
 const Register = async (req, res) => {
   try {
     // Extract the data from the request body
-    const { name, phone, email, password, platform } = req.body;
+    const { name, phone, email, password, platform, device } = req.body;
     // Do some validation on the data
 
     if (!name || !email || !password || !platform) {
@@ -42,13 +42,13 @@ const Register = async (req, res) => {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
     // Create a new user object with the provided data
-    const newUser = { id, name, phone, email, password: hashedPassword, platform };
+    const newUser = { id, name, phone, email, device, password: hashedPassword, platform };
 
     const joinAt = new Date();
     console.log(joinAt);
     // Save the new user to the database
     const [result] = await pool.query(
-      "INSERT INTO user (id, name, phone, email, password, platform, joinAt) VALUES (?, ?, ?, ?,?,?,?)",
+      "INSERT INTO user (id, name, phone, email, password, platform, device, joinAt) VALUES (?, ?, ?,?, ?,?,?,?)",
       [
         newUser.id,
         newUser.name,
@@ -56,6 +56,7 @@ const Register = async (req, res) => {
         newUser.email,
         newUser.password,
         newUser.platform,
+        newUser.device,
         joinAt,
       ]
     );
@@ -1067,6 +1068,41 @@ const userLedger =  async (req,res)=>{
   });
 }
 
+
+
+const getplatform = async (req, res) => {
+  // Query to get booking details along with user counts for app platform
+  const getAppBookingDetailsQuery = `
+  SELECT 
+    device,
+    COUNT(*) AS Registered_user
+  FROM user
+  WHERE device = 'app'
+  GROUP BY device
+`;
+
+  // Query to get booking details along with user counts for desktop platform
+  const getDesktopBookingDetailsQuery = `
+  SELECT 
+  device,
+    COUNT(*) AS Registered_user
+  FROM user
+  WHERE device = 'website'
+  GROUP BY device
+`;
+
+  // Execute the queries to get booking details with user counts for each platform
+  const [getAppregisteruser] = await pool.query(getAppBookingDetailsQuery);
+  const [getwebsiteregisteruser] = await pool.query(getDesktopBookingDetailsQuery);
+
+  // Combine the results for app and desktop booking
+
+  // Log the booking details with user counts for each platform
+  return  res.send({register_by_app: getAppregisteruser,
+    register_by_website: getwebsiteregisteruser})
+
+}
+
 export const UserService = {
   Register,
   login,
@@ -1083,4 +1119,5 @@ export const UserService = {
   updateTraveler,
   myTravelerList,
   deleteTraveller,
+  getplatform,
 };
