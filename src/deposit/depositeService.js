@@ -7,6 +7,15 @@ const generateDepoId = () => {
   return "FFLD" + Math.floor(Math.random() * 10000);
 };
 
+
+const generateTransactionId = () => {
+  const timestamp = Date.now().toString();
+  const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
+  const hash = createHash('sha256').update(`${timestamp}${randomString}`).digest('hex');
+  const shortenedHash = hash.substr(0, 16).toUpperCase();
+  return shortenedHash;
+}
+
 // Create Bank Deposit
 const createBankDeposit = async (req) => {
   const connection = await pool.getConnection();
@@ -731,7 +740,6 @@ const ApprovedBankDeposit = async (req) => {
   const connection = await pool.getConnection();
   try {
     const deposit_id = req.params.deposit_id;
-
     if(deposit_id.length ==0){
       return res.send({status:false, message:"deposit not found"})
     }
@@ -769,13 +777,14 @@ const ApprovedBankDeposit = async (req) => {
     ]);
     const [user] = await pool.query(userquery, [user_id])
 
-    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionType, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?,?,?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionid, transactionType, purchase, lastBalance, actionBy, remarks) VALUES (?, ?, ?, ?,?,?,?, ?)`;
 
     const deposit ='Deposit'
-    
+    const transactionid = generateTransactionId()
     const ledger = await connection.execute(ledgerquery, [
       result[0].requested_by,
       deposit_id,
+      transactionid,
       deposit,
       result[0].amount,
       user[0].wallet,
@@ -2792,7 +2801,7 @@ const ApprovedCheckDeposit = async (req) => {
     const userquery = `SELECT * FROM user WHERE id=?`
     const [user] = await pool.query(userquery, user_id)
 
-    const remarks = `Mobile Deposit request from ${result[0].accountNumber},Reference ${result[0].reference}, On ${result[0].requestDate} and  Transaction ID is ${result[0].transactionID} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
+    const remarks = `Cheque Deposit request from ${result[0].cheque_number},Reference ${result[0].reference}, On ${result[0].created_at} and  Transaction ID is ${result[0].deposit_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
     const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?, ?)`;
 
