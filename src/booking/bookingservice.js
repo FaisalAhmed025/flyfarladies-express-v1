@@ -862,12 +862,69 @@ const getplatform = async (req, res) => {
 
 }
 
+const packageVisitor = async(req, res)=>{
+  const userid = req.body.id
+  const PKID = req.body.PKID
+
+  const userQuery = `SELECT * FROM user WHERE id = ?`;
+  const [user] = await pool.query(userQuery, [userid]);
+
+  const { email, name, phone } = user[0];
+  const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
+  const [tourpackage] = await pool.query(packgaeQuery, [PKID]);
+
+
+  console.log(tourpackage)
+
+  const inserdata =`INSERT INTO packagevisitor (userid,packageid, email, username, phone, packagename,visitedat)
+  VALUES (?, ?, ?, ?, ?,?, ?);`
+
+  
+  const date = new Date()
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+
+  const visitedAt = date.toLocaleString('en-BD', options);
+
+  const values = [
+    userid,
+    PKID,
+    email,
+    name,
+    phone,
+    tourpackage[0]?.MainTitle,
+    visitedAt,
+  ]
+  console.log(values)
+  const [data] = await pool.query(inserdata, values)
+  return res.send({data})
+
+  
+}
+
+const getpackagevisitor = async (req, res) => {
+  const packagequery = `SELECT * FROM packagevisitor  ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC`
+  const [visitors] = await pool.execute(packagequery);
+  return visitors;
+}
+
 
 export const BookingService = {
   Book$Hold,
   getAllBooking,
   getSingleBooking,
   getplatform,
+  packageVisitor,
+  getpackagevisitor,
   getBookingsByUserId,
   ApprovedBooking,
   CancelledBooking,

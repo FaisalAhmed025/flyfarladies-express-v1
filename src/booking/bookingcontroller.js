@@ -13,6 +13,13 @@ const getAllBookings  = async (req, res) => {
   })
 }
 
+const getallpackagevisitor  = async (req, res) => {
+  const vistor = await BookingService.getpackagevisitor(req,res);
+ return res.json({
+  visitors:vistor
+  })
+}
+
 const getSingleBookings  = async (req, res) => {
   const book = await BookingService.getSingleBooking(req,res);
  return res.json({
@@ -23,6 +30,11 @@ const getSingleBookings  = async (req, res) => {
 
 const approvedBooking = async (req, res) => {
    await BookingService.ApprovedBooking(req,res);
+}
+
+
+const packageVisitor = async (req, res) => {
+  await BookingService.packageVisitor(req,res);
 }
 
 
@@ -56,5 +68,7 @@ export const bookingController = {
   getuserBookings,
   approvedBooking,
   CancelledBooking,
-  CancelledBookingUser
+  CancelledBookingUser,
+  packageVisitor,
+  getallpackagevisitor
 }
