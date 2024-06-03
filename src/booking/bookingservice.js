@@ -72,7 +72,6 @@ const Book$Hold = async (req, res) => {
     if (Array.isArray(adult) && adult.length > 0) {
       // Prepare an array to hold all adult traveler values
       const adultTravelersValues = [];
-
       for (const adulttraveler of adult) {
         const {
           afName,
@@ -84,25 +83,8 @@ const Book$Hold = async (req, res) => {
           agender,
           aPaxType,
         } = adulttraveler;
-
         const passportDateValue = passDate ? passDate : null;
         const passportNumber = PassportNumber ? PassportNumber : null;
-
-        // Check if traveler already exists
-        if (passportNumber) {
-          const checkTravelerQuery = `
-            SELECT * FROM passenger
-            WHERE passportNumber = ?
-          `;
-
-          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
-
-          if (existingTraveler.length > 0) {
-            // Traveler already exists, throw an error
-            return res.send({ message: `Traveler with passport number ${passportNumber} already exists.` });
-          }
-        }
-
         // Add current adult traveler's values to the array
         adultTravelersValues.push([
           aPaxType,
@@ -118,19 +100,16 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      if (adultTravelersValues.length > 0) {
-        const addpassenger = `
+      const addpassenger = `
           INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
           VALUES ?
-        `;
-        // Execute the SQL query to insert all adult travelers
-        await pool.query(addpassenger, [adultTravelersValues]);
-      }
+      `;
+      // Execute the SQL query to insert all adult travelers
+      await pool.query(addpassenger, [adultTravelersValues]);
     }
 
-
     if (Array.isArray(child) && child.length > 0) {
-      // Prepare an array to hold all child traveler values
+      // Prepare an array to hold all adult traveler values
       const childTravelersValues = [];
 
       for (const childtraveler of child) {
@@ -148,22 +127,7 @@ const Book$Hold = async (req, res) => {
         const passportDateValue = cpassDate ? cpassDate : null;
         const passportNumber = cpassportNumber ? cpassportNumber : null;
 
-        // Check if traveler already exists
-        if (passportNumber) {
-          const checkTravelerQuery = `
-            SELECT * FROM passenger
-            WHERE passportNumber = ?
-          `;
-
-          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
-
-          if (existingTraveler.length > 0) {
-            // Traveler already exists, throw an error
-            throw new Error(`Traveler with passport number ${passportNumber} already exists.`);
-          }
-        }
-
-        // Add current child traveler's values to the array
+        // Add current adult traveler's values to the array
         childTravelersValues.push([
           cpaxType,
           cfName,
@@ -178,21 +142,16 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      if (childTravelersValues.length > 0) {
-        const addChildPassengerQuery = `
-          INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
-          VALUES ?
-        `;
-        // Execute the SQL query to insert all child travelers
-        await pool.query(addChildPassengerQuery, [childTravelersValues]);
-      }
+      const addChildPassengerQuery = `
+      INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
+      VALUES ?`;
+      // Execute the SQL query to insert all adult travelers
+      const newTravelerResult = await pool.query(addChildPassengerQuery, [childTravelersValues]);
     }
 
-
     if (Array.isArray(infant) && infant.length > 0) {
-      // Prepare an array to hold all infant traveler values
+      // Prepare an array to hold all adult traveler values
       const infantTravelersValues = [];
-
       for (const infanttraveler of infant) {
         const {
           ipaxType,
@@ -205,25 +164,10 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
-        const passportDateValue = ipassDate ? ipassDate : null;
-        const passportNumber = ipassportNumber ? ipassportNumber : null;
+        const passportDateValue = ipassDate ? ipassDate : null
+        const passportNumber = ipassportNumber ? ipassportNumber : null
 
-        // Check if traveler already exists
-        if (passportNumber) {
-          const checkTravelerQuery = `
-        SELECT * FROM passenger
-        WHERE passportNumber = ?
-      `;
-
-          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
-
-          if (existingTraveler.length > 0) {
-            // Traveler already exists, throw an error
-            throw new Error(`Traveler with passport number ${passportNumber} already exists.`);
-          }
-        }
-
-        // Add current infant traveler's values to the array
+        // Add current adult traveler's values to the array
         infantTravelersValues.push([
           ipaxType,
           ifName,
@@ -238,15 +182,15 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      if (infantTravelersValues.length > 0) {
-        const addInfantPassengerQuery = `
+      const addInfantPassengerQuery = `
       INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
       VALUES ?
-    `;
-        // Execute the SQL query to insert all infant travelers
-        await pool.query(addInfantPassengerQuery, [infantTravelersValues]);
-      }
+  `;
+      // Execute the SQL query to insert all adult travelers
+      await pool.query(addInfantPassengerQuery, [infantTravelersValues]);
     }
+
+
 
     const date = new Date()
     const options = {
