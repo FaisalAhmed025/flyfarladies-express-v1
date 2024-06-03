@@ -5499,7 +5499,7 @@ const ApprovedCashDeposit = async (req) => {
 
     const approvedAt = date.toLocaleString('en-BD', options);
 
-  const status = 'approved'
+   const status = 'approved'
     const values = [
       status,
       action_by,

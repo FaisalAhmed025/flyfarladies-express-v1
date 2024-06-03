@@ -3,6 +3,7 @@ import { HttpException } from "express-sharp";
 import pool from "../database/db";
 import { payementStatus } from "../payment/service";
 import nodemailer from 'nodemailer'
+import { json } from "express";
 
 
 export const bookingStatus = {
@@ -28,6 +29,20 @@ const Book$Hold = async (req, res) => {
     const packgeId = req.params.PKID;
     const couponCode = req.body.couponCode;
     const validCouponCode = 'FFL2024';
+
+    const userType = req.body.userType; // Assuming you have userType in your request body
+    let platform;
+
+    if (userType === 'app') {
+      platform = 'app';
+    } else if (userType === 'website') {
+      platform = 'website';
+    } else {
+      // If userType is not specified or invalid, default to 'unknown'
+      platform = 'unknown';
+    }
+
+    console.log("Platform:", platform);
 
     console.log(packgeId, bookingSlotId)
 
@@ -57,6 +72,7 @@ const Book$Hold = async (req, res) => {
     if (Array.isArray(adult) && adult.length > 0) {
       // Prepare an array to hold all adult traveler values
       const adultTravelersValues = [];
+
       for (const adulttraveler of adult) {
         const {
           afName,
@@ -68,8 +84,25 @@ const Book$Hold = async (req, res) => {
           agender,
           aPaxType,
         } = adulttraveler;
+
         const passportDateValue = passDate ? passDate : null;
         const passportNumber = PassportNumber ? PassportNumber : null;
+
+        // Check if traveler already exists
+        if (passportNumber) {
+          const checkTravelerQuery = `
+            SELECT * FROM passenger
+            WHERE passportNumber = ?
+          `;
+
+          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
+
+          if (existingTraveler.length > 0) {
+            // Traveler already exists, throw an error
+            return res.send({ message: `Traveler with passport number ${passportNumber} already exists.` });
+          }
+        }
+
         // Add current adult traveler's values to the array
         adultTravelersValues.push([
           aPaxType,
@@ -85,17 +118,19 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      const addpassenger = `
+      if (adultTravelersValues.length > 0) {
+        const addpassenger = `
           INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
           VALUES ?
-      `;
-      // Execute the SQL query to insert all adult travelers
-      await pool.query(addpassenger, [adultTravelersValues]);
+        `;
+        // Execute the SQL query to insert all adult travelers
+        await pool.query(addpassenger, [adultTravelersValues]);
+      }
     }
 
 
     if (Array.isArray(child) && child.length > 0) {
-      // Prepare an array to hold all adult traveler values
+      // Prepare an array to hold all child traveler values
       const childTravelersValues = [];
 
       for (const childtraveler of child) {
@@ -113,7 +148,22 @@ const Book$Hold = async (req, res) => {
         const passportDateValue = cpassDate ? cpassDate : null;
         const passportNumber = cpassportNumber ? cpassportNumber : null;
 
-        // Add current adult traveler's values to the array
+        // Check if traveler already exists
+        if (passportNumber) {
+          const checkTravelerQuery = `
+            SELECT * FROM passenger
+            WHERE passportNumber = ?
+          `;
+
+          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
+
+          if (existingTraveler.length > 0) {
+            // Traveler already exists, throw an error
+            throw new Error(`Traveler with passport number ${passportNumber} already exists.`);
+          }
+        }
+
+        // Add current child traveler's values to the array
         childTravelersValues.push([
           cpaxType,
           cfName,
@@ -128,16 +178,21 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      const addChildPassengerQuery = `
-      INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
-      VALUES ?`;
-      // Execute the SQL query to insert all adult travelers
-      const newTravelerResult = await pool.query(addChildPassengerQuery, [childTravelersValues]);
+      if (childTravelersValues.length > 0) {
+        const addChildPassengerQuery = `
+          INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
+          VALUES ?
+        `;
+        // Execute the SQL query to insert all child travelers
+        await pool.query(addChildPassengerQuery, [childTravelersValues]);
+      }
     }
 
+
     if (Array.isArray(infant) && infant.length > 0) {
-      // Prepare an array to hold all adult traveler values
+      // Prepare an array to hold all infant traveler values
       const infantTravelersValues = [];
+
       for (const infanttraveler of infant) {
         const {
           ipaxType,
@@ -150,10 +205,25 @@ const Book$Hold = async (req, res) => {
           ipassportNumber,
         } = infanttraveler;
 
-        const passportDateValue = ipassDate ? ipassDate : null
-        const passportNumber = ipassportNumber ? ipassportNumber : null
+        const passportDateValue = ipassDate ? ipassDate : null;
+        const passportNumber = ipassportNumber ? ipassportNumber : null;
 
-        // Add current adult traveler's values to the array
+        // Check if traveler already exists
+        if (passportNumber) {
+          const checkTravelerQuery = `
+        SELECT * FROM passenger
+        WHERE passportNumber = ?
+      `;
+
+          const [existingTraveler] = await pool.query(checkTravelerQuery, [passportNumber]);
+
+          if (existingTraveler.length > 0) {
+            // Traveler already exists, throw an error
+            throw new Error(`Traveler with passport number ${passportNumber} already exists.`);
+          }
+        }
+
+        // Add current infant traveler's values to the array
         infantTravelersValues.push([
           ipaxType,
           ifName,
@@ -168,12 +238,14 @@ const Book$Hold = async (req, res) => {
         ]);
       }
 
-      const addInfantPassengerQuery = `
+      if (infantTravelersValues.length > 0) {
+        const addInfantPassengerQuery = `
       INSERT INTO passenger (paxType, fName, lName, nationality, gender, dob, passDate, passportNumber, bookingid, userid)
       VALUES ?
-  `;
-      // Execute the SQL query to insert all adult travelers
-      await pool.query(addInfantPassengerQuery, [infantTravelersValues]);
+    `;
+        // Execute the SQL query to insert all infant travelers
+        await pool.query(addInfantPassengerQuery, [infantTravelersValues]);
+      }
     }
 
     const date = new Date()
@@ -220,8 +292,8 @@ const Book$Hold = async (req, res) => {
     }
 
 
-    
-//cashback Amount
+
+    //cashback Amount
     let discountAmount;
     if (couponCode !== null) {
       if (tourpackage[0].TripType === 'International') {
@@ -234,23 +306,23 @@ const Book$Hold = async (req, res) => {
 
     }
 
-// Create a map for child fare prices
-const childfarePriceMap = {};
-childfareData.forEach(cf => {
-  childfarePriceMap[cf.childfareid] = cf.price;
-});
+    // Create a map for child fare prices
+    const childfarePriceMap = {};
+    childfareData.forEach(cf => {
+      childfarePriceMap[cf.childfareid] = cf.price;
+    });
 
-// Calculate total child price
-let totalChildPrice = 0;
-for (let i = 0; i < child.length; i++) {
-  const childfareId = childfareids[i % childfareids.length];
-  if (childfarePriceMap[childfareId]) {
-    totalChildPrice += childfarePriceMap[childfareId];
-    console.log(totalChildPrice)
-  } else {
-    throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
-  }
-}
+    // Calculate total child price
+    let totalChildPrice = 0;
+    for (let i = 0; i < child.length; i++) {
+      const childfareId = childfareids[i % childfareids.length];
+      if (childfarePriceMap[childfareId]) {
+        totalChildPrice += childfarePriceMap[childfareId];
+        console.log(totalChildPrice)
+      } else {
+        throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
+      }
+    }
 
 
     const infantprice = tourpackage[0].infant_base_price
@@ -380,7 +452,7 @@ for (let i = 0; i < child.length; i++) {
       tourpackage[0].Transport,
       tourpackage[0].Hotel,
       bookingamount || 0,
-      firstinstallement ||0,
+      firstinstallement || 0,
       secondinstalemnt || 0,
       FirstInstallmentdueDate,
       SecondInstallmentdueDate,
@@ -399,7 +471,8 @@ for (let i = 0; i < child.length; i++) {
       cancellationDate,
       tourpackage[0].coverImage,
       couponCode,
-      discountAmount
+      discountAmount,
+      userType
 
     ];
 
@@ -445,8 +518,9 @@ for (let i = 0; i < child.length; i++) {
     cancellationDate,
     coverimage,
     couponcode,
-    cashbackamount
-  ) VALUES (?, ?, ?,?,?,?, ?,?, ?, ?,?,?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
+    cashbackamount,
+    platform
+  ) VALUES (?, ?, ?,?,?,?, ?,?, ?,?, ?,?,?, ?, ?, ?,?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?, ?, ?, ?, ?, ?)`,
       values
     );
 
@@ -811,11 +885,45 @@ const CancelledBookingByuser = async (req, res) => {
   }
 };
 
+const getplatform = async (req, res) => {
+  // Query to get booking details along with user counts for app platform
+  const getAppBookingDetailsQuery = `
+  SELECT 
+    platform,
+    COUNT(*) AS booking_count
+  FROM booking
+  WHERE platform = 'app'
+  GROUP BY platform
+`;
+
+  // Query to get booking details along with user counts for desktop platform
+  const getDesktopBookingDetailsQuery = `
+  SELECT 
+    platform,
+    COUNT(*) AS booking_count
+  FROM booking
+  WHERE platform = 'website'
+  GROUP BY platform
+`;
+
+  // Execute the queries to get booking details with user counts for each platform
+  const [getAppBookings] = await pool.query(getAppBookingDetailsQuery);
+  const [getDesktopBookings] = await pool.query(getDesktopBookingDetailsQuery);
+
+  // Combine the results for app and desktop booking
+
+  // Log the booking details with user counts for each platform
+  return  res.send({book_by_app: getAppBookings,
+    book_by_website: getDesktopBookings})
+
+}
+
 
 export const BookingService = {
   Book$Hold,
   getAllBooking,
   getSingleBooking,
+  getplatform,
   getBookingsByUserId,
   ApprovedBooking,
   CancelledBooking,
