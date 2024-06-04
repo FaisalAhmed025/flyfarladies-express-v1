@@ -676,8 +676,6 @@ const loginwithGoogle = async (req, res) => {
       email,
     ]);
 
-
-     
     const date = new Date()
     const options = { 
       weekday: 'long',
@@ -692,7 +690,6 @@ const loginwithGoogle = async (req, res) => {
     };
 
     const createdAt = date.toLocaleString('en-BD', options);
-
 
     const values = [
       user[0.].id,

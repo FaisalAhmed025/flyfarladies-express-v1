@@ -1679,7 +1679,7 @@ const addInstallment = async (req, PKID) => {
         message: "Installment updated successfully"
       });
 
-    } else {
+    }else {
       // Insert a new installment
       const insertQuery = `
         INSERT INTO installment (
@@ -1691,21 +1691,21 @@ const addInstallment = async (req, PKID) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       const [data] = await connection.execute(insertQuery, [
-        FirstInstallmentdueDate !== undefined ? FirstInstallmentdueDate : null,
-        SecondInstallmentdueDate !== undefined ? SecondInstallmentdueDate : null,
-        ThirdInstallmentdueDate !== undefined ? ThirdInstallmentdueDate : null,
-        ABookingAmount !== undefined ? ABookingAmount : null,
-        AFirstInstallmentAmount !== undefined ? AFirstInstallmentAmount : null,
-        ASecondInstallmentAmount !== undefined ? ASecondInstallmentAmount : null,
-        IBookingAmount !== undefined ? IBookingAmount : null,
-        IFirstInstallmentAmount !== undefined ? IFirstInstallmentAmount : null,
-        ISecondInstallmentAmount !== undefined ? ISecondInstallmentAmount : null,
+        FirstInstallmentdueDate || null,
+        SecondInstallmentdueDate || null,
+        ThirdInstallmentdueDate || null,
+        ABookingAmount || null,
+        AFirstInstallmentAmount || null,
+        ASecondInstallmentAmount || null,
+        IBookingAmount || null,
+        IFirstInstallmentAmount || null,
+        ISecondInstallmentAmount || null,
         tour_package_id,
-        bookingslotid !== undefined ? bookingslotid : null
+        bookingslotid || null
       ]);
-
+    
       const installemntid = data.insertId;
-
+    
       if (Array.isArray(childinstalment) && childinstalment.length > 0) {
         for (const child of childinstalment) {
           const {
@@ -1715,8 +1715,7 @@ const addInstallment = async (req, PKID) => {
             CFirstInstallmentAmount,
             CSecondInstallmentAmount
           } = child;
-  
-  
+    
           // Insert new child installment
           const childInsertQuery = `
             INSERT INTO childinstalment (
@@ -1725,35 +1724,26 @@ const addInstallment = async (req, PKID) => {
             ) 
             VALUES (?, ?, ?, ?, ?, ?, ?)
           `;
-          let values =[
+          let values = [
             tour_package_id,
-            childfareid,
-            bookingslotid,
-            installemntid,  // Assumes InstallmentId is set if updating; else, use `installemntid` from new insert
-            CBookingAmount|| null,
+            childfareid || null,
+            bookingslotid || null,
+            installemntid,
+            CBookingAmount || null,
             CFirstInstallmentAmount || null,
             CSecondInstallmentAmount || null
-          ]
-  
-          console.log(values)
+          ];
+    
+          console.log(values);
           await connection.execute(childInsertQuery, values);
           updatedOrInsertedInstallments.push({
             status: true,
             message: "New child installment inserted successfully"
           });
-      
-        
+        }
       }
-
-
-
-      updatedOrInsertedInstallments.push({
-        status: true,
-        message: "New installment inserted successfully"
-      });
     }
-  }
-
+  
 
 
     // Handle child installments
