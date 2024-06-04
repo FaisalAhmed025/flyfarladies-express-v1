@@ -587,8 +587,25 @@ const login = async (req, res) => {
       [email, hashedPassword]
     );
 
+    
+    const date = new Date()
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const createdAt = date.toLocaleString('en-BD', options);
+
     const values = [
       user[0.].id,
+      email,
       user[0].token,
       req.loginIp,
       req.deviceInfo.browser,
@@ -598,14 +615,15 @@ const login = async (req, res) => {
       req.deviceInfo.version,
       req.deviceType,
       JSON.stringify(req.deviceInfo),
+      createdAt
     ];
 
 
     // Prepare the SQL query with placeholders
 const  insertquery= `
 INSERT INTO userLoginInfo (
-  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
-) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  userid, email, token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo, createdAt
+) VALUES (?,?,?,?,?,?,?,?,??,?,?)`;
 await pool.query(insertquery, values)
 
     if (user.length === 0) {
@@ -659,8 +677,26 @@ const loginwithGoogle = async (req, res) => {
     ]);
 
 
+     
+    const date = new Date()
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
+
+    const createdAt = date.toLocaleString('en-BD', options);
+
+
     const values = [
       user[0.].id,
+      email,
       user[0].token,
       req.loginIp,
       req.deviceInfo.browser,
@@ -670,6 +706,7 @@ const loginwithGoogle = async (req, res) => {
       req.deviceInfo.version,
       req.deviceType,
       JSON.stringify(req.deviceInfo),
+      createdAt
     ];
 
     console.log(values)
@@ -677,8 +714,8 @@ const loginwithGoogle = async (req, res) => {
     // Prepare the SQL query with placeholders
 const  insertquery= `
 INSERT INTO userLoginInfo (
-  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
-) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  userid,email,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo, createdAt
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
 
 
 await pool.query(insertquery, values)
@@ -747,17 +784,31 @@ const loginwithfacebook = async (req, res) => {
 
     // Check if the user exists with the provided email and hashed password
 
-
-
+    
     const [user] = await pool.query(
       "SELECT * FROM user WHERE email = ?",
       [email]
     );
 
+  
+    const date = new Date()
+    const options = { 
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka' 
+    };
 
+    const createdAt = date.toLocaleString('en-BD', options);
         
     const values = [
       user[0.].id,
+      email,
       user[0].token,
       req.loginIp,
       req.deviceInfo.browser,
@@ -767,14 +818,15 @@ const loginwithfacebook = async (req, res) => {
       req.deviceInfo.version,
       req.deviceType,
       JSON.stringify(req.deviceInfo),
+      createdAt
     ];
 
 
     // Prepare the SQL query with placeholders
 const  insertquery= `
 INSERT INTO userLoginInfo (
-  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
-) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+  userid, email, token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo, createdAt
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
 await pool.query(insertquery, values)
 
     if (user.length === 0) {
@@ -1182,6 +1234,12 @@ const getplatform = async (req, res) => {
 
 }
 
+const userloginActivity = async(req,res)=>{
+const logquery = `SELECT * FROM userLoginInfo `
+const [data] =await pool.query(logquery)
+return  res.send({loginactivity:data})
+}
+
 export const UserService = {
   Register,
   login,
@@ -1199,4 +1257,5 @@ export const UserService = {
   myTravelerList,
   deleteTraveller,
   getplatform,
+  userloginActivity,
 };

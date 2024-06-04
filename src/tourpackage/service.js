@@ -1382,7 +1382,7 @@ const deletemainimage = async (req, res) => {
 
 
 const deleteBOOKINGSLOT = async (req, res) => {
-  const id = req.params.id
+  const id = req.params.bookingslotid
   const deletequery = `DELETE FROM bookingslot WHERE  id= ?`
   await pool.query(deletequery, [id])
   const deleteinstallmentQuery = `DELETE FROM bookingslot WHERE bookingslotid= ?`

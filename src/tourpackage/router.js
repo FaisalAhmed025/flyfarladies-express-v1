@@ -84,6 +84,6 @@ router.delete('/deletefaqs/:id', tourpackageController.deleteFAQ)
 
 //bookingSlot
 router.post('/createbookingslot/:PKID', tourpackageController.createbookingSlot)
-router.delete('/deleteslot/:id', tourpackageController.deletebookingslot)
+router.delete('/deleteslot/:bookingslotid', tourpackageController.deletebookingslot)
 
 export default router;

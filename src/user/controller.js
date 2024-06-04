@@ -145,6 +145,10 @@ const userLedger = async (req, res) => {
 };
 
 
+const userloginActivity = async (req, res) => {
+  const result = await UserService.userloginActivity(req,res);
+};
+
 
 export const userController = {
   RegisterUser,
@@ -162,7 +166,8 @@ export const userController = {
   deleteTraveller,
   loginwithGoogle,
   alluserdata,
-  getplatform
+  getplatform,
+  userloginActivity
 
 }
 
