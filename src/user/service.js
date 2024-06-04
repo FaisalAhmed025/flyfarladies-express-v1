@@ -5,6 +5,7 @@ import { HttpException } from "express-sharp";
 import httpStatus from "http-status";
 import crypto from 'crypto'
 import nodemailer from 'nodemailer'
+import useragent from 'express-useragent'
 
 const generateUserId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
@@ -76,16 +77,16 @@ const Register = async (req, res) => {
     const date = new Date()
 
 
-    const options = { 
+    const options = {
       weekday: 'long',
-      year: 'numeric', 
-      month: 'long', 
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
       second: 'numeric',
       hour12: true,
-      timeZone: 'Asia/Dhaka' 
+      timeZone: 'Asia/Dhaka'
     };
 
     const formattedDate = date.toLocaleString('en-BD', options);
@@ -601,6 +602,8 @@ const login = async (req, res) => {
       { expiresIn: "15d" }
     );
 
+
+
     // Update the user table with the token
     await pool.query("UPDATE user SET token = ? WHERE id = ?", [
       token,
@@ -621,6 +624,8 @@ const login = async (req, res) => {
 
 
 
+
+
 const loginwithGoogle = async (req, res) => {
   try {
     // Extract the data from the request body
@@ -629,51 +634,77 @@ const loginwithGoogle = async (req, res) => {
     if (!email) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+    const [user] = await pool.query("SELECT * FROM user WHERE email = ?", [
+      email,
+    ]);
 
-    // Hash the password to compare with the stored hashed password
-    // const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
-    // Check if the user exists with the provided email and hashed password
-    const [user] = await pool.query(
-      "SELECT * FROM user WHERE email = ?",
-      [email]
-    );
+    const values = [
+      user[0.].id,
+      user[0].token,
+      req.loginIp,
+      req.deviceInfo.browser,
+      req.deviceInfo.os,
+      req.deviceInfo.platform,
+      req.deviceInfo.source,
+      req.deviceInfo.version,
+      req.deviceType,
+      JSON.stringify(req.deviceInfo),
+    ];
+
+    console.log(values)
+
+    // Prepare the SQL query with placeholders
+const  insertquery= `
+INSERT INTO userLoginInfo (
+  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
+) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+
+
+await pool.query(insertquery, values)
+
 
     if (user.length === 0) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if(user[0].platform ==='manual'){
-      return res.status(401).json({ message: "You registered  manually, please try to login  manually" });
+    if (user[0].platform === "manual") {
+      return res
+        .status(401)
+        .json({
+          message: "You registered  manually, please try to login  manually",
+        });
     }
 
-    if(user[0].platform ==='facebook'){
-      return res.status(401).json({ message: " you registered with facebook,please login  with facebook" });
+    if (user[0].platform === "facebook") {
+      return res
+        .status(401)
+        .json({
+          message: " you registered with facebook,please login  with facebook",
+        });
     }
 
-    if(user[0].platform ==='google'){ 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user[0].id, email: user[0].email },
-      "helloladies",
-      { expiresIn: "15d" }
-    );
+    if (user[0].platform === "google") {
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user[0].id, email: user[0].email },
+        "helloladies",
+        { expiresIn: "15d" }
+      );
 
-    // Update the user table with the token
-    await pool.query("UPDATE user SET token = ? WHERE id = ?", [
-      token,
-      user[0].id,
-    ]);
-    console.log("User login successful");
-    return res.status(200).json({
-      status: "success",
-      message: "Login successful",
-      user: user[0],
-      token,
-    });
-
+      // Update the user table with the token
+      await pool.query("UPDATE user SET token = ? WHERE id = ?", [
+        token,
+        user[0].id,
+      ]);
+      console.log("User login successful");
+      return res.status(200).json({
+        status: "success",
+        message: "Login successful",
+        user: user[0],
+        token,
+      });
     }
-
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ error: "Error during login" });
@@ -695,43 +726,71 @@ const loginwithfacebook = async (req, res) => {
     // const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
     // Check if the user exists with the provided email and hashed password
+
+
+
     const [user] = await pool.query(
       "SELECT * FROM user WHERE email = ?",
       [email]
     );
 
+
+        
+    const values = [
+      user[0.].id,
+      user[0].token,
+      req.loginIp,
+      req.deviceInfo.browser,
+      req.deviceInfo.os,
+      req.deviceInfo.platform,
+      req.deviceInfo.source,
+      req.deviceInfo.version,
+      req.deviceType,
+      JSON.stringify(req.deviceInfo),
+    ];
+
+
+    // Prepare the SQL query with placeholders
+const  insertquery= `
+INSERT INTO userLoginInfo (
+  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
+) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+
+
+await pool.query(insertquery, values)
+
     if (user.length === 0) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    if(user[0].platform ==='manual'){
+    if (user[0].platform === 'manual') {
       return res.status(401).json({ message: "you registered with manually,please login manually" });
     }
 
-    if(user[0].platform ==='google'){
+    if (user[0].platform === 'google') {
       return res.status(401).json({ message: "you register with google, please login  with google" });
     }
 
-    if(user[0].platform ==='facebook'){ 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user[0].id, email: user[0].email },
-      "helloladies",
-      { expiresIn: "15d" }
-    );
+    if (user[0].platform === 'facebook') {
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user[0].id, email: user[0].email },
+        "helloladies",
+        { expiresIn: "15d" }
+      );
 
-    // Update the user table with the token
-    await pool.query("UPDATE user SET token = ? WHERE id = ?", [
-      token,
-      user[0].id,
-    ]);
-    console.log("User login successful");
-    return res.status(200).json({
-      status: "success",
-      message: "Login successful",
-      user: user[0],
-      token,
-    });
+      // Update the user table with the token
+      await pool.query("UPDATE user SET token = ? WHERE id = ?", [
+        token,
+        user[0].id,
+      ]);
+      console.log("User login successful");
+      return res.status(200).json({
+        status: "success",
+        message: "Login successful",
+        user: user[0],
+        token,
+      });
 
     }
 
@@ -808,7 +867,7 @@ const allUser = async (req, res) => {
   try {
     const userQuery = `SELECT * FROM user`;
     const [result] = await pool.query(userQuery,);
-    return res.send({data:result});
+    return res.send({ data: result });
   } catch (error) {
     console.log(error);
   }
@@ -916,7 +975,7 @@ const myTravelerList = async (req, res) => {
     const query = `SELECT * FROM travel_partners WHERE user_id = ?`;
     const [result] = await pool.query(query, [userid]);
     if (result.length === 0) {
-       return res.send({ message:"No traveler found"});
+      return res.send({ message: "No traveler found" });
     }
     return res.status(200).json({
       success: true,
@@ -953,7 +1012,7 @@ const deleteUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       status: httpStatus.OK,
-      message:"user has deleted"
+      message: "user has deleted"
     });
   } catch (error) {
     console.log();
@@ -965,7 +1024,7 @@ const deleteUser = async (req, res) => {
 
 
 
-const forgetpasswordResetRequest = async(req, res)=> {
+const forgetpasswordResetRequest = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -1001,7 +1060,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
         pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
       },
     });
-    
+
     await transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error(error);
@@ -1009,7 +1068,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
         console.log('Email sent successfully:', info.response);
       }
     });
-    return res.status(200).json({status: 'success', token:token,  message: 'Password reset link sent successfully' });
+    return res.status(200).json({ status: 'success', token: token, message: 'Password reset link sent successfully' });
   } catch (error) {
     console.error('Error sending password reset link:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -1017,7 +1076,7 @@ const forgetpasswordResetRequest = async(req, res)=> {
 }
 
 
-const resetPassword = async (req, res)=> {
+const resetPassword = async (req, res) => {
   try {
     const { token, password, confirm_Password } = req.body;
     if (password !== confirm_Password) {
@@ -1034,12 +1093,12 @@ const resetPassword = async (req, res)=> {
     // Find user by email
 
     const userquery = `SELECT * FROM user WHERE email = ?`
-    const [user] = await pool.query(userquery,[passwordReset[0].email] );
+    const [user] = await pool.query(userquery, [passwordReset[0].email]);
     if (!user) {
       throw new Error('User not found');
     }
 
-    const userid =user[0].id
+    const userid = user[0].id
 
     // Hash the new password
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
@@ -1057,14 +1116,14 @@ const resetPassword = async (req, res)=> {
   }
 }
 
-const userLedger =  async (req,res)=>{
+const userLedger = async (req, res) => {
   const userid = req.params.user_id
   const ledgerQuery = `SELECT * FROM ledger WHERE user_id =? ORDER BY uid DESC`
   const [data] = await pool.query(ledgerQuery, [userid])
   return res.status(200).json({
     success: true,
     status: httpStatus.OK,
-    data:data
+    data: data
   });
 }
 
@@ -1098,8 +1157,10 @@ const getplatform = async (req, res) => {
   // Combine the results for app and desktop booking
 
   // Log the booking details with user counts for each platform
-  return  res.send({register_by_app: getAppregisteruser,
-    register_by_website: getwebsiteregisteruser})
+  return res.send({
+    register_by_app: getAppregisteruser,
+    register_by_website: getwebsiteregisteruser
+  })
 
 }
 

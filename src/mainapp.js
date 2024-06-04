@@ -27,6 +27,8 @@ import tourpackageRoute from "./tourpackage/router";
 import userRouter from "./user/userroute";
 import { visaRoutes } from "./visa/visaRoute";
 import wishlistRoute from "./wishlist/route";
+
+import captureDeviceInfo from "./helper/capturedeviceinfo";
 const app = express();
 
 const options = {
@@ -56,11 +58,13 @@ const options = {
   apis: ["./routes/*.js"],
 };
 
+
 app.use(helmet());
 const specs = swaggerJSDoc(options);
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
+app.use(captureDeviceInfo);
 app.use(
   cors({
     origin: [
