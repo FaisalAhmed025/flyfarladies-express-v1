@@ -1385,7 +1385,7 @@ const deleteBOOKINGSLOT = async (req, res) => {
   const id = req.params.bookingslotid
   const deletequery = `DELETE FROM bookingslot WHERE  bookingslotid= ?`
   await pool.query(deletequery, [id])
-  const deleteinstallmentQuery = `DELETE FROM bookingslot WHERE bookingslotid= ?`
+  const deleteinstallmentQuery = `DELETE FROM installment WHERE bookingslotid= ?`
   await pool.query(deleteinstallmentQuery, [id])
 
   return res.status(200).json({
