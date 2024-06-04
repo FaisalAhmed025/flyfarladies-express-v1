@@ -623,7 +623,7 @@ const login = async (req, res) => {
 const  insertquery= `
 INSERT INTO userLoginInfo (
   userid, email, token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo, createdAt
-) VALUES (?,?,?,?,?,?,?,?,??,?,?)`;
+) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`;
 await pool.query(insertquery, values)
 
     if (user.length === 0) {
@@ -784,7 +784,7 @@ const loginwithfacebook = async (req, res) => {
 
     // Check if the user exists with the provided email and hashed password
 
-    
+
     const [user] = await pool.query(
       "SELECT * FROM user WHERE email = ?",
       [email]
