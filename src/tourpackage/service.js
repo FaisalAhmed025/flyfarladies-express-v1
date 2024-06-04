@@ -2073,7 +2073,7 @@ const createBookingSlot = async (req, res, PKID) => {
         // If ID is provided, update the booking slot in the database
         await connection.query(
           `UPDATE bookingslot SET StartDate = ?, EndDate = ?, cancellationDate=?, available_seat=?, soldOut=? WHERE bookingslotid = ? AND tour_package_id = ?`,
-          [StartDate, EndDate, cancellationDate, available_seat, soldOut, id, tourPackageId]
+          [StartDate, EndDate, cancellationDate, available_seat, soldOut,bookingslotid, tourPackageId]
         );
       } else {
         // Generate a unique ID for the booking slot
