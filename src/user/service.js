@@ -586,6 +586,28 @@ const login = async (req, res) => {
       "SELECT * FROM user WHERE email = ? AND password = ?",
       [email, hashedPassword]
     );
+
+    const values = [
+      user[0.].id,
+      user[0].token,
+      req.loginIp,
+      req.deviceInfo.browser,
+      req.deviceInfo.os,
+      req.deviceInfo.platform,
+      req.deviceInfo.source,
+      req.deviceInfo.version,
+      req.deviceType,
+      JSON.stringify(req.deviceInfo),
+    ];
+
+
+    // Prepare the SQL query with placeholders
+const  insertquery= `
+INSERT INTO userLoginInfo (
+  userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
+) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+await pool.query(insertquery, values)
+
     if (user.length === 0) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -621,8 +643,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: "Error during login" });
   }
 };
-
-
 
 
 
@@ -755,8 +775,6 @@ const  insertquery= `
 INSERT INTO userLoginInfo (
   userid,  token, loginIp, browser, os, platform, source, version,deviceType, deviceInfo
 ) VALUES (?,?,?,?,?,?,?,?,?,?)`;
-
-
 await pool.query(insertquery, values)
 
     if (user.length === 0) {
