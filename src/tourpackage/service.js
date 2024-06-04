@@ -2068,11 +2068,11 @@ const createBookingSlot = async (req, res, PKID) => {
     }
     const tourPackageId = packageResults[0].PKID;
     for (const slotData of bookingSlotData) {
-      const { StartDate, EndDate, available_seat, cancellationDate, soldOut, id } = slotData;
-      if (id) {
+      const { StartDate, EndDate, available_seat, cancellationDate, soldOut, bookingslotid } = slotData;
+      if (bookingslotid) {
         // If ID is provided, update the booking slot in the database
         await connection.query(
-          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, cancellationDate=?, available_seat=?, soldOut=? WHERE id = ? AND tour_package_id = ?`,
+          `UPDATE bookingslot SET StartDate = ?, EndDate = ?, cancellationDate=?, available_seat=?, soldOut=? WHERE bookingslotid = ? AND tour_package_id = ?`,
           [StartDate, EndDate, cancellationDate, available_seat, soldOut, id, tourPackageId]
         );
       } else {
