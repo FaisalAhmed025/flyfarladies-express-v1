@@ -862,25 +862,36 @@ const getplatform = async (req, res) => {
 
 }
 
-const packageVisitor = async(req, res)=>{
-  const userid = req.body.id
-  const PKID = req.body.PKID
+
+const packageVisitor = async (req, res) => {
+  const userid = req.body.id;
+  const PKID = req.body.PKID;
+  const  platform = req.body.platform
 
   const userQuery = `SELECT * FROM user WHERE id = ?`;
-  const [user] = await pool.query(userQuery, [userid]);
+  const [userResult] = await pool.query(userQuery, [userid]);
+  const user = userResult[0];
 
-  const { email, name, phone } = user[0];
-  const packgaeQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
-  const [tourpackage] = await pool.query(packgaeQuery, [PKID]);
+  if (!user) {
+    return res.status(404).send({ status: "error", message: "User not found" });
+  }
 
+  const { email, name, phone } = user;
 
-  console.log(tourpackage)
+  const packageQuery = `SELECT * FROM tourpackage WHERE PKID = ?`;
+  const [packageResult] = await pool.query(packageQuery, [PKID]);
+  const tourPackage = packageResult[0];
 
-  const inserdata =`INSERT INTO packagevisitor (userid,packageid, email, username, phone, packagename,visitedat)
-  VALUES (?, ?, ?, ?, ?,?, ?);`
+  if (!tourPackage) {
+    return res.status(404).send({ status: "error", message: "Package not found" });
+  }
 
-  
-  const date = new Date()
+  console.log(tourPackage);
+
+  const checkVisitorQuery = `SELECT * FROM packagevisitor WHERE userid = ? AND packageid = ?`;
+  const [visitorResult] = await pool.query(checkVisitorQuery, [userid, PKID]);
+
+  const date = new Date();
   const options = {
     weekday: 'long',
     year: 'numeric',
@@ -892,30 +903,92 @@ const packageVisitor = async(req, res)=>{
     hour12: true,
     timeZone: 'Asia/Dhaka'
   };
-
   const visitedAt = date.toLocaleString('en-BD', options);
 
-  const values = [
-    userid,
-    PKID,
-    email,
-    name,
-    phone,
-    tourpackage[0]?.MainTitle,
-    visitedAt,
-  ]
-  console.log(values)
-  const [data] = await pool.query(inserdata, values)
-  return res.send({staus:"succes", data:data})
+  if (visitorResult.length > 0) {
+    const updateVisitorQuery = `
+      UPDATE packagevisitor
+      SET count = count + 1, visitedat = ?
+      WHERE userid = ? AND packageid = ?
+    `;
+    const [updateResult] = await pool.query(updateVisitorQuery, [visitedAt, userid, PKID]);
+    return res.send({ status: "success", data: updateResult });
+  } else {
+    const insertVisitorQuery = `
+      INSERT INTO packagevisitor (userid, packageid, email, username, phone, packagename, platform,visitedat, count)
+      VALUES (?, ?, ?, ?, ?, ?, ?,?, 1)
+    `;
+    const values = [
+      userid,
+      PKID,
+      email,
+      name,
+      phone,
+      tourPackage.MainTitle,
+      platform,
+      visitedAt,
+    ];
+    const [insertResult] = await pool.query(insertVisitorQuery, values);
+    return res.send({ status: "success", data: insertResult });
+  }
+};
 
-  
-}
 
 const getpackagevisitor = async (req, res) => {
   const packagequery = `SELECT * FROM packagevisitor  ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC`
   const [visitors] = await pool.execute(packagequery);
   return visitors;
 }
+
+
+const getPackageVisitorLast1Day = async (req, res) => {
+  const packageQuery = `
+    SELECT * FROM packagevisitor
+    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 1
+    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
+  `;
+  
+  try {
+    const [visitors] = await pool.execute(packageQuery);
+    res.status(200).json(visitors);
+  } catch (error) {
+    res.status(500).send('Error fetching data');
+  }
+}
+
+
+const getPackageVisitorLast7Days = async (req, res) => {
+  const packageQuery = `
+    SELECT * FROM packagevisitor
+    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 7
+    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
+  `;
+  
+  try {
+    const [visitors] = await pool.execute(packageQuery);
+    res.status(200).json(visitors);
+  } catch (error) {
+    res.status(500).send('Error fetching data');
+  }
+}
+
+
+const getPackageVisitorLast30Days = async (req, res) => {
+  const packageQuery = `
+    SELECT * FROM packagevisitor
+    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 30
+    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
+  `;
+  
+  try {
+    const [visitors] = await pool.execute(packageQuery);
+    res.status(200).json(visitors);
+  } catch (error) {
+    res.status(500).send('Error fetching data');
+  }
+}
+
+
 
 
 export const BookingService = {
@@ -925,6 +998,9 @@ export const BookingService = {
   getplatform,
   packageVisitor,
   getpackagevisitor,
+  getPackageVisitorLast1Day,
+  getPackageVisitorLast7Days,
+  getPackageVisitorLast30Days,
   getBookingsByUserId,
   ApprovedBooking,
   CancelledBooking,

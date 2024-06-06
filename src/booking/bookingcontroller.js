@@ -58,12 +58,30 @@ const getuserBookings  = async (req, res) => {
    await BookingService.getBookingsByUserId(req,res);
 }
 
+const getonedayvisitor  = async (req, res) => {
+  await BookingService.getPackageVisitorLast1Day(req,res);
+}
+
+const getsevendayvisitor  = async (req, res) => {
+  await BookingService.getPackageVisitorLast7Days(req,res);
+}
+
+const get30dayvisitor  = async (req, res) => {
+  await BookingService.get30dayvisitor(req,res);
+}
+
+
+
+
 
 
 export const bookingController = {
   Book$Hold,
   getAllBookings,
   getplatform,
+  getonedayvisitor,
+  getsevendayvisitor,
+  get30dayvisitor,
   getSingleBookings,
   getuserBookings,
   approvedBooking,
