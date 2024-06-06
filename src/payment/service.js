@@ -881,7 +881,7 @@ const initwithsslfullamount = async (req, res) => {
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/failure/${transactionId}`,
-    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}/${bookingid}`,
+    cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
     cus_email: user[0].email,
@@ -1795,9 +1795,6 @@ const initwithssl2ndand3rdinstallment = async (req, res) => {
 
   const userquery = `SELECT * FROM user WHERE id=?`
   const [user] = await pool.query(userquery, [userid])
-
-  console.log(user)
-
 
   const data = {
     store_id: process.env.SSL_STORE_ID,
