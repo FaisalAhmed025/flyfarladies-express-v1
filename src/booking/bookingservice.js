@@ -361,13 +361,15 @@ const Book$Hold = async (req, res) => {
     // Calculate child installment amounts
     const childInstallments = installment?.childinstallments;
     // Add the installment amounts
+    if(installmentdata.length>0){
     for (let i = 0; i < child.length; i++) {
-      const childInstallmentId = childInstallments[i % childInstallments.length];
-      if (childInstallmentId) {
-        totalChildBookingAmount += parseFloat(childInstallmentId.CBookingAmount);
-        totalChildFirstInstallmentAmount += parseFloat(childInstallmentId.CFirstInstallmentAmount);
-        totalChildSecondInstallmentAmount += parseFloat(childInstallmentId.CSecondInstallmentAmount);
-      }
+    const childInstallmentId = childInstallments[i % childInstallments.length];
+    if (childInstallmentId) {
+      totalChildBookingAmount += parseFloat(childInstallmentId.CBookingAmount);
+      totalChildFirstInstallmentAmount += parseFloat(childInstallmentId.CFirstInstallmentAmount);
+      totalChildSecondInstallmentAmount += parseFloat(childInstallmentId.CSecondInstallmentAmount);
+    }
+    }
     }
 
     // Calculate total package price and Total installment
@@ -885,7 +887,6 @@ const packageVisitor = async (req, res) => {
   if (!tourPackage) {
     return res.status(404).send({ status: "error", message: "Package not found" });
   }
-
 
   const checkVisitorQuery = `SELECT * FROM packagevisitor WHERE userid = ? AND packageid = ?`;
   const [visitorResult] = await pool.query(checkVisitorQuery, [userid, PKID]);
