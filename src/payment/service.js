@@ -921,7 +921,6 @@ const initwithsslfullamount = async (req, res) => {
 
   ]);
 
-  console.log(data)
   const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true
   );
   const apiResponse = await sslcz.init(data);
@@ -1073,7 +1072,7 @@ const initwithsslbookingmoney = async (req, res) => {
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/bookingamount/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
@@ -1218,7 +1217,7 @@ const initwithssl1stinstallemnt = async (req, res) => {
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1stinstallment/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
@@ -1414,7 +1413,7 @@ const initwithssl2ndinstallemnt = async (req, res) => {
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/2ndinstallment/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
@@ -1602,7 +1601,7 @@ const initwithssl1stAnd2ndinstallment = async (req, res) => {
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/1nstand2ndinstallment/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
@@ -1808,7 +1807,7 @@ const initwithssl2ndand3rdinstallment = async (req, res) => {
     tran_id: transactionId,
     tran_date: Date(),
     success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/2ndAnd3rdinstallment/${transactionId}/${bookingid}`,
-    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/failure/${transactionId}`,
+    fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/ssl/payment/failure/${transactionId}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/cancel/${transactionId}`,
     emi_option: 0,
     cus_name: user[0].name,
