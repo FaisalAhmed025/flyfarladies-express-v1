@@ -886,7 +886,6 @@ const packageVisitor = async (req, res) => {
     return res.status(404).send({ status: "error", message: "Package not found" });
   }
 
-  console.log(tourPackage);
 
   const checkVisitorQuery = `SELECT * FROM packagevisitor WHERE userid = ? AND packageid = ?`;
   const [visitorResult] = await pool.query(checkVisitorQuery, [userid, PKID]);
