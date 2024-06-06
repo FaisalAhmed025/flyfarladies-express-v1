@@ -2819,7 +2819,8 @@ const ApprovedCheckDeposit = async (req) => {
       approvedAt
     ]);
 
-
+ // Commit the transaction
+ await connection.commit();
     
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
@@ -3403,6 +3404,9 @@ const ApprovedCheckDeposit = async (req) => {
   } catch (error) {
     console.log(error);
   }
+  finally{
+    connection.release()
+  }
 };
 
 const RejectChequeDeposit = async (req) => {
@@ -3412,6 +3416,7 @@ const RejectChequeDeposit = async (req) => {
     const {action_by, rejected_reason } = req.body;
     const depositQuery = "SELECT * FROM cheque_deposit WHERE deposit_id = ?";
     const [result] = await pool.query(depositQuery, [deposit_id]);
+    
     const updateQuery = `
     UPDATE cheque_deposit
     SET status = ?,
