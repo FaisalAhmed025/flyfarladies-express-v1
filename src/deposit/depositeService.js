@@ -1,6 +1,8 @@
+import { constants } from "fs/promises";
 import pool from "../database/db";
 import { deleteImageFromURL } from "../tourpackage/imageHandler";
 import nodemailer from 'nodemailer'
+import { createHash } from "crypto";
 
 const generateDepoId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
@@ -2775,9 +2777,12 @@ const ApprovedCheckDeposit = async (req) => {
     const [result] = await connection.execute(getamount, [deposit_id]);
     const user_id = result[0].requested_by;
     const amount = result[0].amount
+    console.log(user_id)
+
+    console.log(amount)
     
     // If the status is 'approved', update  the user wallet
-    const updateUserWalletQuery = `UPDATE user SET wallet = IFNULL(wallet, 0) + ? WHERE id = ?`;
+    const updateUserWalletQuery = `UPDATE user SET wallet = wallet + ? WHERE id = ?`;
 
     const [ksocjocj] = await connection.execute(updateUserWalletQuery, [
       amount,
@@ -2804,7 +2809,7 @@ const ApprovedCheckDeposit = async (req) => {
 
     const remarks = `Cheque Deposit request from ${result[0].cheque_number},Reference ${result[0].reference}, On ${result[0].created_at} and  Transaction ID is ${result[0].deposit_id} & amount ${result[0].amount} only.This action had taken by ${action_by}`;
 
-    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, trancationid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?, ?)`;
+    const ledgerquery = `INSERT INTO ledger(user_id, referenceid, transactionid, transactionType, purchase, lastBalance, actionBy, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?, ?)`;
 
     const deposit ='Deposit'
     const transcationid = generateTransactionId()
