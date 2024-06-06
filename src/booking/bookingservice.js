@@ -906,7 +906,7 @@ const packageVisitor = async(req, res)=>{
   ]
   console.log(values)
   const [data] = await pool.query(inserdata, values)
-  return res.send({data})
+  return res.send({staus:"succes", data:data})
 
   
 }

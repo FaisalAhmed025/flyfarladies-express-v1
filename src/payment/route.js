@@ -12,8 +12,8 @@ router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallme
 router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallment)
 router.post('/ssl/fullamount/payment', paymentController.initpaywithsslfullamount)
 router.post('/ssl/success/fullpayment/:tran_id/:bookingid', paymentController.succeesssslfullamount)
-router.post('/ssl/cancel/:tran_id', paymentController.cancelledlfullamount)
-router.post('/ssl/failure/:tran_id', paymentController.cancelledlfullamount)
+router.post('/ssl/cancel/:tran_id/:bookingid', paymentController.cancelledlfullamount)
+router.post('/ssl/failure/:tran_id/:bookingid', paymentController.cancelledlfullamount)
 
 router.post('/ssl/bookingamount', paymentController.initpaywithsslbookingAmount)
 router.post('/ssl/success/bookingamount/:tran_id/:bookingid', paymentController.succeesssslbookingAmount)
@@ -27,7 +27,6 @@ router.post('/ssl/success/2ndinstallment/:tran_id/:bookingid', paymentController
 
 router.post('/ssl/1nstand2ndinstallment', paymentController.initwithssl1stAnd2ndinstallemnt)
 router.post('/ssl/success/1nstand2ndinstallment/:tran_id/:bookingid', paymentController.succeessssl1stAnd2ndinstallemnt)
-
 
 router.post('/ssl/2ndAnd3rdinstallment', paymentController.initwithssl2ndANd3rdinstallemnt)
 router.post('/ssl/success/2ndAnd3rdinstallment/:tran_id/:bookingid', paymentController.succeessssl2ndANd3rdInstallemnt)
