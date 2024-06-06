@@ -12,7 +12,7 @@ router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallme
 router.post('/wallet/second/third', paymentController.paySecondAndthirdInstallment)
 router.post('/ssl/fullamount/payment', paymentController.initpaywithsslfullamount)
 router.post('/ssl/success/fullpayment/:tran_id/:bookingid', paymentController.succeesssslfullamount)
-router.post('/ssl/cancel/:tran_id/:bookingid', paymentController.cancelledlfullamount)
+router.post('/ssl/cancel/:tran_id', paymentController.cancelledlfullamount)
 router.post('/ssl/failure/:tran_id', paymentController.cancelledlfullamount)
 
 router.post('/ssl/bookingamount', paymentController.initpaywithsslbookingAmount)
