@@ -250,23 +250,27 @@ const Book$Hold = async (req, res) => {
 
     }
 
-    // Create a map for child fare prices
-    const childfarePriceMap = {};
-    childfareData.forEach(cf => {
-      childfarePriceMap[cf.childfareid] = cf.price;
-    });
+// Create a map for child fare prices
+const childfarePriceMap = {};
+childfareData.forEach(cf => {
+  childfarePriceMap[cf.childfareid] = cf.price;
+});
 
-    // Calculate total child price
-    let totalChildPrice = 0;
-    for (let i = 0; i < child.length; i++) {
-      const childfareId = childfareids[i % childfareids.length];
-      if (childfarePriceMap[childfareId]) {
-        totalChildPrice += childfarePriceMap[childfareId];
-        console.log(totalChildPrice)
-      } else {
-        throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
-      }
-    }
+// Log the childfarePriceMap for debugging
+console.log('Child Fare Price Map:', childfarePriceMap);
+
+// Calculate total child price
+let totalChildPrice = 0;
+for (let i = 0; i < child.length; i++) {
+  const childfareId = childfareids[i % childfareids.length];
+  if (childfarePriceMap.hasOwnProperty(childfareId)) {
+    totalChildPrice += childfarePriceMap[childfareId];
+    console.log('Total Child Price:', totalChildPrice);
+  } else {
+    throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
+  }
+}
+
 
 
     const infantprice = tourpackage[0].infant_base_price
