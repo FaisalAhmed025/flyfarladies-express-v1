@@ -20,6 +20,51 @@ const generatebookingId = () => {
 };
 
 
+
+// Function to calculate age from date of birth
+function calculateAge(dob) {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Function to get the fare based on age limit
+async function getFareByAgeLimit(pool, packageId, ageLimit) {
+  const childfareQuery = `SELECT * FROM childfare WHERE packageId = ?`;
+  const [childfareData] = await pool.query(childfareQuery, [packageId]);
+  const matchedFare = childfareData.find(fare => {
+    const [minAge, maxAge] = fare.agelimit.split('-').map(Number);
+    const age = calculateAge(ageLimit);
+    return age >= minAge && age <= maxAge;
+  });
+  if (matchedFare) {
+    return matchedFare.price;
+  } else {
+    return `No fare defined for age limit ${ageLimit}`;
+  }
+}
+
+async function getFareIDByAgeLimit(pool, packageId, ageLimit) {
+  const childfareQuery = `SELECT * FROM childfare WHERE packageId = ?`;
+  const [childfareData] = await pool.query(childfareQuery, [packageId]);
+  const matchedFare = childfareData.find(fare => {
+    const [minAge, maxAge] = fare.agelimit.split('-').map(Number);
+    const age = calculateAge(ageLimit);
+    return age >= minAge && age <= maxAge;
+  });
+  if (matchedFare) {
+    return matchedFare.childfareid;
+  } else {
+    return `No fare defined for age limit ${ageLimit}`;
+  }
+}
+
+
 const Book$Hold = async (req, res) => {
   try {
     const userid = req.params.id;
@@ -250,26 +295,40 @@ const Book$Hold = async (req, res) => {
 
     }
 
-// Create a map for child fare prices
-const childfarePriceMap = {};
-childfareData.forEach(cf => {
-  childfarePriceMap[cf.childfareid] = cf.price;
-});
 
-// Log the childfarePriceMap for debugging
-console.log('Child Fare Price Map:', childfarePriceMap);
 
-// Calculate total child price
-let totalChildPrice = 0;
-for (let i = 0; i < child.length; i++) {
-  const childfareId = childfareids[i % childfareids.length];
-  if (childfarePriceMap.hasOwnProperty(childfareId)) {
-    totalChildPrice += childfarePriceMap[childfareId];
-    console.log('Total Child Price:', totalChildPrice);
-  } else {
-    throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
-  }
-}
+
+    // Create a map for child fare prices
+    const childfarePriceMap = {};
+    childfareData.forEach(cf => {
+      childfarePriceMap[cf.childfareid] = cf.price;
+    });
+
+    // // Calculate total child price
+    // let totalChildPrice = 0;
+    // for (let i = 0; i < child.length; i++) {
+    //   const childfareId = childfareids[i % childfareids.length];
+    //   if (childfarePriceMap.hasOwnProperty(childfareId)) {
+    //     totalChildPrice += childfarePriceMap[childfareId];
+    //     console.log('Total Child Price:', totalChildPrice);
+    //   } else {
+    //     throw new HttpException(`Invalid childfare id=${childfareId}`, httpStatus.BAD_REQUEST);
+    //   }
+    // }
+
+
+    // Calculate total child price
+    let totalChildPrice = 0;
+    for (let i = 0; i < child.length; i++) {
+      const dob = child[i].cdob;
+      const age = calculateAge(dob);
+      const fare = await getFareByAgeLimit(pool, packgeId, dob);
+      console.log(fare)// Assuming dob is the age limit in this case
+      totalChildPrice += fare;
+      console.log(`Added fare for age ${age}, Total Child Price: ${totalChildPrice}`);
+    }
+
+  
 
 
 
@@ -343,10 +402,6 @@ for (let i = 0; i < child.length; i++) {
     let totalAdultSecondInstallmentAmount = 0;
     let totalInfantSecondInstallmentAmount = 0;
 
-    let totalChildBookingAmount = 0;
-    let totalChildFirstInstallmentAmount = 0;
-    let totalChildSecondInstallmentAmount = 0;
-
 
     let FirstInstallmentdueDate = installmentdata[0]?.FirstInstallmentdueDate;
     let SecondInstallmentdueDate = installmentdata[0]?.SecondInstallmentdueDate;
@@ -354,7 +409,6 @@ for (let i = 0; i < child.length; i++) {
 
 
     const installment = installmentdata[0];
-    console.log(installmentdata);
     totalAdultBookingAmount = installment?.ABookingAmount * totaladult;
     totalInfantBookingAmount = installment?.IBookingAmount * totalinfant || 0.00;
     totalAdultFirstInstallmentAmount = installment?.AFirstInstallmentAmount * totaladult || 0.00;
@@ -362,19 +416,30 @@ for (let i = 0; i < child.length; i++) {
     totalAdultSecondInstallmentAmount = installment?.ASecondInstallmentAmount * totaladult || 0.00;
     totalInfantSecondInstallmentAmount = installment?.ISecondInstallmentAmount * totalinfant || 0.00;
 
-    // Calculate child installment amounts
-    const childInstallments = installment?.childinstallments;
-    // Add the installment amounts
-    if(installmentdata.length>0){
+
+    let totalChildBookingAmount = 0.00;
+    let totalChildFirstInstallmentAmount = 0.00;
+    let totalChildSecondInstallmentAmount = 0.00;
+
     for (let i = 0; i < child.length; i++) {
-    const childInstallmentId = childInstallments[i % childInstallments.length];
-    if (childInstallmentId) {
-      totalChildBookingAmount += parseFloat(childInstallmentId.CBookingAmount);
-      totalChildFirstInstallmentAmount += parseFloat(childInstallmentId.CFirstInstallmentAmount);
-      totalChildSecondInstallmentAmount += parseFloat(childInstallmentId.CSecondInstallmentAmount);
+      const dob = child[i].cdob;
+      const age = calculateAge(dob);
+      //get the childfareid by age
+      const childfareId = await getFareIDByAgeLimit(pool, packgeId, dob);
+
+      const childfareQuery = `SELECT * FROM childinstalment WHERE childfareid = ?  AND bookingslotid=? `;
+      console.log(childfareId, bookingSlotId)
+      const [installment] = await pool.query(childfareQuery, [childfareId, bookingSlotId]);
+      if (installment.length > 0) {
+        totalChildBookingAmount += parseFloat(installment[0]?.CBookingAmount);
+        console.log(totalChildBookingAmount)
+        totalChildFirstInstallmentAmount += parseFloat(installment[0]?.CFirstInstallmentAmount);
+        totalChildSecondInstallmentAmount += parseFloat(installment[0]?.CSecondInstallmentAmount);
+        console.log(totalChildBookingAmount)
+      }
     }
-    }
-    }
+
+
 
     // Calculate total package price and Total installment
     const totalpackageprice = totalAdultprice + totalChildPrice + totalInfantprice + addonTotal;
@@ -425,9 +490,6 @@ for (let i = 0; i < child.length; i++) {
       userType
 
     ];
-
-
-    console.log(values)
 
 
     const [result] = await pool.query(
@@ -863,8 +925,10 @@ const getplatform = async (req, res) => {
   // Combine the results for app and desktop booking
 
   // Log the booking details with user counts for each platform
-  return  res.send({book_by_app: getAppBookings,
-    book_by_website: getDesktopBookings})
+  return res.send({
+    book_by_app: getAppBookings,
+    book_by_website: getDesktopBookings
+  })
 
 }
 
@@ -872,7 +936,7 @@ const getplatform = async (req, res) => {
 const packageVisitor = async (req, res) => {
   const userid = req.body.id;
   const PKID = req.body.PKID;
-  const  platform = req.body.platform
+  const platform = req.body.platform
 
   const userQuery = `SELECT * FROM user WHERE id = ?`;
   const [userResult] = await pool.query(userQuery, [userid]);
@@ -951,7 +1015,7 @@ const getPackageVisitorLast1Day = async (req, res) => {
     WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 1
     ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
   `;
-  
+
   try {
     const [visitors] = await pool.execute(packageQuery);
     res.status(200).json(visitors);
@@ -967,7 +1031,7 @@ const getPackageVisitorLast7Days = async (req, res) => {
     WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 7
     ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
   `;
-  
+
   try {
     const [visitors] = await pool.execute(packageQuery);
     res.status(200).json(visitors);
@@ -983,7 +1047,7 @@ const getPackageVisitorLast30Days = async (req, res) => {
     WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 30
     ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
   `;
-  
+
   try {
     const [visitors] = await pool.execute(packageQuery);
     res.status(200).json(visitors);
