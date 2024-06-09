@@ -70,9 +70,9 @@ const get30dayvisitor  = async (req, res) => {
   await BookingService.get30dayvisitor(req,res);
 }
 
-
-
-
+const getBookingbyToday  = async (req, res) => {
+  await BookingService.getBookingsByToday(req,res);
+}
 
 
 export const bookingController = {
@@ -88,5 +88,6 @@ export const bookingController = {
   CancelledBooking,
   CancelledBookingUser,
   packageVisitor,
-  getallpackagevisitor
+  getallpackagevisitor,
+  getBookingbyToday
 }

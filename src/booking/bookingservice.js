@@ -4,6 +4,7 @@ import pool from "../database/db";
 import { payementStatus } from "../payment/service";
 import nodemailer from 'nodemailer'
 import { json } from "express";
+import moment  from "moment";
 
 
 export const bookingStatus = {
@@ -35,7 +36,7 @@ function calculateAge(dob) {
 }
 
 // Function to get the fare based on age limit
-async function getFareByAgeLimit(pool, packageId, ageLimit) {
+async function getFareByAgeLimit(pool, packageId,res, ageLimit) {
   const childfareQuery = `SELECT * FROM childfare WHERE packageId = ?`;
   const [childfareData] = await pool.query(childfareQuery, [packageId]);
   const matchedFare = childfareData.find(fare => {
@@ -46,7 +47,7 @@ async function getFareByAgeLimit(pool, packageId, ageLimit) {
   if (matchedFare) {
     return matchedFare.price;
   } else {
-    return `No fare defined for age limit ${ageLimit}`;
+    return res.send({message:`No fare defined for age  limit`})
   }
 }
 
@@ -319,7 +320,7 @@ const Book$Hold = async (req, res) => {
     for (let i = 0; i < child.length; i++) {
       const dob = child[i].cdob;
       const age = calculateAge(dob);
-      const fare = await getFareByAgeLimit(pool, packgeId, dob);
+      const fare = await getFareByAgeLimit(pool,  packgeId,res, dob);
       console.log(fare)// Assuming dob is the age limit in this case
       totalChildPrice += fare;
       console.log(`Added fare for age ${age}, Total Child Price: ${totalChildPrice}`);
@@ -1053,6 +1054,43 @@ const getPackageVisitorLast30Days = async (req, res) => {
   }
 }
 
+const getTodayBookings = (bookings) => {
+  const today = moment().startOf('day'); // Get the start of today
+  return bookings.filter(booking => {
+      // Parse the booking date using Moment.js and check if it's today
+      const bookingDate = moment(booking.bookingDate, 'dddd, MMMM D, YYYY [at] h:mm:ss A');
+      return bookingDate.isSame(today, 'day');
+  });
+};
+
+
+
+const getBookingsByToday = async (req, res) => {
+  try {
+    // Get the current date and format it to match the bookingDate format
+    const today = new Date().toLocaleString('en-US', {
+      year: 'numeric', // Full year (e.g., "2024")
+      month: '2-digit', // Month (e.g., "06")
+      day: '2-digit' // Day of the month (e.g., "07")
+    });
+
+    // Query to fetch bookings made today
+    const bookingQuery = `
+      SELECT * FROM booking
+    `;
+
+    const [bookingResults] = await pool.execute(bookingQuery, [today]);
+    console.log(bookingResults)
+
+   const data  = await getTodayBookings(bookingResults)
+   return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    res.status(500).json({ error: "Failed to fetch bookings" });
+  }
+};
+
+
 
 
 
@@ -1069,5 +1107,6 @@ export const BookingService = {
   getBookingsByUserId,
   ApprovedBooking,
   CancelledBooking,
-  CancelledBookingByuser
+  CancelledBookingByuser,
+  getBookingsByToday
 }

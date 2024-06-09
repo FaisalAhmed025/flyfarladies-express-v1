@@ -302,6 +302,34 @@ const getTourPackagesByDifferentField = async (req, res) => {
       }
     }
 
+    else if (Country && StartDate ) {
+      const [month, year] = StartDate.split(' ');
+      const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+      const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+      const packagequery = `
+        SELECT * 
+        FROM tourpackage tp
+        INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+        WHERE tp.Country LIKE ? 
+        AND bs.StartDate >= ? 
+        AND bs.EndDate <= ? 
+        AND tp.isActive=1
+        ORDER BY bs.StartDate ASC
+      `;
+
+      console.log(packagequery)
+      try {
+        const [data] = await pool.query(packagequery, [`%${Country}%`, startOfMonth, endOfMonth]);
+        if (data.length === 0) {
+          return res.send({ message: "Package not found" });
+        }
+        return res.send({ data: data });
+      } catch (error) {
+        console.error('Error fetching tour packages:', error);
+        return res.status(500).send({ error: 'Internal server error' });
+      }
+    }
+
    else if (TripType && StartDate) {
       const [month, year] = StartDate.split(' ');
       const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
@@ -327,6 +355,33 @@ const getTourPackagesByDifferentField = async (req, res) => {
         return res.status(500).send({ error: 'Internal server error' });
       }
     }
+
+    
+   else if ( StartDate && City) {
+    const [month, year] = StartDate.split(' ');
+    const startOfMonth = new Date(`${month} 1, ${year}`).toISOString();
+    const endOfMonth = new Date(new Date(startOfMonth).getFullYear(), new Date(startOfMonth).getMonth() + 1, 0).toISOString();
+    const packagequery = `
+      SELECT * 
+      FROM tourpackage tp
+      INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
+      WHERE tp.City = ? 
+      AND bs.StartDate >= ? 
+      AND bs.EndDate <= ? 
+      AND tp.isActive=1
+      ORDER BY bs.StartDate ASC
+    `;
+    try {
+      const [data] = await pool.query(packagequery, [City, startOfMonth, endOfMonth]);
+      if (data.length === 0) {
+        return res.send({ message: "Package not found" });
+      }
+      return res.send({ data: data });
+    } catch (error) {
+      console.error('Error fetching tour packages:', error);
+      return res.status(500).send({ error: 'Internal server error' });
+    }
+  }
   
     else if(City && Country){
       const packagequery = `
@@ -417,6 +472,7 @@ const getTourPackagesByDifferentField = async (req, res) => {
       }
     }
   
+
     
     else if(TripType){
       const packagequery = `

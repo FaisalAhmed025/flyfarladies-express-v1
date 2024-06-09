@@ -5,6 +5,7 @@ import cron from 'node-cron';
 import xlsx from 'xlsx';
 import fs from 'fs';
 import path from 'path';
+import moment  from "moment";
 
 const generateExcelReportBuffer = (data) => {
   const worksheet = xlsx.utils.json_to_sheet(data);
@@ -87,6 +88,7 @@ const getPackageVisitors = async (days) => {
   }
 };
 
+
 const fetchAndSendPackageVisitorsReport = async (days, email) => {
   try {
     const visitors = await getPackageVisitors(days);
@@ -101,6 +103,86 @@ const fetchAndSendPackageVisitorsReport = async (days, email) => {
     console.error('Error generating or sending report:', error);
   }
 };
+
+const fetchAndSendPackagebookingReport = async ( email) => {
+  try {
+    const bookings = await getBookingsByToday();
+    const buffer = generateExcelReportBuffer(bookings);
+    sendEmailWithvisitorAttachment(
+      `Daily booking Report`,
+      'Please find the attached report of package visitors.',
+      buffer,
+      email
+    );
+  } catch (error) {
+    console.error('Error generating or sending report:', error);
+  }
+};
+
+
+const getTodayBookings = (bookings) => {
+  const today = moment().startOf('day'); // Get the start of today
+  return bookings.filter(booking => {
+      // Parse the booking date using Moment.js and check if it's today
+      const bookingDate = moment(booking.bookingDate, 'dddd, MMMM D, YYYY [at] h:mm:ss A');
+      return bookingDate.isSame(today, 'day');
+  });
+};
+
+
+const getBookingsByToday = async () => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM booking');
+
+    const today = moment().startOf('day');
+    const todayBookings = rows.filter(booking => {
+      const bookingDate = moment(booking.bookingDate, 'dddd, MMMM D, YYYY [at] h:mm:ss A');
+      return bookingDate.isSame(today, 'day');
+    });
+
+    const filteredBookings = todayBookings.map(booking => ({
+      userid: booking.userid,
+      email: booking.email,
+      name: booking.name,
+      bookingStatus:booking.bookingStatus,
+      paymentStatus:booking.paymentStatus,
+      totalAdultprice:booking.totalAdultprice,
+      totalChildprice:booking.totalChildprice,
+      totalInfantprice: booking.totalInfantprice,
+      phone:booking.phone,
+      bookingid:booking.bookingid,
+      totaladult:booking.totaladult,
+      totalinfant:booking.totalinfant,
+      totalchild:booking.totalchild,
+      totalAmount:booking.totalAmount,
+      wallet: booking.wallet,
+      packageID: booking.PkID,
+      MainTitle: booking.MainTitle,
+      StartDate: booking.StartDate,
+      EndDate: booking.EndDate,
+      TripType: booking.TripType,
+      TotalDuration: booking.TotalDuration,
+      booking_money: booking.booking_money,
+      first_installment: booking.first_installment,
+      second_installment: booking.second_installment,
+      booking_money_due_date: booking.booking_money_due_date,
+      first_installment_due_date: booking.first_installment_due_date,
+      second_installment_due_date: booking.second_installment_due_date,
+      bookingDate:booking.bookingDate,
+      cashbackamount: booking.cashbackamount,
+      platform:booking.platform
+
+    }));
+
+    return filteredBookings;
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return [];
+  }
+};
+
+
+
 
 
 const sendEmailWithvisitorAttachment = (subject, body, attachmentBuffer, toEmail) => {
@@ -137,23 +219,39 @@ const sendEmailWithvisitorAttachment = (subject, body, attachmentBuffer, toEmail
 };
 
 // Schedule task to run at midnight every day
-// cron.schedule('0 0 * * *', () => {
-//   fetchAndSendReport();
-// });
+cron.schedule('0 0 * * *', () => {
+  fetchAndSendReport();
+});
 
 // Schedule task to run every 1 minute for testing purposes
-cron.schedule('*/30 * * * *', () => {
+cron.schedule('0 0 * * *', () => {
   fetchAndSendReport();
+});
+
+cron.schedule('0 0 * * *', () => {
+  fetchAndSendPackagebookingReport('faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
 });
 
 
 // Schedule task to run every day
-cron.schedule('*/1 * * * *', () => {
-  // Send reports for the last 1, 7, and 30 days
-  fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, tarek@flyfar.tech, afridi@flyfar.tech');
-  // fetchAndSendPackageVisitorsReport(7, 'faisal@flyfar.tech, tarek@flyfar.tech,afridi@flyfar.tech');
-  // fetchAndSendPackageVisitorsReport(30, 'faisal@flyfar.tech,tarek@flyfar.tech,afridi@flyfar.tech');
+cron.schedule('0 0 * * *', () => {
+  // Send report for the last 1 day
+  fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
 });
+
+// // Schedule task to run every 7 days
+// cron.schedule('*/5 * * * *', () => {
+//   // Send report for the last 7 days
+//   fetchAndSendPackageVisitorsReport(7, 'faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org, ceo@flyfarint.com, ratul@flyfarint.com');
+// });
+
+// // Schedule task to run every 30 days
+// cron.schedule('*/5 * * * *', () => {
+//   // Send report for the last 30 days
+//   fetchAndSendPackageVisitorsReport(30, 'faisal@flyfar.tech, afridi@flyfar.tech,ratul@flyfarint.com, ceo@flyfarint.com, ceo@flyfar.org');
+// });
+
+
 
 export const reportService = {
   fetchNewUsers,

@@ -15,5 +15,6 @@ router.post("/approved/:bookingid", bookingController.approvedBooking)
 router.post("/packagevisitor", bookingController.packageVisitor)
 router.post("/cancelled/:bookingid", bookingController.CancelledBooking)
 router.post("/cancelledbyuser/:bookingid", bookingController.CancelledBookingUser)
+router.get("/today/booking", bookingController.getBookingbyToday)
 
 export default router;
