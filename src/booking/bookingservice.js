@@ -30,6 +30,7 @@ function calculateAge(dob) {
   if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
+  console.log(age)
   return age;
 }
 
@@ -86,10 +87,6 @@ const Book$Hold = async (req, res) => {
       // If userType is not specified or invalid, default to 'unknown'
       platform = 'unknown';
     }
-
-    console.log("Platform:", platform);
-
-    console.log(packgeId, bookingSlotId)
 
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);

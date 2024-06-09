@@ -45,8 +45,22 @@ const Register = async (req, res) => {
     // Create a new user object with the provided data
     const newUser = { id, name, phone, email, device, password: hashedPassword, platform };
 
-    const joinAt = new Date();
-    console.log(joinAt);
+    const date = new Date()
+
+
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true,
+      timeZone: 'Asia/Dhaka'
+    };
+
+    const joinAt = date.toLocaleString('en-BD', options);
     // Save the new user to the database
     const [result] = await pool.query(
       "INSERT INTO user (id, name, phone, email, password, platform, device, joinAt) VALUES (?, ?, ?,?, ?,?,?,?)",
@@ -74,22 +88,7 @@ const Register = async (req, res) => {
       },
     });
 
-    const date = new Date()
-
-
-    const options = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      hour12: true,
-      timeZone: 'Asia/Dhaka'
-    };
-
-    const formattedDate = date.toLocaleString('en-BD', options);
+  
 
     const mailOptions = {
       from: 'mailserver@flyfarladies.com', // Replace with your email address
@@ -185,7 +184,7 @@ const Register = async (req, res) => {
                         padding: 0px 40px 20px 55px;
                       "
                     >
-                    ${formattedDate}
+                    ${joinAt}
                     </td>
                   </tr>
                 </table>
@@ -1085,8 +1084,6 @@ const deleteUser = async (req, res) => {
     console.log();
   }
 };
-
-
 
 
 

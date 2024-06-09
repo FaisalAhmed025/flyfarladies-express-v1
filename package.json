@@ -45,6 +45,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "uuidv4": "^6.2.13",
+    "xlsx": "^0.18.5",
     "yarn": "^1.22.22",
     "zod": "^3.23.8"
   }
