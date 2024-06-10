@@ -9,7 +9,7 @@ await reportService.dailynewUser(req,res)
 
 
 const  newUpackageVisitorReport = async(req,res)=>{
-  await reportService.newUpackageVisitorReport(req,res)
+  await reportService.dailypackagevisitor(req,res)
   }
 
 

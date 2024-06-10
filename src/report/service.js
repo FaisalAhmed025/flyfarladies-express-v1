@@ -70,7 +70,7 @@ const fetchAndSendReport = async () => {
   }
 };
 
-const getPackageVisitors = async (days) => {
+const getPackageVisitors = async (days, res) => {
 
   try {
     const currentDateFormatted = moment().format('dddd, MMMM D, YYYY');
@@ -83,7 +83,7 @@ const getPackageVisitors = async (days) => {
     `;
     // Execute the query
     const [visitors] = await pool.query(query, [currentDateFormatted]);
-    res.status(200).json(visitors);
+    return visitors;
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
@@ -262,6 +262,7 @@ const dailynewUser =async(req,res)=>{
 
 
 export const reportService = {
+
   dailynewUser,
   dailypackagevisitor,
   dailynewBooking
