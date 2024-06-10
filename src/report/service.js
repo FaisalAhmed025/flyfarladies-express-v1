@@ -71,15 +71,19 @@ const fetchAndSendReport = async () => {
 };
 
 const getPackageVisitors = async (days) => {
-  const packageQuery = `
-    SELECT * FROM packagevisitor
-    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= ?
-    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
-  `;
 
   try {
-    const [visitors] = await pool.execute(packageQuery, [days]);
-    return visitors;
+    const currentDateFormatted = moment().format('dddd, MMMM D, YYYY');
+
+    // SQL query to match the formatted date part
+    const query = `
+      SELECT * 
+      FROM packagevisitor
+      WHERE DATE_FORMAT(STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
+    `;
+    // Execute the query
+    const [visitors] = await pool.query(query, [currentDateFormatted]);
+    res.status(200).json(visitors);
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
@@ -237,20 +241,28 @@ cron.schedule('0 0 * * *', () => {
   fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
 });
 
-// // Schedule task to run every 7 days
-// cron.schedule('*/5 * * * *', () => {
-//   // Send report for the last 7 days
-//   fetchAndSendPackageVisitorsReport(7, 'faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org, ceo@flyfarint.com, ratul@flyfarint.com');
-// });
 
-// // Schedule task to run every 30 days
-// cron.schedule('*/5 * * * *', () => {
-//   // Send report for the last 30 days
-//   fetchAndSendPackageVisitorsReport(30, 'faisal@flyfar.tech, afridi@flyfar.tech,ratul@flyfarint.com, ceo@flyfarint.com, ceo@flyfar.org');
-// });
+const dailypackagevisitor =async(req,res)=>{
+ fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
+ res.status(200).send('Report fetched and sent');
+}
+
+
+const dailynewUser =async(req,res)=>{
+  fetchAndSendReport();
+  res.status(200).send('Report fetched and sent');
+ }
+
+
+ const dailynewBooking =async(req,res)=>{
+  fetchAndSendPackagebookingReport('faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
+  res.status(200).send('Report fetched and sent');
+ }
 
 
 
 export const reportService = {
-  fetchNewUsers,
+  dailynewUser,
+  dailypackagevisitor,
+  dailynewBooking
 };

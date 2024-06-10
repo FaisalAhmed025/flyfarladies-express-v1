@@ -1,2 +1,8 @@
 runtime: nodejs20
 instance_class: F2
+
+
+handlers:
+  - url: /tasks/.*
+    script: auto
+    secure: always

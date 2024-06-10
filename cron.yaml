@@ -1,0 +1,15 @@
+cron:
+- description: "Daily job to fetch and send reports"
+  url: /api/v1/report/tasks/fetchAndSendReport
+  schedule: every 5 minutes
+  timezone: "UTC"
+
+- description: "Daily job to fetch and send package booking report"
+  url: /api/v1/report/tasks/fetchAndSendPackagebookingReport
+  schedule: every 5 minutes
+  timezone: "UTC"
+
+- description: "Daily job to fetch and send package visitors report"
+  url: /api/v1/report/tasks/fetchAndSendPackageVisitorsReport
+  schedule: every 5 minutes
+  timezone: "UTC"

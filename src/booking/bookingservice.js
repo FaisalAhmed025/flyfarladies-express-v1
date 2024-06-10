@@ -1008,47 +1008,81 @@ const getpackagevisitor = async (req, res) => {
 
 
 const getPackageVisitorLast1Day = async (req, res) => {
-  const packageQuery = `
-    SELECT * FROM packagevisitor
-    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 1
-    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
-  `;
 
   try {
-    const [visitors] = await pool.execute(packageQuery);
+    const currentDateFormatted = moment().format('dddd, MMMM D, YYYY');
+
+    // SQL query to match the formatted date part
+    const query = `
+      SELECT * 
+      FROM packagevisitor
+      WHERE DATE_FORMAT(STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
+    `;
+    // Execute the query
+    const [visitors] = await pool.query(query, [currentDateFormatted]);
     res.status(200).json(visitors);
   } catch (error) {
+    console.log(error)
     res.status(500).send('Error fetching data');
+    
   }
 }
 
 
 const getPackageVisitorLast7Days = async (req, res) => {
-  const packageQuery = `
-    SELECT * FROM packagevisitor
-    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 7
-    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
-  `;
-
   try {
-    const [visitors] = await pool.execute(packageQuery);
-    res.status(200).json(visitors);
+    // Generate the formatted date for each of the last 7 days
+    let days = [];
+    for (let i = 0; i < 7; i++) {
+      days.push(moment().subtract(i, 'days').format('dddd, MMMM D, YYYY'));
+    }
+
+    let visitorsData = [];
+
+    for (let day of days) {
+      const query = `
+        SELECT * 
+        FROM packagevisitor
+        WHERE DATE_FORMAT(STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
+      `;
+
+      // Execute the query for each day
+      const [visitors] = await pool.query(query, [day]);
+
+      visitorsData.push({ day, visitors });
+    }
+
+    res.status(200).json(visitorsData);
   } catch (error) {
+    console.log(error);
     res.status(500).send('Error fetching data');
   }
-}
+};
 
 
 const getPackageVisitorLast30Days = async (req, res) => {
-  const packageQuery = `
-    SELECT * FROM packagevisitor
-    WHERE DATEDIFF(CURDATE(), STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r')) <= 30
-    ORDER BY STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r') DESC
-  `;
+
 
   try {
-    const [visitors] = await pool.execute(packageQuery);
-    res.status(200).json(visitors);
+    let days = [];
+    for (let i = 0; i < 30; i++) {
+      days.push(moment().subtract(i, 'days').format('dddd, MMMM D, YYYY'));
+    }
+
+    let visitorsData = [];
+
+    for (let day of days) {
+      const query = `
+        SELECT * 
+        FROM packagevisitor
+        WHERE DATE_FORMAT(STR_TO_DATE(visitedat, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
+      `;
+
+      // Execute the query for each day
+      const [visitors] = await pool.query(query, [day]);
+
+      visitorsData.push({ day, visitors });
+    }
   } catch (error) {
     res.status(500).send('Error fetching data');
   }
