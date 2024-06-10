@@ -733,7 +733,7 @@ const Book$Hold = async (req, res) => {
 
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
-      to: 'faisal@flyfar.tech', // Recipient's email address
+      to: 'afridi@flyfar.tech', // Recipient's email address
       subject: 'Booking Details',
       text: 'Please find the attached file.',
       html: htmlContent

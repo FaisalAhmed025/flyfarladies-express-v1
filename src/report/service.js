@@ -3,8 +3,6 @@ import pool from "../database/db";
 import nodemailer from 'nodemailer';
 import cron from 'node-cron';
 import xlsx from 'xlsx';
-import fs from 'fs';
-import path from 'path';
 import moment  from "moment";
 
 const generateExcelReportBuffer = (data) => {
