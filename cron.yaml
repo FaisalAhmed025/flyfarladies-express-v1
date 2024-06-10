@@ -1,15 +1,20 @@
 cron:
 - description: "Daily job to fetch and send reports"
-  url: /tasks/fetchAndSendReport
-  schedule: every 5 minutes
-  timezone: "Asia/Dhaka"
+  url: /api/v1/report/tasks/fetchAndSendReport
+  schedule: every 24 hours
+  timezone: "Asia/Taipei"
 
 - description: "Daily job to fetch and send package booking report"
-  url: /tasks/fetchAndSendPackagebookingReport
-  schedule: every 5 minutes
-  timezone: "Asia/Dhaka"
+  url: /api/v1/report/tasks/fetchAndSendPackagebookingReport
+  schedule: every day 00:00
+  timezone: "Asia/Taipei"
 
 - description: "Daily job to fetch and send package visitors report"
-  url: /tasks/fetchAndSendPackageVisitorsReport
+  url: /api/v1/report/tasks/fetchAndSendPackageVisitorsReport
+  schedule: every day 00:00
+  timezone: "Asia/Taipei"
+
+- description: "Job to run every 5 minutes"
+  url: /api/v1/report/tasks/yourTaskName
   schedule: every 5 minutes
-  timezone: "Asia/Dhaka"
+  timezone: "Asia/Taipei"
