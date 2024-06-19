@@ -6810,7 +6810,6 @@ const htmltemplate = `<!DOCTYPE html>
 const getuserdeposit = async (req, res) => {
   try {
     const userid = req.params.requested_by;
-
     const bankDepoQuery = `SELECT *, created_at as date FROM bank_transfer WHERE requested_by = ? ORDER BY created_at DESC`;
     const [bankDeposit] = await pool.query(bankDepoQuery, [userid]);
 
