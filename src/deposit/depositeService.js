@@ -6831,15 +6831,15 @@ const getuserdeposit = async (req, res) => {
 const getAlldeposit = async (req, res) => {
   try {
  
-    const bankDepoQuery = `SELECT * FROM bank_transfer`;
+    const bankDepoQuery = `SELECT * FROM bank_transfer ORDER BY created_at DESC`;
     const [bankDeposit] = await pool.query(bankDepoQuery);
 
-    const cheqDepoQuery = `SELECT * FROM cheque_deposit`;
+    const cheqDepoQuery = `SELECT * FROM cheque_deposit ORDER BY created_at DESC`;
     const [chequeDeposit] = await pool.query(cheqDepoQuery);
 
-    const mobileBankDepoQuery = `SELECT * FROM mobilebank`;
+    const mobileBankDepoQuery = `SELECT * FROM mobilebank ORDER BY requestDate DESC`;
     const [mobileDeposit] = await pool.query(mobileBankDepoQuery);
-    const bkashDeposit = `SELECT * FROM bkaspayment`;
+    const bkashDeposit = `SELECT * FROM bkaspayment ORDER BY paymentExecuteTime DESC`;
     const [bkashdata] = await pool.query(bkashDeposit);
     const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit, ...bkashdata];
     return res.json({ alldeposit: combinedResult });

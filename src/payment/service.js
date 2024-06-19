@@ -88,7 +88,6 @@ const paywithwallet = async (req, res) => {
       return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
     }
     const newWalletBalance = user[0].wallet - totalprice;
-    console.log(newWalletBalance)
 
     const walletvalue = [
       newWalletBalance,
