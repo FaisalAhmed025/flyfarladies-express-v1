@@ -6806,21 +6806,28 @@ const htmltemplate = `<!DOCTYPE html>
   }
 };
 
+
 const getuserdeposit = async (req, res) => {
   try {
     const userid = req.params.requested_by;
 
-    const bankDepoQuery = `SELECT * FROM bank_transfer WHERE requested_by = ?`;
+    const bankDepoQuery = `SELECT *, created_at as date FROM bank_transfer WHERE requested_by = ? ORDER BY created_at DESC`;
     const [bankDeposit] = await pool.query(bankDepoQuery, [userid]);
 
-    const cheqDepoQuery = `SELECT * FROM cheque_deposit WHERE requested_by = ?`;
+    const cheqDepoQuery = `SELECT *, created_at as date FROM cheque_deposit WHERE requested_by = ? ORDER BY created_at DESC`;
     const [chequeDeposit] = await pool.query(cheqDepoQuery, [userid]);
 
-    const mobileBankDepoQuery = `SELECT * FROM mobilebank WHERE requested_by = ?`;
+    const mobileBankDepoQuery = `SELECT *, requestDate as date FROM mobilebank WHERE requested_by = ? ORDER BY requestDate DESC`;
     const [mobileDeposit] = await pool.query(mobileBankDepoQuery, [userid]);
-    const bkashDeposit = `SELECT * FROM bkaspayment WHERE userid = ?`;
+
+    const bkashDeposit = `SELECT *, paymentExecuteTime as date FROM bkaspayment WHERE userid = ? ORDER BY paymentExecuteTime DESC`;
     const [bkashdata] = await pool.query(bkashDeposit, [userid]);
+
     const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit, ...bkashdata];
+
+    // Sort the combined results by date in descending order
+    combinedResult.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     return res.json({ alldeposit: combinedResult });
   } catch (error) {
     console.error("Error fetching user deposits:", error);

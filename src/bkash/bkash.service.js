@@ -162,7 +162,7 @@ const callback = async (req, res) => {
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have made a deposit through Bkash, the paymentID ${paymentID} and the deposited amount is ${result.amount}`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?,?, ?)`;
-  const transactionType = 'ssl'
+  const transactionType = 'Bkash'
   const transactionid = result.trxID
   const lastbalancew = user[0]?.wallet
   console.log(lastbalancew)
