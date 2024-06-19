@@ -79,6 +79,9 @@ const paywithwallet = async (req, res) => {
 
     const data = parseInt(totalprice)
     const wallet = parseInt(user[0].wallet)
+    if (user[0].wallet === null) {
+      return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
+    }
 
     // Check wallet balance
     if (wallet < data) {
@@ -1016,7 +1019,7 @@ const sucesssslfullamount = async (req, res) => {
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?)`;
-  const transactionType ='ssl'
+    const transactionType ='ssl'
     // const transactionid = generateTransactionId()
     const lastbalancew = parseFloat(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
