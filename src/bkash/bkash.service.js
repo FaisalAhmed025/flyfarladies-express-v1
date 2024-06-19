@@ -96,7 +96,6 @@ const callback = async (req, res) => {
   try {
     const { status, paymentID } = req.query
     const userid = req.params.id
-
     let result
     let response = {
       statusCode: '4000',
@@ -118,11 +117,12 @@ const callback = async (req, res) => {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?)
         `;
       const datetime = getFormatDateTimeWithSpace(result.paymentExecuteTime)
-      const currentWallet = parseInt(user[0].wallet);
-      console.log(currentWallet);
-      const newValue = currentWallet + parseInt(result.amount);
-      console.log(newValue)
-      const updateQuery = `UPDATE user SET wallet =? WHERE id = ?`;
+      const newValue =  result.amount;
+      const updateQuery =  `
+      UPDATE user 
+      SET wallet = COALESCE(wallet, 0.00) + ? 
+      WHERE id = ?
+    `;;
       await pool.query(updateQuery, [newValue, userid]);
       const paymentmethod = 'Bkash'
       const insertParams = [
@@ -140,11 +140,12 @@ const callback = async (req, res) => {
         paymentmethod,
         userid
       ];
+
+      console.log(insertParams)
    
       console.log(insertParams)
       // Execute the insertion query
       await pool.query(insertQuery, insertParams);
-
 
   const cashbackdate = new Date()
   const options2 = {
@@ -161,9 +162,10 @@ const callback = async (req, res) => {
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have made a deposit through Bkash, the paymentID ${paymentID} and the deposited amount is ${result.amount}`;
   const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?,?, ?)`;
-  const transactionType ='ssl'
+  const transactionType = 'ssl'
   const transactionid = result.trxID
-  const lastbalancew = parseInt(user[0].wallet)
+  const lastbalancew = user[0]?.wallet
+  console.log(lastbalancew)
   const ledgerw = await pool.query(ledgerqueryw, [
     userid,
     paymentID,
