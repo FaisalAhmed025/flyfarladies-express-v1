@@ -620,7 +620,7 @@ const Book$Hold = async (req, res) => {
           </tr>
           <tr>
             <td class="title">Journey Start & End Date</td>
-            <td>${tourpackage[0].StartDate},${tourpackage[0].EndDate}</td>
+            <td>${startdate},${enddate}</td>
           </tr>
           <tr>
             <td class="title">Duration</td>
@@ -628,8 +628,9 @@ const Book$Hold = async (req, res) => {
           </tr>
           <tr>
             <td class="title">Total Passenger</td>
-            <td>${tourpackage[0].totalseat}</td>
+            <td>${totaladult +totalchild+totalinfant}</td>
           </tr>
+          
           <tr>
             <td class="title">Total Cost</td>
             <td>${totalpackageprice}</td>
@@ -733,7 +734,7 @@ const Book$Hold = async (req, res) => {
 
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
-      to: 'afridi@flyfar.tech', // Recipient's email address
+      to:  user[0].email, // Recipient's email address
       subject: 'Booking Details',
       text: 'Please find the attached file.',
       html: htmlContent

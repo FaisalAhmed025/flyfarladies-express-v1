@@ -266,7 +266,6 @@ const addtourpackage = async (req, res) => {
         await connection.query(insertChildQuery, [childInsertValues]);
       }
     }
-
     // Commit transaction
     await connection.commit();
 

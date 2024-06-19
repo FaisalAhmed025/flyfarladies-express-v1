@@ -879,7 +879,7 @@ const initwithsslfullamount = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
+    success_url: `http://localhost:4004/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/failure/${transactionId}/${bookingid}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}/${bookingid}`,
     emi_option: 0,
@@ -921,7 +921,7 @@ const initwithsslfullamount = async (req, res) => {
 
   ]);
 
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false
   );
   const apiResponse = await sslcz.init(data);
   res.send(apiResponse)
@@ -933,7 +933,6 @@ const sucesssslfullamount = async (req, res) => {
   const bookingid = req.params.bookingid
   // const uuid = req.params.id;
   const data = req.body;
-  console.log(req.body)
 
   // Assuming you have a sslcommerzRepository and UserRepository to handle database operations
   const [transactionRows] = await pool.query('SELECT * FROM ssl_commerz_entity WHERE tran_id = ?', [tran_id]);
@@ -976,14 +975,16 @@ const sucesssslfullamount = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and the paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?)`;
+  const transactionType ='ssl'
 
-  const transactionid = generateTransactionId()
-  const lastbalancew = parseInt(user[0].wallet)
+  const lastbalancew = user[0]?.wallet
+  console.log(lastbalancew)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1014,14 +1015,15 @@ const sucesssslfullamount = async (req, res) => {
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-
-    const transactionid = generateTransactionId()
-    const lastbalancew = parseInt(lastbalancedata[0].wallet)
+    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?)`;
+  const transactionType ='ssl'
+    // const transactionid = generateTransactionId()
+    const lastbalancew = parseFloat(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
-      transactionid,
+      tran_id,
+      transactionType,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -1172,14 +1174,14 @@ const sucess_ssl_bookingAmount = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and booking amount paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
-
-  const transactionid = generateTransactionId()
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?,?, ?)`;
+  const transactionType ='ssl'
   const lastbalancew = parseInt(user[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1326,15 +1328,16 @@ const success_ssl_1stinstallemnt = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and the first instalment paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?)`;
+  const transactionType ='ssl'
 
   const transactionid = generateTransactionId()
   const lastbalancew = parseInt(user[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1370,13 +1373,11 @@ const success_ssl_1stinstallemnt = async (req, res) => {
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using Coupon`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-
-    const transactionid = generateTransactionId()
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
-      transactionid,
+      tran_id,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -1517,14 +1518,15 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and the second instalment paid amount is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-
+  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?,?, ?, ?)`;
+ const transactionType ='ssl'
   const transactionid = generateTransactionId()
   const lastbalancew = parseInt(user[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1554,15 +1556,16 @@ const success_ssl_2ndinstallemnt = async (req, res) => {
     };
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK.`;
-    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?, ?)`;
+    const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?,?, ?)`;
 
-
+   const transactionType ='ssl'
     const transactionidd = generateTransactionId()
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
-      transactionidd,
+      tran_id,
+      transactionType,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -1716,14 +1719,14 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid} and the booking amount and first installemnt is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-
-  const transactionid = generateTransactionId()
+  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?,?, ?)`;
+  const transactionType ='ssl'
   const lastbalancew = parseInt(user[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1756,12 +1759,11 @@ const sucess_ssl_1st_and_2nd_booking_Amount = async (req, res) => {
     const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
     const remarksw = `You have booked a package where bookingid ${bookingid} and package Id is ${booking[0].PkID}.you get bonus ${booking[0].cashbackamount} TK by using this Coupon ${booking[0].couponcode}`;
     const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
-    const transactionid = generateTransactionId()
     const lastbalancew = parseInt(lastbalancedata[0].wallet)
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
-      transactionid,
+      tran_id,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
@@ -1907,14 +1909,15 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
   };
   const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
   const remarksw = `You have paid a package where th bookingid ${bookingid}, first and second instalment amount is ${data.amount}.The payment has executed by  sslcommerz`;
-  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?, ?, ?)`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id, referenceid, transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?,?,?, ?, ?)`;
+  const transactionType ='ssl'
 
-  const transactionid = generateTransactionId()
   const lastbalancew = parseInt(user[0].wallet)
   const ledgerw = await pool.query(ledgerqueryw, [
     booking[0].userid,
     bookingid,
-    transactionid,
+    tran_id,
+    transactionType,
     data?.amount,
     lastbalancew,
     remarksw,
@@ -1953,7 +1956,7 @@ const sucess_ssl_2nd_3rd_installemntAmount = async (req, res) => {
     const ledgerw = await pool.query(ledgerqueryw, [
       booking[0].userid,
       bookingid,
-      transactionid,
+      tran_id,
       booking[0].cashbackamount,
       lastbalancew,
       remarksw,
