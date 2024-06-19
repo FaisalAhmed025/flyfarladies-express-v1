@@ -79,7 +79,7 @@ const paywithwallet = async (req, res) => {
 
     const data = parseInt(totalprice)
     const wallet = parseInt(user[0].wallet)
-    if (user[0].wallet === null) {
+    if (user[0].wallet === 0.00) {
       return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
     }
 

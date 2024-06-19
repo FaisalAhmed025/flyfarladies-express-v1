@@ -92,13 +92,10 @@ const CreatePayment = async (req, res) => {
 
 }
 
-
 const callback = async (req, res) => {
   try {
     const { status, paymentID } = req.query
     const userid = req.params.id
-    console.log(userid)
-    console.log(paymentID)
 
     let result
     let response = {
@@ -149,23 +146,34 @@ const callback = async (req, res) => {
       await pool.query(insertQuery, insertParams);
 
 
-      const ledgerVAlue = [
-        result.paymentID,
-        result.trxID,
-        result.transactionStatus,
-        result.amount,
-        result.currency,
-        datetime,
-        result.merchantInvoiceNumber,
-        result.payerReference,
-        result.customerMsisdn,
-        result.statusCode,
-        result.statusMessage,
-        paymentmethod,
-        userid
-
-      ]
-
+  const cashbackdate = new Date()
+  const options2 = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'Asia/Dhaka'
+  };
+  const approvedAtw = cashbackdate.toLocaleString('en-BD', options2);
+  const remarksw = `You have made a deposit through Bkash, the paymentID ${paymentID} and the deposited amount is ${result.amount}`;
+  const ledgerqueryw = `INSERT INTO ledger(user_id,referenceid,transactionid,transactionType, purchase, lastBalance, remarks, createdAt) VALUES (?,?, ?,?, ?,?,?, ?)`;
+  const transactionType ='ssl'
+  const transactionid = result.trxID
+  const lastbalancew = parseInt(user[0].wallet)
+  const ledgerw = await pool.query(ledgerqueryw, [
+    userid,
+    paymentID,
+    transactionid,
+    transactionType,
+    result?.amount,
+    lastbalancew,
+    remarksw,
+    approvedAtw
+  ]);
       return res.redirect(`https://flyfarladies.com/dashboard/transaction`);
     }
 
