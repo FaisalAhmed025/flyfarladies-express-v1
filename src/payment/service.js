@@ -879,7 +879,7 @@ const initwithsslfullamount = async (req, res) => {
     currency: "BDT",
     tran_id: transactionId,
     tran_date: Date(),
-    success_url: `http://localhost:4004/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
+    success_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/success/fullpayment/${transactionId}/${bookingid}`,
     fail_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/failure/${transactionId}/${bookingid}`,
     cancel_url: `https://flyfarladies-express-416405.appspot.com/api/v1/payment/ssl/cancel/${transactionId}/${bookingid}`,
     emi_option: 0,
@@ -921,7 +921,7 @@ const initwithsslfullamount = async (req, res) => {
 
   ]);
 
-  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, false
+  const sslcz = new SSLCommerzPayment(process.env.SSL_STORE_ID, process.env.SSL_STORE_PASSWORD, true
   );
   const apiResponse = await sslcz.init(data);
   res.send(apiResponse)
