@@ -556,6 +556,8 @@ const Book$Hold = async (req, res) => {
       <style>
         body {
           padding: 0px 25px;
+          width: 200px;
+          margin: 0 auto;
         }
         table {
           border-collapse: collapse;
@@ -565,14 +567,19 @@ const Book$Hold = async (req, res) => {
           background-color: #ffe3ea;
           color: #bc6277;
           font-weight: 500;
+                    width: 100%;
+
         }
-    
-        th,
+   
+      th,
         td {
-          padding: 8px;
+          padding: 8px 20px 8px 8px;
           text-align: left;
           border-bottom: 1px solid #ddd;
           font-size: 10px;
+                    width: 100%;
+
+          
         }
         p {
           font-size: 10px;
@@ -588,6 +595,8 @@ const Book$Hold = async (req, res) => {
         }
       </style>
       <body>
+      <div  style="width: 100%;"> 
+
         <div class="header" style="margin-bottom: 5px;margin-top: 30px">
           <div class="logo">
             <img  style="width: 130px" src="https://storage.googleapis.com/cdnflyfarladiesv2/logo%20ladies.png" alt="" />
@@ -729,6 +738,7 @@ const Book$Hold = async (req, res) => {
             01755582111
           </p>
         </div>
+          </div>
       </body>
   </html>`;
 
@@ -743,7 +753,7 @@ const Book$Hold = async (req, res) => {
 
     const supportmail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
-      to: 'support@flyfarladies.com', // Recipient's email address
+      to: 'support@flyfarladies.com, orpita@flyfarladies.com,shornali@flyafrladies.com', // Recipient's email address
       subject: 'Booking Details',
       text: 'Please find the attached file.',
       html: htmlContent

@@ -231,19 +231,19 @@ cron.schedule('0 0 * * *', () => {
 });
 
 cron.schedule('0 0 * * *', () => {
-  fetchAndSendPackagebookingReport('faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
+  fetchAndSendPackagebookingReport('orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
 });
 
 
 // Schedule task to run every day
 cron.schedule('0 0 * * *', () => {
   // Send report for the last 1 day
-  fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
+  fetchAndSendPackageVisitorsReport(1, 'orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
 });
 
 
 const dailypackagevisitor =async(req,res)=>{
- fetchAndSendPackageVisitorsReport(1, 'faisal@flyfar.tech, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
+ fetchAndSendPackageVisitorsReport(1, 'orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
  res.status(200).send('Report fetched and sent');
 }
 
@@ -255,7 +255,7 @@ const dailynewUser =async(req,res)=>{
 
 
  const dailynewBooking =async(req,res)=>{
-  fetchAndSendPackagebookingReport('faisal@flyfar.tech, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
+  fetchAndSendPackagebookingReport('orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
   res.status(200).send('Report fetched and sent');
  }
 
