@@ -37,7 +37,7 @@ const sendEmailWithAttachment = (subject, body, attachmentBuffer) => {
 
   const mailOptions = {
     from: 'mailserver@flyfarladies.com',
-    to: 'faisal@flyfar.tech, afridi@flyfar.tech',
+    to: 'ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com',
     subject: subject,
     text: body,
     attachments: [
@@ -95,6 +95,28 @@ const getPackageVisitors = async (days, res) => {
     // Execute the query
     const [visitors] = await pool.query(query, [currentDateFormatted]);
     return visitors;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+
+const getuserforoneday = async (days, res) => {
+
+  try {
+    const currentDateFormatted = moment().format('dddd, MMMM D, YYYY');
+
+    // SQL query to match the formatted date part
+    const query = `
+      SELECT * 
+      FROM user
+      WHERE DATE_FORMAT(STR_TO_DATE(joinAt, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
+    `;
+    // Execute the query
+    console.log(query)
+    const [users] = await pool.query(query, [currentDateFormatted]);
+    return  res.json(users);
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
@@ -234,22 +256,8 @@ const getBookingsByToday = async () => {
 //get last one day user
 
 const getuserLast1Day = async (req, res) => {
-  try {
-    const currentDate = new Date();
-    const oneDayAgo = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000);
-    const query = `
-      SELECT * 
-      FROM user
-      WHERE STR_TO_DATE(created_at, '%W, %M %e, %Y at %r') >= ?;
-    `;
-
-    // Execute the query
-    const [users] = await pool.query(query, [oneDayAgo]);
-    res.status(200).json(users);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Error fetching data');
-  }
+await  getuserforoneday(1,res)
+  
 }
 
 
@@ -286,7 +294,7 @@ const getUserLast30Days = async (req, res) => {
   try {
     let usersData = [];
 
-    for (let i = 0; i <7; i++) {
+    for (let i = 0; i <30; i++) {
       const day = moment().subtract(i, 'days').format('YYYY-MM-DD');
       console.log(day)
 
@@ -343,27 +351,6 @@ const sendEmailWithvisitorAttachment = (subject, body, attachmentBuffer, toEmail
     console.log('Email sent: ' + info.response);
   });
 };
-
-// Schedule task to run at midnight every day
-cron.schedule('0 0 * * *', () => {
-  fetchAndSendReport();
-});
-
-// Schedule task to run every 1 minute for testing purposes
-cron.schedule('0 0 * * *', () => {
-  fetchAndSendReport();
-});
-
-cron.schedule('0 0 * * *', () => {
-  fetchAndSendPackagebookingReport('orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
-});
-
-
-// Schedule task to run every day
-cron.schedule('0 0 * * *', () => {
-  // Send report for the last 1 day
-  fetchAndSendPackageVisitorsReport(1, 'orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech,ceo@flyfar.org, ceo@flyfarint.com,ratul@flyfarint.com');
-});
 
 
 const dailypackagevisitor =async(req,res)=>{
