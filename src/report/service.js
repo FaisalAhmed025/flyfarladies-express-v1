@@ -123,6 +123,35 @@ const getuserforoneday = async (days, res) => {
   }
 };
 
+const getUsersForLastNDays = async (days, res) => {
+  try {
+    // Get the current date
+    const currentDate = new Date();
+    // Calculate the date 'days' ago
+    const pastDate = new Date();
+    pastDate.setDate(currentDate.getDate() - days);
+
+    // Format dates using moment.js to match the required format
+    const currentDateFormatted = moment(currentDate).format('dddd, MMMM D, YYYY');
+    const pastDateFormatted = moment(pastDate).format('dddd, MMMM D, YYYY');
+
+    // SQL query to match the formatted date range
+    const query = `
+      SELECT * 
+      FROM user
+      WHERE DATE_FORMAT(STR_TO_DATE(joinAt, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') BETWEEN ? AND ?
+    `;
+
+    // Execute the query
+    const [users] = await pool.query(query, [pastDateFormatted, currentDateFormatted]);
+
+    return res.json(users);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send('Error fetching data');
+  }
+};
+
 
 const getPackageVisitorsByLast12Hours = async () => {
   try {
@@ -264,57 +293,11 @@ await  getuserforoneday(1,res)
 
 
 const getUserLast7Days = async (req, res) => {
-  try {
-    let usersData = [];
-
-    for (let i = 0; i <7; i++) {
-      const day = moment().subtract(i, 'days').format('YYYY-MM-DD');
-      console.log(day)
-
-      const query = `
-        SELECT * 
-        FROM user
-        WHERE joinAt = ?;
-      `;
-
-      // Execute the query for each day
-      const [users] = await pool.query(query, [day]);
-
-      usersData.push({ day, users });
-    }
-
-    res.status(200).json(usersData);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Error fetching data');
-  }
+  await getUsersForLastNDays(7,res)
 }
 
 const getUserLast30Days = async (req, res) => {
-  try {
-    let usersData = [];
-
-    for (let i = 0; i <30; i++) {
-      const day = moment().subtract(i, 'days').format('YYYY-MM-DD');
-      console.log(day)
-
-      const query = `
-        SELECT * 
-        FROM user
-        WHERE joinAt = ?;
-      `;
-
-      // Execute the query for each day
-      const [users] = await pool.query(query, [day]);
-
-      usersData.push({ day, users });
-    }
-
-    res.status(200).json(usersData);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Error fetching data');
-  }
+  await getUsersForLastNDays(30,res)
 }
 
 
