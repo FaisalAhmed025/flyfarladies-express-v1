@@ -108,6 +108,10 @@ const Book$Hold = async (req, res) => {
       );
     }
 
+    if(user[0]?.phone ===''){
+      return res.send({message: "please update your phone number" });
+    }
+
     const { adult, child, infant } = req.body;
 
     const bookingid = generatebookingId()
@@ -1035,7 +1039,6 @@ const getPackageVisitorLast1Day = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(500).send('Error fetching data');
-    
   }
 }
 
@@ -1072,7 +1075,6 @@ const getPackageVisitorLast7Days = async (req, res) => {
 
 
 const getPackageVisitorLast30Days = async (req, res) => {
-
 
   try {
     let days = [];

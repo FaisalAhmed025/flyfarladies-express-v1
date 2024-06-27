@@ -36,6 +36,11 @@ const createBankDeposit = async (req) => {
     if (user.length === 0) {
       throw new Error("User not found");
     }
+
+    if(user[0]?.phone ===''){
+      return res.send({message: "please update your phone number" });
+    }
+
     const image = req.publicImageLink;
     const tableName = "bank_transfer";
     const status = "pending";
@@ -4094,6 +4099,11 @@ const createMobilebank = async (req) => {
     const attachment = req.publicImageLink;
     const tableName = "mobilebank";
 
+    if(user[0]?.phone ===''){
+      return res.send({message: "please update your phone number" });
+    }
+
+
     if (amount < 0) {
       throw new Error(
         "Please check your amount. Negative amount not accepted."
@@ -4777,6 +4787,11 @@ const createCashDeposit = async (req) => {
     if (user.length === 0) {
       throw new Error("User not found");
     }
+
+    if(user[0]?.phone ===''){
+      return res.send({message: "please update your phone number" });
+    }
+
     const image = req.publicImageLink;
     const tableName = "cash_deposit";
     const status = "pending";

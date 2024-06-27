@@ -183,6 +183,87 @@ const getBookingsByToday = async () => {
   }
 };
 
+//get last one day user
+
+const getuserLast1Day = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const oneDayAgo = new Date(currentDate.getTime() - 24 * 60 * 60 * 1000);
+    const query = `
+      SELECT * 
+      FROM user
+      WHERE STR_TO_DATE(created_at, '%W, %M %e, %Y at %r') >= ?;
+    `;
+
+    // Execute the query
+    const [users] = await pool.query(query, [oneDayAgo]);
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error fetching data');
+  }
+}
+
+
+
+
+const getUserLast7Days = async (req, res) => {
+  try {
+    let usersData = [];
+
+    for (let i = 0; i <7; i++) {
+      const day = moment().subtract(i, 'days').format('YYYY-MM-DD');
+      console.log(day)
+
+      const query = `
+        SELECT * 
+        FROM user
+        WHERE joinAt = ?;
+      `;
+
+      // Execute the query for each day
+      const [users] = await pool.query(query, [day]);
+
+      usersData.push({ day, users });
+    }
+
+    res.status(200).json(usersData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error fetching data');
+  }
+}
+
+const getUserLast30Days = async (req, res) => {
+  try {
+    let usersData = [];
+
+    for (let i = 0; i <7; i++) {
+      const day = moment().subtract(i, 'days').format('YYYY-MM-DD');
+      console.log(day)
+
+      const query = `
+        SELECT * 
+        FROM user
+        WHERE joinAt = ?;
+      `;
+
+      // Execute the query for each day
+      const [users] = await pool.query(query, [day]);
+
+      usersData.push({ day, users });
+    }
+
+    res.status(200).json(usersData);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Error fetching data');
+  }
+}
+
+
+
+
 
 
 
@@ -262,8 +343,10 @@ const dailynewUser =async(req,res)=>{
 
 
 export const reportService = {
-
   dailynewUser,
   dailypackagevisitor,
-  dailynewBooking
+  dailynewBooking,
+  getuserLast1Day,
+  getUserLast7Days,
+  getUserLast30Days
 };
