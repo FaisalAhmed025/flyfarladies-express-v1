@@ -38,7 +38,7 @@ const sendEmailWithAttachment = (subject, body, attachmentBuffer) => {
 
   const mailOptions = {
     from: 'mailserver@flyfarladies.com',
-    to: 'faisal@flyfar.tech,afridi@flyfar.tech',
+    to: 'faisal@flyfar.tech,afridi@flyfar.tech,ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com',
     subject: subject,
     text: body,
     attachments: [
@@ -139,7 +139,20 @@ const getuserforondereport = async (days, res) => {
     `;
     // Execute the query
     console.log(query)
-    const [users] = await pool.query(query, [currentDateFormatted]);
+    const [rows] = await pool.query(query, [currentDateFormatted]);
+    const users = rows.map(user => ({
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      userPhone: user.phone,
+      userProfession: user.profession,
+      userNationality: user.nationality,
+      userGender: user.gender,
+      userJoinAt: user.joinAt,
+      userPlatform: user.platform,
+    }));
+
+console.log(users)
     return users
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -385,7 +398,6 @@ const getHoldBookings = async () => {
       first_installment_due_date: booking.first_installment_due_date,
       second_installment_due_date: booking.second_installment_due_date,
       bookingDate:booking.bookingDate,
-      cashbackamount: booking.cashbackamount,
       platform:booking.platform
 
     }));
@@ -462,7 +474,7 @@ const getfirstinsatllemntcompletedBookings = async () => {
     const query = `
       SELECT * 
       FROM booking
-      WHERE firstInstallmentStatus ='completed'
+      WHERE paymentStatus ='bookingamount paid'
       AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
     `;
     const [rows] = await pool.query(query, [twentyFourHoursAgo]);
@@ -496,7 +508,6 @@ const getfirstinsatllemntcompletedBookings = async () => {
       first_installment_due_date: booking.first_installment_due_date,
       second_installment_due_date: booking.second_installment_due_date,
       bookingDate:booking.bookingDate,
-      cashbackamount: booking.cashbackamount,
       platform:booking.platform
 
     }));
@@ -517,7 +528,7 @@ const getsecondinsatllemntcompletedBookings = async () => {
     const query = `
       SELECT * 
       FROM booking
-      WHERE secondInstallmentStatus ='completed'
+      WHERE paymentStatus ='first installment paid'
       AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
     `;
     const [rows] = await pool.query(query, [twentyFourHoursAgo]);
@@ -551,7 +562,6 @@ const getsecondinsatllemntcompletedBookings = async () => {
       first_installment_due_date: booking.first_installment_due_date,
       second_installment_due_date: booking.second_installment_due_date,
       bookingDate:booking.bookingDate,
-      cashbackamount: booking.cashbackamount,
       platform:booking.platform
 
     }));
@@ -668,23 +678,23 @@ const dailynewUser =async(req,res)=>{
 
 
  const sendBookingHold = async(req,res)=>{
- await fetchAndSendPackagebookingHoldReport('faisal@flyfar.tech,afridi@flyfar.tech')
+ await fetchAndSendPackagebookingHoldReport('ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com, maruf@flyfar.org, mahfuz@flyfar.org, momo@flyfarladies.com, booking@flyfarladies.com, ashi@flyfarladies.com')
  res.status(200).send('Report fetched and sent');
  }
 
  const sendBookingPaid= async(req,res)=>{
-  await fetchAndSendPackagebookingPaidReport('faisal@flyfar.tech,afridi@flyfar.tech')
+  await fetchAndSendPackagebookingPaidReport('faisal@flyfar.tech,afridi@flyfar.tech, ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com, maruf@flyfar.org, mahfuz@flyfar.org, momo@flyfarladies.com, booking@flyfarladies.com, ashi@flyfarladies.com')
   res.status(200).send('Report fetched and sent');
   }
 
 
  const sendfirstinstallemntcompleted = async(req,res)=>{
-  await fetchAndSendPackagefirstinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech')
+  await fetchAndSendPackagefirstinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech, ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com, maruf@flyfar.org, mahfuz@flyfar.org, momo@flyfarladies.com, booking@flyfarladies.com, ashi@flyfarladies.com')
   res.status(200).send('Report fetched and sent');
   }
 
   const sendsecondinstallemntcompleted = async(req,res)=>{
-    await fetchAndSendPackagesecondinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech')
+    await fetchAndSendPackagesecondinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech,  ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com, maruf@flyfar.org, mahfuz@flyfar.org, momo@flyfarladies.com, booking@flyfarladies.com, ashi@flyfarladies.com')
     res.status(200).send('Report fetched and sent');
     }
    
