@@ -13,6 +13,17 @@ const generateExcelReportBuffer = (data) => {
   return buffer;
 };
 
+
+const AllLedger = async (req, res) => {
+  const ledgerQuery = `SELECT * FROM ledger  ORDER BY uid DESC`
+  const [data] = await pool.query(ledgerQuery)
+  return res.status(200).json({
+    success: true,
+    status: httpStatus.OK,
+    data: data
+  });
+}
+
 const sendEmailWithAttachment = (subject, body, attachmentBuffer) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
@@ -466,6 +477,7 @@ const halfdaypackagevisit = async(req,res)=>{
 
 
 export const reportService = {
+  AllLedger,
   dailynewUser,
   dailypackagevisitor,
   dailynewBooking,

@@ -38,17 +38,21 @@ const  getuserlast1day = async(req,res)=>{
     await reportService.getUserLast30Days(req,res)
     }
 
+   
 
     const halfdaypackagevisitor = async(req,res)=>{
       await reportService.halfdaypackagevisit(req,res)
       }
       
-    
+        const AllLedger = async(req,res)=>{
+      await reportService.AllLedger(req,res)
+      }
     
   
 
 
 export const reportControlerr = {
+  AllLedger,
   newUserReport,
   newUpackageVisitorReport,
   newBookingReport,

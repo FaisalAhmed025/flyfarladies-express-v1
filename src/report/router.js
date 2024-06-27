@@ -9,4 +9,5 @@ router.get('/last7dayuser', reportControlerr.getuserlast7day)
 router.get('/last30dayuser', reportControlerr.getuserlast30day)
 router.get('/last12hoursbooking', reportControlerr.newhalfBookingReport)
 router.get('/last12hourspackagevisitor', reportControlerr.halfdaypackagevisitor)
+router.get('/ledger/all', reportControlerr.AllLedger)
 export default router;
