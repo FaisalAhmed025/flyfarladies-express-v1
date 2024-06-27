@@ -40,16 +40,35 @@ const  getuserlast1day = async(req,res)=>{
 
    
 
-    const halfdaypackagevisitor = async(req,res)=>{
-      await reportService.halfdaypackagevisit(req,res)
+const halfdaypackagevisitor = async(req,res)=>{
+  await reportService.halfdaypackagevisit(req,res)
+  }
+  
+    const AllLedger = async(req,res)=>{
+  await reportService.AllLedger(req,res)
+  }
+
+
+  const Allholdbooking = async(req,res)=>{
+    await reportService.sendBookingHold(req,res)
+    }
+  
+    const firstinsatllemntCompleted = async(req,res)=>{
+      await reportService.sendfirstinstallemntcompleted(req,res)
       }
+
+      const secondinsatllemntCompleted = async(req,res)=>{
+        await reportService.sendsecondinstallemntcompleted(req,res)
+        }
+
+
+      const paidbookingreport = async(req,res)=>{
+        await reportService.sendBookingPaid(req,res)
+        }
       
-        const AllLedger = async(req,res)=>{
-      await reportService.AllLedger(req,res)
-      }
+    
     
   
-
 
 export const reportControlerr = {
   AllLedger,
@@ -60,5 +79,9 @@ export const reportControlerr = {
   getuserlast7day,
   getuserlast30day,
   newhalfBookingReport,
-  halfdaypackagevisitor
+  halfdaypackagevisitor,
+  Allholdbooking,
+  firstinsatllemntCompleted,
+  secondinsatllemntCompleted,
+  paidbookingreport
 }

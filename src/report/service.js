@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import cron from 'node-cron';
 import xlsx from 'xlsx';
 import moment  from "moment";
+import { watch } from "fs";
 
 const generateExcelReportBuffer = (data) => {
   const worksheet = xlsx.utils.json_to_sheet(data);
@@ -37,7 +38,7 @@ const sendEmailWithAttachment = (subject, body, attachmentBuffer) => {
 
   const mailOptions = {
     from: 'mailserver@flyfarladies.com',
-    to: 'ceo@flyfar.org, coo@flyfar.org, shornali@flyfarladies.com',
+    to: 'faisal@flyfar.tech,',
     subject: subject,
     text: body,
     attachments: [
@@ -67,9 +68,9 @@ const fetchNewUsers = async () => {
 };
 
 
-const fetchAndSendReport = async () => {
+const fetchAndSendReport = async (res) => {
   try {
-    const newUsers = await fetchNewUsers();
+    const newUsers = await getuserforondereport(res);
     const buffer = generateExcelReportBuffer(newUsers);
     sendEmailWithAttachment(
       'Dainly New User Registration Report',
@@ -123,32 +124,26 @@ const getuserforoneday = async (days, res) => {
   }
 };
 
-const getUsersForLastNDays = async (days, res) => {
+
+
+const getuserforondereport = async (days, res) => {
+
   try {
-    // Get the current date
-    const currentDate = new Date();
-    // Calculate the date 'days' ago
-    const pastDate = new Date();
-    pastDate.setDate(currentDate.getDate() - days);
+    const currentDateFormatted = moment().format('dddd, MMMM D, YYYY');
 
-    // Format dates using moment.js to match the required format
-    const currentDateFormatted = moment(currentDate).format('dddd, MMMM D, YYYY');
-    const pastDateFormatted = moment(pastDate).format('dddd, MMMM D, YYYY');
-
-    // SQL query to match the formatted date range
+    // SQL query to match the formatted date part
     const query = `
       SELECT * 
       FROM user
-      WHERE DATE_FORMAT(STR_TO_DATE(joinAt, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') BETWEEN ? AND ?
+      WHERE DATE_FORMAT(STR_TO_DATE(joinAt, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') = ?
     `;
-
     // Execute the query
-    const [users] = await pool.query(query, [pastDateFormatted, currentDateFormatted]);
-
-    return res.json(users);
+    console.log(query)
+    const [users] = await pool.query(query, [currentDateFormatted]);
+    return users
   } catch (error) {
     console.error('Error fetching data:', error);
-    res.status(500).send('Error fetching data');
+    throw error;
   }
 };
 
@@ -221,6 +216,70 @@ const fetchAndSendPackagebookingReport = async ( email) => {
 };
 
 
+const fetchAndSendPackagebookingHoldReport = async (email) => {
+  try {
+    const bookings = await getHoldBookings();
+    const buffer = generateExcelReportBuffer(bookings);
+    sendEmailWithvisitorAttachment(
+      `Hold booking report`,
+      'Please find the attached report of package visitors.',
+      buffer,
+      email
+    );
+  } catch (error) {
+    console.error('Error generating or sending report:', error);
+  }
+};
+
+const fetchAndSendPackagebookingPaidReport = async (email) => {
+  try {
+    const bookings = await getpaidBookings();
+    const buffer = generateExcelReportBuffer(bookings);
+    sendEmailWithvisitorAttachment(
+      `payment confirmed booking`,
+      'Please find the attached report of package visitors.',
+      buffer,
+      email
+    );
+  } catch (error) {
+    console.error('Error generating or sending report:', error);
+  }
+};
+
+
+const fetchAndSendPackagefirstinstallemntReport = async (email) => {
+  try {
+    const bookings = await getfirstinsatllemntcompletedBookings();
+    const buffer = generateExcelReportBuffer(bookings);
+    sendEmailWithvisitorAttachment(
+      `First insatllemnt completed booking report`,
+      'Please find the attached report of package visitors.',
+      buffer,
+      email
+    );
+  } catch (error) {
+    console.error('Error generating or sending report:', error);
+  }
+};
+
+
+const fetchAndSendPackagesecondinstallemntReport = async (email) => {
+  try {
+    const bookings = await getsecondinsatllemntcompletedBookings();
+    const buffer = generateExcelReportBuffer(bookings);
+    sendEmailWithvisitorAttachment(
+      `second insatllemnt completed booking report`,
+      'Please find the attached report of package visitors.',
+      buffer,
+      email
+    );
+  } catch (error) {
+    console.error('Error generating or sending report:', error);
+  }
+};
+
+
+
 const getTodayBookings = (bookings) => {
   const today = moment().startOf('day'); // Get the start of today
   return bookings.filter(booking => {
@@ -282,6 +341,263 @@ const getBookingsByToday = async () => {
   }
 };
 
+
+const getHoldBookings = async () => {
+  try {
+    // Calculate the timestamp 24 hours ago
+    const twentyFourHoursAgo = moment().subtract(24, 'hours').format('dddd, MMMM D, YYYY [at] h:mm:ss A');
+
+    // SQL query to fetch 'hold' bookings within the last 24 hours
+    const query = `
+      SELECT * 
+      FROM booking
+      WHERE bookingStatus = 'hold' 
+      AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
+    `;
+    const [rows] = await pool.query(query, [twentyFourHoursAgo]);
+    console.log(rows)
+    const filteredBookings = rows.map(booking => ({
+      userid: booking.userid,
+      email: booking.email,
+      name: booking.name,
+      bookingStatus:booking.bookingStatus,
+      paymentStatus:booking.paymentStatus,
+      totalAdultprice:booking.totalAdultprice,
+      totalChildprice:booking.totalChildprice,
+      totalInfantprice: booking.totalInfantprice,
+      phone:booking.phone,
+      bookingid:booking.bookingid,
+      totaladult:booking.totaladult,
+      totalinfant:booking.totalinfant,
+      totalchild:booking.totalchild,
+      totalAmount:booking.totalAmount,
+      wallet: booking.wallet,
+      packageID: booking.PkID,
+      MainTitle: booking.MainTitle,
+      StartDate: booking.StartDate,
+      EndDate: booking.EndDate,
+      TripType: booking.TripType,
+      TotalDuration: booking.TotalDuration,
+      booking_money: booking.booking_money,
+      first_installment: booking.first_installment,
+      second_installment: booking.second_installment,
+      booking_money_due_date: booking.booking_money_due_date,
+      first_installment_due_date: booking.first_installment_due_date,
+      second_installment_due_date: booking.second_installment_due_date,
+      bookingDate:booking.bookingDate,
+      cashbackamount: booking.cashbackamount,
+      platform:booking.platform
+
+    }));
+
+    return filteredBookings
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return [];
+  }
+};
+
+const getpaidBookings = async () => {
+  try {
+    // Calculate the timestamp 24 hours ago
+    const twentyFourHoursAgo = moment().subtract(24, 'hours').format('dddd, MMMM D, YYYY [at] h:mm:ss A');
+
+    // SQL query to fetch 'hold' bookings within the last 24 hours
+    const query = `
+      SELECT * 
+      FROM booking
+      WHERE paymentStatus ='paid'
+      AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
+    `;
+    const [rows] = await pool.query(query, [twentyFourHoursAgo]);
+    console.log(rows)
+    const filteredBookings = rows.map(booking => ({
+      userid: booking.userid,
+      email: booking.email,
+      name: booking.name,
+      bookingStatus:booking.bookingStatus,
+      paymentStatus:booking.paymentStatus,
+      totalAdultprice:booking.totalAdultprice,
+      totalChildprice:booking.totalChildprice,
+      totalInfantprice: booking.totalInfantprice,
+      phone:booking.phone,
+      bookingid:booking.bookingid,
+      totaladult:booking.totaladult,
+      totalinfant:booking.totalinfant,
+      totalchild:booking.totalchild,
+      totalAmount:booking.totalAmount,
+      wallet: booking.wallet,
+      packageID: booking.PkID,
+      MainTitle: booking.MainTitle,
+      StartDate: booking.StartDate,
+      EndDate: booking.EndDate,
+      TripType: booking.TripType,
+      TotalDuration: booking.TotalDuration,
+      booking_money: booking.booking_money,
+      first_installment: booking.first_installment,
+      second_installment: booking.second_installment,
+      booking_money_due_date: booking.booking_money_due_date,
+      first_installment_due_date: booking.first_installment_due_date,
+      second_installment_due_date: booking.second_installment_due_date,
+      bookingDate:booking.bookingDate,
+      cashbackamount: booking.cashbackamount,
+      platform:booking.platform
+
+    }));
+
+    return filteredBookings
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return [];
+  }
+};
+
+
+const getfirstinsatllemntcompletedBookings = async () => {
+  try {
+    // Calculate the timestamp 24 hours ago
+    const twentyFourHoursAgo = moment().subtract(24, 'hours').format('dddd, MMMM D, YYYY [at] h:mm:ss A');
+
+    // SQL query to fetch 'hold' bookings within the last 24 hours
+    const query = `
+      SELECT * 
+      FROM booking
+      WHERE firstInstallmentStatus ='completed'
+      AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
+    `;
+    const [rows] = await pool.query(query, [twentyFourHoursAgo]);
+    console.log(rows)
+    const filteredBookings = rows.map(booking => ({
+      userid: booking.userid,
+      email: booking.email,
+      name: booking.name,
+      bookingStatus:booking.bookingStatus,
+      paymentStatus:booking.paymentStatus,
+      totalAdultprice:booking.totalAdultprice,
+      totalChildprice:booking.totalChildprice,
+      totalInfantprice: booking.totalInfantprice,
+      phone:booking.phone,
+      bookingid:booking.bookingid,
+      totaladult:booking.totaladult,
+      totalinfant:booking.totalinfant,
+      totalchild:booking.totalchild,
+      totalAmount:booking.totalAmount,
+      wallet: booking.wallet,
+      packageID: booking.PkID,
+      MainTitle: booking.MainTitle,
+      StartDate: booking.StartDate,
+      EndDate: booking.EndDate,
+      TripType: booking.TripType,
+      TotalDuration: booking.TotalDuration,
+      booking_money: booking.booking_money,
+      first_installment: booking.first_installment,
+      second_installment: booking.second_installment,
+      booking_money_due_date: booking.booking_money_due_date,
+      first_installment_due_date: booking.first_installment_due_date,
+      second_installment_due_date: booking.second_installment_due_date,
+      bookingDate:booking.bookingDate,
+      cashbackamount: booking.cashbackamount,
+      platform:booking.platform
+
+    }));
+
+    return filteredBookings
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return [];
+  }
+};
+
+const getsecondinsatllemntcompletedBookings = async () => {
+  try {
+    // Calculate the timestamp 24 hours ago
+    const twentyFourHoursAgo = moment().subtract(24, 'hours').format('dddd, MMMM D, YYYY [at] h:mm:ss A');
+
+    // SQL query to fetch 'hold' bookings within the last 24 hours
+    const query = `
+      SELECT * 
+      FROM booking
+      WHERE secondInstallmentStatus ='completed'
+      AND STR_TO_DATE(bookingDate, '%W, %M %e, %Y at %r') >= STR_TO_DATE(?, '%W, %M %e, %Y at %r')
+    `;
+    const [rows] = await pool.query(query, [twentyFourHoursAgo]);
+    console.log(rows)
+    const filteredBookings = rows.map(booking => ({
+      userid: booking.userid,
+      email: booking.email,
+      name: booking.name,
+      bookingStatus:booking.bookingStatus,
+      paymentStatus:booking.paymentStatus,
+      totalAdultprice:booking.totalAdultprice,
+      totalChildprice:booking.totalChildprice,
+      totalInfantprice: booking.totalInfantprice,
+      phone:booking.phone,
+      bookingid:booking.bookingid,
+      totaladult:booking.totaladult,
+      totalinfant:booking.totalinfant,
+      totalchild:booking.totalchild,
+      totalAmount:booking.totalAmount,
+      wallet: booking.wallet,
+      packageID: booking.PkID,
+      MainTitle: booking.MainTitle,
+      StartDate: booking.StartDate,
+      EndDate: booking.EndDate,
+      TripType: booking.TripType,
+      TotalDuration: booking.TotalDuration,
+      booking_money: booking.booking_money,
+      first_installment: booking.first_installment,
+      second_installment: booking.second_installment,
+      booking_money_due_date: booking.booking_money_due_date,
+      first_installment_due_date: booking.first_installment_due_date,
+      second_installment_due_date: booking.second_installment_due_date,
+      bookingDate:booking.bookingDate,
+      cashbackamount: booking.cashbackamount,
+      platform:booking.platform
+
+    }));
+
+    return filteredBookings
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    return [];
+  }
+};
+
+
+
+
+
+
+const getUsersForLastNDays = async (days, res) => {
+  try {
+    // Get the current date
+    const currentDate = new Date();
+    // Calculate the date 'days' ago
+    const pastDate = new Date();
+    pastDate.setDate(currentDate.getDate() - days);
+
+    // Format dates using moment.js to match the required format
+    const currentDateFormatted = moment(currentDate).format('dddd, MMMM D, YYYY');
+    const pastDateFormatted = moment(pastDate).format('dddd, MMMM D, YYYY');
+
+    // SQL query to match the formatted date range
+    const query = `
+      SELECT * 
+      FROM user
+      WHERE DATE_FORMAT(STR_TO_DATE(joinAt, '%W, %M %e, %Y at %r'), '%W, %M %e, %Y') BETWEEN ? AND ?
+    `;
+
+    // Execute the query
+    const [users] = await pool.query(query, [pastDateFormatted, currentDateFormatted]);
+
+    return res.json(users);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send('Error fetching data');
+  }
+};
+
+
 //get last one day user
 
 const getuserLast1Day = async (req, res) => {
@@ -289,14 +605,11 @@ await  getuserforoneday(1,res)
   
 }
 
-
-
-
 const getUserLast7Days = async (req, res) => {
   await getUsersForLastNDays(7,res)
 }
 
-const getUserLast30Days = async (req, res) => {
+const getUserLast30Days = async (req,res) => {
   await getUsersForLastNDays(30,res)
 }
 
@@ -320,7 +633,7 @@ const sendEmailWithvisitorAttachment = (subject, body, attachmentBuffer, toEmail
     text: body,
     attachments: [
       {
-        filename: `Package_Vist Report${new Date().toISOString().slice(0, 10)}.xlsx`,
+        filename: `Report${new Date().toISOString().slice(0, 10)}.xlsx`,
         content: attachmentBuffer,
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       },
@@ -350,8 +663,34 @@ const dailynewUser =async(req,res)=>{
 
  const dailynewBooking =async(req,res)=>{
   fetchAndSendPackagebookingReport('orpita@flyfarladies.com,shornali@flyafrladies.com, afridi@flyfar.tech, ceo@flyfar.org,ceo@flyfarint.com, ratul@flyfarint.com');
-  res.status(200).send('Report fetched and sent');
+   res.status(200).send('Report fetched and sent');
  }
+
+
+ const sendBookingHold = async(req,res)=>{
+ await fetchAndSendPackagebookingHoldReport('faisal@flyfar.tech,afridi@flyfar.tech')
+ res.status(200).send('Report fetched and sent');
+ }
+
+ const sendBookingPaid= async(req,res)=>{
+  await fetchAndSendPackagebookingPaidReport('faisal@flyfar.tech,afridi@flyfar.tech')
+  res.status(200).send('Report fetched and sent');
+  }
+
+
+ const sendfirstinstallemntcompleted = async(req,res)=>{
+  await fetchAndSendPackagefirstinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech')
+  res.status(200).send('Report fetched and sent');
+  }
+
+  const sendsecondinstallemntcompleted = async(req,res)=>{
+    await fetchAndSendPackagesecondinstallemntReport('faisal@flyfar.tech,afridi@flyfar.tech')
+    res.status(200).send('Report fetched and sent');
+    }
+   
+ 
+
+
 
  const getBookingsByLast12Hours = async (req,res) => {
   try {
@@ -405,42 +744,10 @@ const dailynewUser =async(req,res)=>{
 };
 
 
-const sendEmailWithhalfday = (subject, body, attachmentBuffer, toEmail) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com', // Replace with your email service provider's SMTP host
-    port: 465, // Replace with your email service provider's SMTP port
-    secure: true, // Use TLS for secure connection
-    auth: {
-      user: 'mailserver@flyfarladies.com', // Replace with your email address
-      pass: 'xnha yytx rnjc cvcl',  // Replace with your email password
-    },
-  });
-
-  const mailOptions = {
-    from: 'mailserver@flyfarladies.com',
-    to: toEmail,
-    subject: subject,
-    text: body,
-    attachments: [
-      {
-        filename: `last_12_hours_Package_Vist Report${new Date().toISOString().slice(0, 10)}.xlsx`,
-        content: attachmentBuffer,
-        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      },
-    ],
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return console.log(error);
-    }
-    console.log('Email sent: ' + info.response);
-  });
-};
 
 
 const halfdaypackagevisit = async(req,res)=>{
-  await fetchAndSendPackageVisitorsReporthalfday('faisal@flyfar.tech');
+  await fetchAndSendPackageVisitorsReporthalfday('faisal@flyfar.tech, afridi@flyfar.tech');
   res.status(200).send('Report fetched and sent');
 }
 
@@ -455,5 +762,10 @@ export const reportService = {
   getUserLast7Days,
   getUserLast30Days,
   getBookingsByLast12Hours,
-  halfdaypackagevisit
+  halfdaypackagevisit,
+  getHoldBookings,
+  sendBookingHold,
+  sendfirstinstallemntcompleted,
+  sendsecondinstallemntcompleted,
+  sendBookingPaid
 };
