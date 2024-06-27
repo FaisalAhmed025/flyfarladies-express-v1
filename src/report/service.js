@@ -38,7 +38,7 @@ const sendEmailWithAttachment = (subject, body, attachmentBuffer) => {
 
   const mailOptions = {
     from: 'mailserver@flyfarladies.com',
-    to: 'faisal@flyfar.tech,',
+    to: 'faisal@flyfar.tech,afridi@flyfar.tech',
     subject: subject,
     text: body,
     attachments: [
@@ -73,7 +73,7 @@ const fetchAndSendReport = async (res) => {
     const newUsers = await getuserforondereport(res);
     const buffer = generateExcelReportBuffer(newUsers);
     sendEmailWithAttachment(
-      'Dainly New User Registration Report',
+      'Daily New User Registration Report',
       'Please find the attached daily report of newly registered users.',
       buffer
     );
