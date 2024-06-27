@@ -17,6 +17,10 @@ const  newBookingReport = async(req,res)=>{
 await reportService.dailynewBooking(req,res)
 }
 
+const  newhalfBookingReport = async(req,res)=>{
+  await reportService.getBookingsByLast12Hours(req,res)
+  }
+
 
 
 const  getuserlast1day = async(req,res)=>{
@@ -33,6 +37,12 @@ const  getuserlast1day = async(req,res)=>{
   const  getuserlast30day = async(req,res)=>{
     await reportService.getUserLast30Days(req,res)
     }
+
+
+    const halfdaypackagevisitor = async(req,res)=>{
+      await reportService.halfdaypackagevisit(req,res)
+      }
+      
     
     
   
@@ -44,5 +54,7 @@ export const reportControlerr = {
   newBookingReport,
   getuserlast1day,
   getuserlast7day,
-  getuserlast30day
+  getuserlast30day,
+  newhalfBookingReport,
+  halfdaypackagevisitor
 }

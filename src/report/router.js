@@ -7,4 +7,6 @@ router.post('/tasks/fetchAndSendPackageVisitorsReport', reportControlerr.newUpac
 router.get('/last1dayuser', reportControlerr.getuserlast1day)
 router.get('/last7dayuser', reportControlerr.getuserlast7day)
 router.get('/last30dayuser', reportControlerr.getuserlast30day)
+router.get('/last12hoursbooking', reportControlerr.newhalfBookingReport)
+router.get('/last12hourspackagevisitor', reportControlerr.halfdaypackagevisitor)
 export default router;
