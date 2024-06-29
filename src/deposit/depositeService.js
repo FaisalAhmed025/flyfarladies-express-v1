@@ -704,6 +704,7 @@ const createBankDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech', // List of BCC receivers
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -1362,6 +1363,7 @@ const ApprovedBankDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -2022,6 +2024,7 @@ const htmltemplate = `<!DOCTYPE html>
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -2719,6 +2722,7 @@ const createCheckDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -2830,8 +2834,8 @@ const ApprovedCheckDeposit = async (req) => {
       approvedAt
     ]);
 
- // Commit the transaction
- await connection.commit();
+   // Commit the transaction
+     await connection.commit();
     
     const transporter = nodemailer.createTransport({
       host: 'b2b.flyfarint.com', // Replace with your email service provider's SMTP host
@@ -3382,6 +3386,7 @@ const ApprovedCheckDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -4049,6 +4054,7 @@ const htmltemplate = `<!DOCTYPE html>
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -4730,6 +4736,7 @@ const createMobilebank = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -5456,6 +5463,7 @@ const createCashDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate
@@ -6124,6 +6132,7 @@ const ApprovedCashDeposit = async (req) => {
     const usermail = {
       from: 'flyfarladies@mailservice.center', // Replace with your email address
       to: user[0].email, // Recipient's email address
+      bcc: 'shornali@flyfarladies.com, ceo@flyfar.org,afridi@flyfar.tech',
       subject: 'Deposit Details',
       text: 'Please find the attached file.',
       html:htmltemplate

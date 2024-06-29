@@ -44,8 +44,44 @@ const getLedgerLast30Days = async (req,res) => {
   await getledgerForLastNDays(30,res)
 }
 
+const getledgerdetails = async (req,res) => {
+  const { user_id, transactionid, referenceid} = req.query;
+
+  if (!user_id && !transactionid && !referenceid) {
+    return res.status(400).json({ error: 'Please provide either user_id or transactionid' });
+  }
+
+  try {
+    let query = '';
+    let params = [];
+
+    if (user_id) {
+      query = `SELECT * FROM ledger WHERE user_id = ?`;
+      params = [user_id];
+    } else if (transactionid) {
+      query = `SELECT * FROM ledger WHERE transactionid = ?`;
+      params = [transactionid];
+    }else if (referenceid) {
+      query = `SELECT * FROM ledger WHERE referenceid = ?`;
+      params = [referenceid];
+    }
+
+    const [rows] = await pool.query(query, params);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No transactions found' });
+    }
+
+    res.json({ transactions: rows });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+  
+}
+
 export const ledgerService  ={
   getLedgerLast1Day,
   getLedgerLast7Days,
-  getLedgerLast30Days
+  getLedgerLast30Days,
+  getledgerdetails
 }

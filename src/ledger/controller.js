@@ -13,10 +13,15 @@ const getLedgerLast30Days =async (req,res)=>{
   await ledgerService.getLedgerLast30Days(req,res)
 }
 
+const getledgerdetails =async (req,res)=>{
+  await ledgerService.getledgerdetails(req,res)
+}
+
 
 export const ledgercontroller ={
   getLedgerLast1Days,
   getLedgerLast7Days,
-  getLedgerLast30Days
+  getLedgerLast30Days,
+  getledgerdetails
 
 }
