@@ -10,7 +10,6 @@ const getledgerForLastNDays = async (days, res) => {
     // Calculate the date 'days' ago
     const pastDate = new Date();
     pastDate.setDate(currentDate.getDate() - days);
-
     // Format dates using moment.js to match the required format
     const currentDateFormatted = moment(currentDate).format('dddd, MMMM D, YYYY [at] h:mm:ss A');
     const pastDateFormatted = moment(pastDate).format('dddd, MMMM D, YYYY [at] h:mm:ss A');
@@ -24,7 +23,6 @@ const getledgerForLastNDays = async (days, res) => {
 
     // Execute the query
     const [users] = await pool.query(query, [pastDateFormatted, currentDateFormatted]);
-
     return res.json(users);
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -36,7 +34,6 @@ const getledgerForLastNDays = async (days, res) => {
 
 const getLedgerLast1Day = async (req, res) => {
 await  getledgerForLastNDays(1,res)
-  
 }
 
 const getLedgerLast7Days = async (req, res) => {

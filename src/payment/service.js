@@ -79,7 +79,7 @@ const paywithwallet = async (req, res) => {
 
     const data = parseInt(totalprice)
     const wallet = parseInt(user[0].wallet)
-    if (user[0].wallet === 0.00) {
+    if (user[0].wallet === 0.00 || null) {
       return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
     }
 
@@ -199,6 +199,10 @@ const paybookingamount = async (req, res) => {
   const userquery = `SELECT * FROM user WHERE id = ?`
 
   const [user] = await pool.query(userquery, [userid]);
+
+  if (user[0].wallet === 0.00 || null || undefined) {
+    return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
+  }
 
   if (!user || user.length === 0) {
     throw new NotFoundException('User not found');
