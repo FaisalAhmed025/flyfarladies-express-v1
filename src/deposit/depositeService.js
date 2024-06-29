@@ -6851,24 +6851,37 @@ const getuserdeposit = async (req, res) => {
 
 const getAlldeposit = async (req, res) => {
   try {
- 
-    const bankDepoQuery = `SELECT * FROM bank_transfer ORDER BY created_at DESC`;
+    // Fetch deposits from different tables
+    const bankDepoQuery = `SELECT *, created_at as date FROM bank_transfer ORDER BY created_at DESC`;
     const [bankDeposit] = await pool.query(bankDepoQuery);
 
-    const cheqDepoQuery = `SELECT * FROM cheque_deposit ORDER BY created_at DESC`;
+    const cheqDepoQuery = `SELECT *, created_at as date FROM cheque_deposit ORDER BY created_at DESC`;
     const [chequeDeposit] = await pool.query(cheqDepoQuery);
 
-    const mobileBankDepoQuery = `SELECT * FROM mobilebank ORDER BY requestDate DESC`;
+    const mobileBankDepoQuery = `SELECT *, requestDate as date FROM mobilebank ORDER BY requestDate DESC`;
     const [mobileDeposit] = await pool.query(mobileBankDepoQuery);
-    const bkashDeposit = `SELECT * FROM bkaspayment ORDER BY paymentExecuteTime DESC`;
+
+    const bkashDeposit = `SELECT *, paymentExecuteTime as date FROM bkaspayment ORDER BY paymentExecuteTime DESC`;
     const [bkashdata] = await pool.query(bkashDeposit);
-    const combinedResult = [...bankDeposit, ...chequeDeposit, ...mobileDeposit, ...bkashdata];
+
+    // Combine all deposits into a single array
+    const combinedResult = [
+      ...bankDeposit.map(deposit => ({ ...deposit, source: 'bank_transfer' })),
+      ...chequeDeposit.map(deposit => ({ ...deposit, source: 'cheque_deposit' })),
+      ...mobileDeposit.map(deposit => ({ ...deposit, source: 'mobilebank' })),
+      ...bkashdata.map(deposit => ({ ...deposit, source: 'bkaspayment' })),
+    ];
+
+    // Sort the combined result by date in descending order
+    combinedResult.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     return res.json({ alldeposit: combinedResult });
   } catch (error) {
     console.error("Error fetching user deposits:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const depositeService = {
   createBankDeposit,

@@ -429,7 +429,6 @@ const paySecondandthirdInstallment = async (req, res) => {
   const userid = req.body.id
   const bookingquery = `SELECT * FROM booking WHERE bookingid = ?`
   const [booking] = await pool.query(bookingquery, [bookingid])
-
   if (!booking || booking.length === 0) {
     throw new NotFoundException('Booking not found');
   }
@@ -456,7 +455,6 @@ const paySecondandthirdInstallment = async (req, res) => {
   if (parseInt(user[0].wallet) < parseInt(totalAmount)) {
     return res.send({ status: "error", message: "Insufficient balance! please deposit to your wallet" });
   }
-
 
   console.log(totalAmount)
   const updatedwalet = parseInt(user[0].wallet) - parseInt(totalAmount)
