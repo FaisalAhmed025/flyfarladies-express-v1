@@ -167,6 +167,12 @@ const paywithwallet = async (req, res) => {
         approvedAtw
       ]);
 
+     return res.status(httpStatus.OK).json({
+        success: true,
+        message:
+          `payment Successful.Congratulations! You have Earned ${ booking[0].cashbackamount} taka as a Cashback!`,
+      });
+
     }
 
   } catch (error) {
@@ -553,7 +559,11 @@ const paySecondandthirdInstallment = async (req, res) => {
     console.log(updateduserwallet)
 
   }
-  return updatebooking;
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      `payment Successful.Congratulations! You have Earned ${ booking[0].cashbackamount} taka as a Cashback!`,
+  });
 
 }
 
@@ -857,7 +867,12 @@ const paythiredInstallment = async (req, res) => {
     console.log(updateduserwallet)
 
   }
-  return updatebooing;
+  
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message:
+      `payment Successful.Congratulations! You have Earned ${ booking[0].cashbackamount} taka as a Cashback!`,
+  });
 
 }
 

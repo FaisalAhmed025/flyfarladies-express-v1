@@ -25,6 +25,7 @@ import popUpRoute from "./popup/route";
 import presscoverageRoute from "./presscoverage/route";
 import tourpackageRoute from "./tourpackage/router";
 import userRouter from "./user/userroute";
+import ledgerRoute from "./ledger/route";
 import reportRoute from "./report/router";
 import { visaRoutes } from "./visa/visaRoute";
 import wishlistRoute from "./wishlist/route";
@@ -103,6 +104,7 @@ app.use("/api/v1/blog", blogRoute);
 app.use("/api/v1/askquestion", askquestionRoute);
 app.use("/api/v1/partner", partnerRoute);
 app.use("/api/v1/report", reportRoute);
+app.use("/api/v1/ledger", ledgerRoute)
 
 app.use("/api/v1/bkash", bkashRoute);
 app.use("/api/v1/ssl", sslpaymentRoute);

@@ -4,13 +4,8 @@ import { payemntService } from "./service"
 
 
 const paywithwallet =  async (req,res)=>{
-  const result = await payemntService.paywithwallet(req,res)
-  res.status(httpStatus.OK).json({
-    success: true,
-    message:
-      'payment Successful',
-    data: result,
-  });
+  await payemntService.paywithwallet(req,res)
+
 }
 
 
@@ -36,12 +31,6 @@ const paySecondInstallment =  async (req,res)=>{
 
 const paythiredInstallment =  async (req,res)=>{
   const result = await payemntService.paythiredInstallment(req,res)
-  res.status(httpStatus.OK).json({
-    success: true,
-    message:
-      'payment Successful',
-    data: result,
-  });
 }
 
 
@@ -57,12 +46,6 @@ const payfirstAndsecondInstallment =  async (req,res)=>{
 
 const paySecondAndthirdInstallment =  async (req,res)=>{
   const result = await payemntService.paySecondandthirdInstallment(req,res)
-  res.status(httpStatus.OK).json({
-    success: true,
-    message:
-      'payment Successful',
-    data: result,
-  });
 
 
 }
@@ -84,8 +67,6 @@ const cancelledlfullamount =  async (req,res)=>{
   await payemntService.cancelledfullamount(req,res)
 
 }
-
-
 
 
 const initpaywithsslbookingAmount=  async (req,res)=>{
