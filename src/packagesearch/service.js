@@ -4,8 +4,9 @@ import pool from "../database/db"
 const getTourPackageByLocation = async(req,res) => {
   try {
     // Execute raw SQL query to fetch tour packages
-    const tourPackages = await db.query('SELECT * FROM tourpackage');
+    const tourPackages = await db.query('SELECT * FROM tourpackage WHERE Showpackage = 1');
     const matchingPackages = [];
+    console.log(tourPackages)
 
     // Loop through fetched tour packages
     for (const tourPackage of tourPackages) {

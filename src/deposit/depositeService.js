@@ -52,7 +52,7 @@ const createBankDeposit = async (req) => {
     }
     // Generate a UUID-like ID for the bank transfer
     const deposit_id = generateDepoId();
-   const date = new Date();
+    const date = new Date();
     // const formattedDate = transactionDate.toDateString();
     const remarks = `Bank Deposit request from ${deposited_from} to ${deposited_to}, On ${formattedDate}.Your TRX ID is ${transaction_id} & amount ${amount} only`;
 
@@ -6858,7 +6858,7 @@ const getAlldeposit = async (req, res) => {
     const cheqDepoQuery = `SELECT *, created_at as date FROM cheque_deposit ORDER BY created_at DESC`;
     const [chequeDeposit] = await pool.query(cheqDepoQuery);
 
-    const mobileBankDepoQuery = `SELECT *, requestDate as date FROM mobilebank ORDER BY requestDate DESC`;
+    const mobileBankDepoQuery = `SELECT *, created_at as date FROM mobilebank ORDER BY created_at DESC`;
     const [mobileDeposit] = await pool.query(mobileBankDepoQuery);
 
     const bkashDeposit = `SELECT *, paymentExecuteTime as date FROM bkaspayment ORDER BY paymentExecuteTime DESC`;
