@@ -2576,40 +2576,6 @@ const createCheckDeposit = async (req) => {
             >
             ${user[0]?.email}
             </td>
-            
-          <tr style="border-bottom: 1px solid #dfdfdf">
-            <td
-              valign="top"
-              style="
-                border-collapse: collapse;
-                border-spacing: 0;
-                color: #767676;
-                font-family: sans-serif;
-                font-size: 14px;
-                font-weight: 500;
-                line-height: 38px;
-                padding: 5px 20px;
-                width: 180px;
-              "
-            >
-              User Email
-            </td>
-            <td
-              valign="top"
-              style="
-                border-collapse: collapse;
-                border-spacing: 0;
-                color: #767676;
-                font-family: sans-serif;
-                font-size: 14px;
-                font-weight: 500;
-                line-height: 38px;
-                padding: 5px 20px;
-              "
-            >
-            ${user[0]?.email}
-            </td>
-          </tr>
               <tr style="border-bottom: 1px solid #dfdfdf">
                 <td
                   valign="top"
