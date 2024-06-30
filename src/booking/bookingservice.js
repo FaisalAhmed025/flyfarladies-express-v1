@@ -388,8 +388,6 @@ const Book$Hold = async (req, res) => {
           CBookingAmount: row.CBookingAmount,
           CFirstInstallmentAmount: row.CFirstInstallmentAmount,
           CSecondInstallmentAmount: row.CSecondInstallmentAmount
-
-
         });
       }
 
@@ -571,7 +569,7 @@ const Book$Hold = async (req, res) => {
           background-color: #ffe3ea;
           color: #bc6277;
           font-weight: 500;
-                    width: 100%;
+          width: 100%;
 
         }
    
@@ -642,6 +640,19 @@ const Book$Hold = async (req, res) => {
           <tr>
             <td class="title">Total Passenger</td>
             <td>${totaladult +totalchild+totalinfant}</td>
+          </tr>
+          <tr>
+            <td class="title">User Contact</td>
+            <td>${user[0]?.phone}</td>
+          </tr>
+             <tr>
+            <td class="title">User Name</td>
+            <td>${user[0]?.name}</td>
+          </tr>
+          </tr>
+             <tr>
+            <td class="title">User Contact</td>
+            <td>${user[0]?.phone}</td>
           </tr>
           
           <tr>
@@ -752,7 +763,6 @@ const Book$Hold = async (req, res) => {
       subject: 'Booking Details',
       text: 'Please find the attached file.',
       html: htmlContent
-
     };
 
     const supportmail = {

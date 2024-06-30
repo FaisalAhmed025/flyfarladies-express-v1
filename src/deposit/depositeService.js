@@ -3,7 +3,7 @@ import pool from "../database/db";
 import { deleteImageFromURL } from "../tourpackage/imageHandler";
 import nodemailer from 'nodemailer'
 import { createHash } from "crypto";
-
+ 
 const generateDepoId = () => {
   // This is just a simple example; you may want to use a more robust method in a production environment
   return "FFLD" + Math.floor(Math.random() * 10000);
@@ -55,8 +55,6 @@ const createBankDeposit = async (req) => {
     const date = new Date();
     // const formattedDate = transactionDate.toDateString();
     const remarks = `Bank Deposit request from ${deposited_from} to ${deposited_to}, On ${formattedDate}.Your TRX ID is ${transaction_id} & amount ${amount} only`;
-
-    console.log(image);
     const value = [
       deposit_id,
       deposited_from,
@@ -256,6 +254,75 @@ const createBankDeposit = async (req) => {
                 ${deposit_id}
                 </td>
               </tr>
+
+              
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Contact
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.phone}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Name
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.name}
+            </td>
+          </tr>
               <tr style="border-bottom: 1px solid #dfdfdf">
                 <td
                   valign="top"
@@ -491,7 +558,6 @@ const createBankDeposit = async (req) => {
             </tr>
 
             </table>
-    
             <table
               border="0"
               cellpadding="0"
@@ -982,6 +1048,74 @@ const ApprovedBankDeposit = async (req) => {
               "
             >
             ${result[0].deposit_id}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Contact
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.phone}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Name
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.name}
             </td>
           </tr>
           <tr style="border-bottom: 1px solid #dfdfdf">
@@ -4321,6 +4455,75 @@ const createMobilebank = async (req) => {
                 ${deposit_id}
                 </td>
               </tr>
+
+              
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Contact
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.phone}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Name
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.name}
+            </td>
+          </tr>
               <tr style="border-bottom: 1px solid #dfdfdf">
                 <td
                   valign="top"
@@ -5013,6 +5216,74 @@ const createCashDeposit = async (req) => {
                 ${deposit_id}
                 </td>
               </tr>
+              
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Contact
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.phone}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Name
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.name}
+            </td>
+          </tr>
               <tr style="border-bottom: 1px solid #dfdfdf">
                 <td
                   valign="top"
@@ -5750,6 +6021,75 @@ const ApprovedCashDeposit = async (req) => {
                 ${result[0].deposit_id}
                 </td>
               </tr>
+
+              
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Contact
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.phone}
+            </td>
+          </tr>
+
+          <tr style="border-bottom: 1px solid #dfdfdf">
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+                width: 180px;
+              "
+            >
+              User Name
+            </td>
+            <td
+              valign="top"
+              style="
+                border-collapse: collapse;
+                border-spacing: 0;
+                color: #767676;
+                font-family: sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 38px;
+                padding: 5px 20px;
+              "
+            >
+            ${user[0]?.name}
+            </td>
+          </tr>
               <tr style="border-bottom: 1px solid #dfdfdf">
                 <td
                   valign="top"
