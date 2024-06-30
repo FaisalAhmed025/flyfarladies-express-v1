@@ -260,10 +260,10 @@ const getcityAndCountry = async (req, res) => {
 const getTourPackagesByDifferentField = async (req, res) => {
   try {
     const { TripType, City, StartDate, Country } = req.query;
-    
+
     // Base query
     let packagequery = `
-      SELECT * 
+      SELECT DISTINCT tp.*
       FROM tourpackage tp
       INNER JOIN bookingslot bs ON tp.PKID = bs.tour_package_id
       WHERE tp.isActive = 1
@@ -297,11 +297,14 @@ const getTourPackagesByDifferentField = async (req, res) => {
       queryParams.push(startOfMonth, endOfMonth);
     }
 
-    // Order by start date
-    packagequery += ' ORDER BY bs.StartDate ASC';
+    // Create a subquery for sorting
+    const sortedQuery = `
+      SELECT * FROM (${packagequery}) AS sorted_packages
+      ORDER BY sorted_packages.PKID ASC
+    `;
 
     // Execute the query
-    const [data] = await pool.query(packagequery, queryParams);
+    const [data] = await pool.query(sortedQuery, queryParams);
     if (data.length === 0) {
       return res.send({ message: "Package not found" });
     }
