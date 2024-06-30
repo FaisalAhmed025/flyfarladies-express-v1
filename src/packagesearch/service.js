@@ -231,6 +231,7 @@ const getcityAndCountry = async (req, res) => {
     WHERE bs.StartDate >= ? 
     AND bs.EndDate <= ? 
     AND tp.isActive=1
+    AND tp.Showpackage =1
   `;
   
   // If TripType is not "any", add the TripType filter
