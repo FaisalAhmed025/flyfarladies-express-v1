@@ -41,6 +41,15 @@ const createBankDeposit = async (req) => {
       return res.send({message: "please update your phone number" });
     }
 
+    const userData = user[0];
+    const fieldsToCheck = ['phone', 'gender', 'profession', 'nationality', 'nid', 'dob'];
+    const emptyFields = fieldsToCheck.filter(field => userData[field] === null || userData[field] === '');
+
+    if (emptyFields.length > 0) {
+      return res.send({ message: `Please update the following fields: ${emptyFields.join(', ')}` });
+    }
+
+
     const image = req.publicImageLink;
     const tableName = "bank_transfer";
     const status = "pending";
@@ -2277,6 +2286,15 @@ const createCheckDeposit = async (req) => {
       throw new Error("User not found");
     }
 
+    const userData = user[0];
+    const fieldsToCheck = ['phone', 'gender', 'profession', 'nationality', 'nid', 'dob'];
+    const emptyFields = fieldsToCheck.filter(field => userData[field] === null || userData[field] === '');
+
+    if (emptyFields.length > 0) {
+      return res.send({ message: `Please update the following fields: ${emptyFields.join(', ')}` });
+    }
+
+
     console.log(tableName);
     if (amount < 0) {
       throw new Error(
@@ -4505,6 +4523,15 @@ const createMobilebank = async (req) => {
     if (user.length === 0) {
       throw new Error("User not found");
     }
+
+    const userData = user[0];
+    const fieldsToCheck = ['phone', 'gender', 'profession', 'nationality', 'nid', 'dob'];
+    const emptyFields = fieldsToCheck.filter(field => userData[field] === null || userData[field] === '');
+
+    if (emptyFields.length > 0) {
+      return res.send({ message: `Please update the following fields: ${emptyFields.join(', ')}` });
+    }
+
     const attachment = req.publicImageLink;
     const tableName = "mobilebank";
 

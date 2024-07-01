@@ -91,6 +91,19 @@ const Book$Hold = async (req, res) => {
 
     const userQuery = `SELECT * FROM user WHERE id = ?`;
     const [user] = await pool.query(userQuery, [userid]);
+    if (!user || user.length === 0) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const userData = user[0];
+    const fieldsToCheck = ['phone', 'gender', 'profession', 'nationality', 'nid', 'dob'];
+    const emptyFields = fieldsToCheck.filter(field => userData[field] === null || userData[field] === '');
+
+    if (emptyFields.length > 0) {
+      return res.send({ message: `Please update the following fields: ${emptyFields.join(', ')}` });
+    }
+
+    console.log(user[0]?.phone && user[0]?.gender && user[0]?.profession && user[0]?.nationality && user[0]?.nid &&  user[0]?.dob)
     if (user.length === 0) {
       throw new HttpException(
         `User not found with this id=${userid}`,
@@ -108,9 +121,7 @@ const Book$Hold = async (req, res) => {
       );
     }
 
-    if(user[0]?.phone ===''){
-      return res.send({message: "please update your phone number" });
-    }
+
 
     const { adult, child, infant } = req.body;
 
